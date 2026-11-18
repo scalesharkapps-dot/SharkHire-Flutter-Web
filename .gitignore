@@ -1,0 +1,32 @@
+# ── Private / internal material: never in the public repository ──────────
+# Client project guide (agreement and payment terms) and internal backend plan
+docs/SharkHire_Developer_Project_Guide.docx
+docs/SharkHire_Developer_Project_Guide_text.txt
+docs/backend_roadmap_reference.md
+# Third-party screenshots used only as design inspiration (copyrighted)
+design_references/
+# Internal working notes
+SHARKHIRE_PROJECT_MEMORY.md
+SESSION_HANDOFF.md
+# Local tool settings
+.claude/
+
+# ── Secrets: never committed ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+key.properties
+**/config/*.json
+!**/config/*.example.json
+
+# ── OS / editor ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.iml

@@ -1,0 +1,11 @@
+# App icons generated from the official Scale Shark logo.
+# Regenerate after changing the logo:  dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/images/brand/scale_shark_logo.jpg"
+  android: "ic_launcher"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/brand/scale_shark_logo.jpg"
+  adaptive_icon_foreground_inset: 16
+  ios: true
+  remove_alpha_ios: true

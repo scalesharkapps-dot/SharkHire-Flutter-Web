@@ -1,0 +1,8 @@
+# Copy this file to android/key.properties (git-ignored) and fill in your values.
+# Never commit key.properties or the .jks file. Keep a backup of both somewhere safe:
+# if the upload key is lost you must ask Google Play support to reset it.
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+# Absolute path, forward slashes, e.g. C:/Users/you/keys/sharkhire-upload.jks
+storeFile=C:/path/to/sharkhire-upload.jks

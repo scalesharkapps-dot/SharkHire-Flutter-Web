@@ -1,0 +1,306 @@
+<title>SharkHire Frontend Showcase</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700&family=Hind:wght@400;500;600&display=swap">
+<style>
+/* Layout: navy brand band with phone fan, then a calm canvas — figures, roles, a phone-grid gallery per area, progress table, audit, remaining work. */
+:root {
+  --bg: #F4F7FA; --surface: #FFFFFF; --ink: #0E2134; --ink-2: #445A6F; --ink-3: #5E7082;
+  --line: #DCE4EC; --accent: #066CBE; --accent-soft: #E6F1FA; --cyan: #10AFEE;
+  --band: #0E2134; --band-ink: #FFFFFF; --band-ink-2: #B7C6D6;
+  --ok: #12814A; --ok-soft: #E3F4EA; --warn: #8A5800; --warn-soft: #FCF0DA; --todo: #4E6175; --todo-soft: #E9EEF3;
+  --shadow: 0 1px 2px rgba(14,33,52,.06), 0 8px 24px rgba(14,33,52,.08);
+  --f-display: "Archivo Black", "Arial Black", Impact, sans-serif;
+  --f-head: "Archivo", "Segoe UI", Roboto, Arial, sans-serif;
+  --f-body: "Hind", "Segoe UI", Roboto, Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0A1622; --surface: #102234; --ink: #E7EFF6; --ink-2: #AFC0D0; --ink-3: #8EA3B7;
+  --line: #20384F; --accent: #5BB8F5; --accent-soft: #12314B; --cyan: #4CC8F5;
+  --band: #07111B; --band-ink: #FFFFFF; --band-ink-2: #A9BACB;
+  --ok: #5ACB8B; --ok-soft: #12352A; --warn: #F1B957; --warn-soft: #3A2C12; --todo: #A7B6C5; --todo-soft: #1D2E40;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0A1622; --surface: #102234; --ink: #E7EFF6; --ink-2: #AFC0D0; --ink-3: #8EA3B7;
+  --line: #20384F; --accent: #5BB8F5; --accent-soft: #12314B; --cyan: #4CC8F5;
+  --band: #07111B; --band-ink: #FFFFFF; --band-ink-2: #A9BACB;
+  --ok: #5ACB8B; --ok-soft: #12352A; --warn: #F1B957; --warn-soft: #3A2C12; --todo: #A7B6C5; --todo-soft: #1D2E40;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body { background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--f-body); }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-head); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem); letter-spacing: -.01em; }
+h3 { font-size: 1.3rem; }
+p { margin: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; border-radius: 6px; }
+.eyebrow { font: 600 .78rem/1 var(--f-head); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+.lede { color: var(--ink-2); max-width: 62ch; }
+
+/* Hero band */
+.band { background: var(--band); color: var(--band-ink); overflow: hidden; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: center; padding-block: 48px 0; }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 36px; }
+.brand img { width: 40px; height: 40px; border-radius: 10px; background: #fff; }
+.brand b { font: 400 1.25rem/1 var(--f-display); letter-spacing: .01em; }
+.brand small { display: block; font: 500 .78rem/1.3 var(--f-head); color: var(--band-ink-2); letter-spacing: .02em; }
+.hero h1 { font: 400 clamp(2.2rem, 1.4rem + 3.2vw, 3.9rem)/1.02 var(--f-display); margin: 14px 0 18px; letter-spacing: -.01em; }
+.hero h1 em { font-style: normal; color: var(--cyan); }
+.hero .lede { color: var(--band-ink-2); font-size: 1.1rem; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 48px; padding: 0; list-style: none; }
+.tags li { font: 600 .82rem/1 var(--f-head); padding: 9px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.18); color: var(--band-ink); }
+.phones { position: relative; height: 470px; align-self: end; }
+.hero-phone { position: absolute; bottom: -70px; width: 210px; height: auto; border-radius: 30px; border: 6px solid #1B3149; background: #1B3149; box-shadow: 0 30px 60px rgba(0,0,0,.45); }
+.hero-phone.p0 { left: 2%; transform: rotate(-7deg); bottom: -90px; }
+.hero-phone.p1 { left: 50%; margin-left: -105px; z-index: 2; bottom: -40px; }
+.hero-phone.p2 { right: 2%; transform: rotate(7deg); bottom: -90px; }
+
+/* Figures */
+.figures { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; margin-top: -1px; }
+.figures div { background: var(--surface); padding: 22px 22px 20px; }
+.figures b { display: block; font: 400 2.2rem/1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.figures span { display: block; margin-top: 8px; color: var(--ink-2); font-size: .95rem; line-height: 1.35; }
+main section.block { padding-block: 64px 0; }
+.block > header { display: grid; gap: 10px; margin-bottom: 28px; }
+.note { margin-top: 20px; display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 14px; background: var(--accent-soft); color: var(--ink); font-size: .98rem; }
+.note svg { flex: none; margin-top: 3px; }
+
+/* Roles */
+.roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.role { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; min-width: 0; }
+.role h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.role h3 small { font: 500 .85rem var(--f-body); color: var(--ink-3); }
+.role ul { margin: 14px 0 0; padding-left: 1.1em; color: var(--ink-2); }
+.role li + li { margin-top: 4px; }
+
+/* Gallery */
+.catnav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px; border-bottom: 1px solid var(--line); }
+.catnav .row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 .9rem var(--f-head); text-decoration: none; }
+.chip span { color: var(--ink-3); font-weight: 500; font-variant-numeric: tabular-nums; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.cat { padding-top: 44px; scroll-margin-top: 70px; }
+.cat-head { display: grid; gap: 4px; margin-bottom: 20px; }
+.cat-head p { color: var(--ink-2); }
+.count { color: var(--ink-3); font-size: .92rem; margin-left: 6px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px 20px; }
+.shot { margin: 0; min-width: 0; display: grid; gap: 12px; align-content: start; }
+.frame { display: block; width: 100%; padding: 0; border: 1px solid var(--line); border-radius: 22px; background: var(--surface); overflow: hidden; cursor: zoom-in; box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease; }
+.frame:hover { transform: translateY(-3px); }
+.frame img { display: block; width: 100%; height: auto; aspect-ratio: 390 / 844; }
+.shot figcaption { display: grid; gap: 3px; }
+.shot strong { font: 600 1rem/1.3 var(--f-head); }
+.shot figcaption span { color: var(--ink-2); font-size: .92rem; line-height: 1.45; }
+
+/* Progress */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 .78rem var(--f-head); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font: 600 1rem/1.4 var(--f-head); }
+td:last-child { color: var(--ink-2); }
+.pill { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font: 600 .82rem/1 var(--f-head); padding: 7px 11px; border-radius: 999px; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.done { color: var(--ok); background: var(--ok-soft); }
+.pill.partial { color: var(--warn); background: var(--warn-soft); }
+.pill.pending { color: var(--todo); background: var(--todo-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; color: var(--ink-2); font-size: .95rem; }
+
+/* Audit */
+.audit { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px; min-width: 0; }
+.panel h3 { margin-bottom: 12px; }
+.panel ul { margin: 0; padding-left: 1.1em; color: var(--ink-2); }
+.panel li + li { margin-top: 6px; }
+.checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.check { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; }
+.check b { display: block; font: 600 .78rem var(--f-head); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.check span { display: block; margin-top: 6px; font: 600 1.1rem/1.3 var(--f-head); }
+.check code { font-size: .85rem; }
+
+/* Remaining */
+.todo { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.todo li { display: grid; gap: 4px; padding: 18px 20px; border-radius: 14px; border: 1px dashed var(--line); background: var(--surface); }
+.todo strong { font: 600 1.02rem var(--f-head); }
+.todo span { color: var(--ink-2); font-size: .95rem; }
+
+footer.foot { margin-top: 72px; padding-block: 28px 40px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: .9rem; }
+footer.foot .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+/* Lightbox */
+dialog { border: 0; padding: 0; background: transparent; max-width: 100vw; max-height: 100vh; }
+dialog::backdrop { background: rgba(5,12,20,.86); }
+.lb { display: grid; justify-items: center; gap: 12px; padding: 16px; }
+.lb img { max-height: calc(100vh - 120px); width: auto; max-width: calc(100vw - 32px); border-radius: 26px; border: 6px solid #1B3149; background: #1B3149; }
+.lb-bar { display: flex; align-items: center; gap: 10px; color: #fff; font: 600 .95rem var(--f-head); }
+.lb-bar button { min-width: 44px; min-height: 44px; border-radius: 999px; border: 1px solid rgba(255,255,255,.3); background: transparent; color: #fff; font: 600 1rem var(--f-head); cursor: pointer; }
+.lb-bar button:hover { background: rgba(255,255,255,.12); }
+.lb-title { min-width: 0; text-align: center; padding: 0 6px; }
+
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .phones { height: 380px; }
+  .hero-phone { width: 170px; }
+  .hero-phone.p1 { margin-left: -85px; }
+  .figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roles, .audit, .checks, .todo { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .phones { height: 300px; }
+  .hero-phone { width: 128px; border-width: 4px; border-radius: 20px; }
+  .hero-phone.p1 { margin-left: -64px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
+  .figures b { font-size: 1.8rem; }
+}
+</style>
+
+<div class="band">
+  <div class="wrap hero">
+    <div>
+      <div class="brand"><img src="assets/scale_shark_mark.png" alt="" width="40" height="40"><div><b>SharkHire</b><small>by SCALE SHARK (PRIVATE) LIMITED</small></div></div>
+      <p class="eyebrow">Frontend showcase · 14 November 2026</p>
+      <h1>The SharkHire app, <em>screen by screen.</em></h1>
+      <p class="lede">SharkHire matches job seekers in Pakistan and abroad to jobs from their CV. This page shows the Flutter mobile frontend as it stands today: every implemented screen, what is finished, what still runs on sample data, and what is left.</p>
+      <ul class="tags"><li>Flutter 3.50</li><li>Android and iOS</li><li>Riverpod</li><li>GoRouter</li><li>3 roles in one app</li></ul>
+    </div>
+    <div class="phones" aria-hidden="false"><img class="hero-phone p0" src="screenshots/02_job_seeker/01_home.png" alt="Job seeker home" width="390" height="844"><img class="hero-phone p1" src="screenshots/03_job_search/03_job_details_internal.png" alt="Job details with match reasons" width="390" height="844"><img class="hero-phone p2" src="screenshots/07_employer/01_overview.png" alt="Employer overview" width="390" height="844"></div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="figures" role="list">
+      <div role="listitem"><b>60</b><span>real screenshots across 8 areas</span></div>
+      <div role="listitem"><b>3</b><span>roles: job seeker, employer, admin</span></div>
+      <div role="listitem"><b>145</b><span>automated tests, all passing</span></div>
+      <div role="listitem"><b>0</b><span>issues from <code>flutter analyze</code></span></div>
+    </div>
+    <p class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <span>Every screenshot is a real render of the app's own code, captured by a script in the project on a 390 × 844 pt phone screen with the app's fonts, logo and built-in sample data. They are not design mock-ups, and not photos from a physical phone: no device build has been made yet.</span></p>
+
+    <section class="block" id="built">
+      <header><p class="eyebrow">What's built</p><h2>One app, three experiences</h2>
+        <p class="lede">After sign-in, each role lands in its own app with its own tabs. Everything below works end to end on sample data.</p></header>
+      <div class="roles">
+        <article class="role"><h3>Job seeker <small>39 screens, incl. sign-in</small></h3><ul>
+          <li>Sign up, email check and job preferences</li>
+          <li>Upload a CV, watch it process, correct what was read</li>
+          <li>Matched jobs with a score and plain reasons</li>
+          <li>Search with filters; save jobs</li>
+          <li>Apply in-app or on the employer's site</li>
+          <li>Track every application through 7 statuses</li>
+          <li>Notifications, job alerts, settings, Premium</li></ul></article>
+        <article class="role"><h3>Employer <small>7 screens</small></h3><ul>
+          <li>Overview of jobs and applicants</li>
+          <li>Post a job; it waits for admin approval</li>
+          <li>Fix and resubmit a rejected job</li>
+          <li>Review applicants and change their status</li>
+          <li>See a candidate's CV only after they apply</li>
+          <li>Company profile with verified badge</li></ul></article>
+        <article class="role"><h3>Admin <small>14 screens</small></h3><ul>
+          <li>Approve or reject jobs (reason required)</li>
+          <li>Users and employer verification</li>
+          <li>External listings and CV processing reports</li>
+          <li>Categories, skills and announcements</li>
+          <li>JSearch API usage against the monthly limit</li>
+          <li>Analytics, audit logs, platform settings</li></ul></article>
+      </div>
+    </section>
+  </div>
+
+  <section class="block" id="gallery">
+    <div class="wrap"><header><p class="eyebrow">Gallery</p><h2>Every implemented screen</h2>
+      <p class="lede">Select any screen to see it larger. Use the arrow keys to move between screens.</p></header></div>
+    <nav class="catnav" aria-label="Gallery areas"><div class="wrap row"><a class="chip" href="#01_authentication">Authentication <span>7</span></a><a class="chip" href="#02_job_seeker">Job Seeker <span>11</span></a><a class="chip" href="#03_job_search">Job Search <span>6</span></a><a class="chip" href="#04_recommendations">Job Recommendations <span>4</span></a><a class="chip" href="#05_cv_management">CV Management <span>6</span></a><a class="chip" href="#06_applications">Applications <span>5</span></a><a class="chip" href="#07_employer">Employer <span>7</span></a><a class="chip" href="#08_admin">Admin <span>14</span></a></div></nav>
+    <div class="wrap"><section class="cat" id="01_authentication"><header class="cat-head"><h3>Authentication</h3><p>Sign up, sign in and first-time setup. <span class="count">7 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="0" aria-label="Enlarge Splash"><img src="screenshots/01_authentication/01_splash.png" alt="Authentication: Splash" loading="lazy" width="390" height="844"></button><figcaption><strong>Splash</strong><span>Animated Scale Shark logo while the app starts and restores the session.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="1" aria-label="Enlarge Welcome"><img src="screenshots/01_authentication/02_welcome.png" alt="Authentication: Welcome" loading="lazy" width="390" height="844"></button><figcaption><strong>Welcome</strong><span>First screen for new users: three reasons to use SharkHire, Create account, Log in, and a link for employers.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="2" aria-label="Enlarge Log in"><img src="screenshots/01_authentication/03_login.png" alt="Authentication: Log in" loading="lazy" width="390" height="844"></button><figcaption><strong>Log in</strong><span>Email and password with validation and Forgot password. Continue with Google shows a note until the account service is connected. Demo accounts appear in preview builds only.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="3" aria-label="Enlarge Register"><img src="screenshots/01_authentication/04_register.png" alt="Authentication: Register" loading="lazy" width="390" height="844"></button><figcaption><strong>Register</strong><span>Create an account as a Job seeker or an Employer, with a password-strength hint and the terms notice.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="4" aria-label="Enlarge Forgot password"><img src="screenshots/01_authentication/05_forgot_password.png" alt="Authentication: Forgot password" loading="lazy" width="390" height="844"></button><figcaption><strong>Forgot password</strong><span>Request a password-reset link by email.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="5" aria-label="Enlarge Verify email"><img src="screenshots/01_authentication/06_verify_email.png" alt="Authentication: Verify email" loading="lazy" width="390" height="844"></button><figcaption><strong>Verify email</strong><span>Shown after sign-up until the email is confirmed, with Resend email and Use a different email.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="6" aria-label="Enlarge Job preferences"><img src="screenshots/01_authentication/07_job_preferences.png" alt="Authentication: Job preferences" loading="lazy" width="390" height="844"></button><figcaption><strong>Job preferences</strong><span>One-time onboarding (step 1 of 2): preferred location, job categories and employment type.</span></figcaption></figure></div></section><section class="cat" id="02_job_seeker"><header class="cat-head"><h3>Job Seeker</h3><p>Home, profile and account screens for job seekers. <span class="count">11 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="7" aria-label="Enlarge Home"><img src="screenshots/02_job_seeker/01_home.png" alt="Job Seeker: Home" loading="lazy" width="390" height="844"></button><figcaption><strong>Home</strong><span>Greeting, search, match/saved/applied counts, a prompt to upload a CV, and recommended jobs.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="8" aria-label="Enlarge Profile"><img src="screenshots/02_job_seeker/02_profile.png" alt="Job Seeker: Profile" loading="lazy" width="390" height="844"></button><figcaption><strong>Profile</strong><span>Profile strength, the active CV with Review and Replace, and the Premium offer.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="9" aria-label="Enlarge Profile menu"><img src="screenshots/02_job_seeker/03_profile_menu.png" alt="Job Seeker: Profile menu" loading="lazy" width="390" height="844"></button><figcaption><strong>Profile menu</strong><span>Job activity (CV, applications, saved jobs, alerts, preferences) and account links.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="10" aria-label="Enlarge Notifications"><img src="screenshots/02_job_seeker/04_notifications.png" alt="Job Seeker: Notifications" loading="lazy" width="390" height="844"></button><figcaption><strong>Notifications</strong><span>New matches, application updates and reminders; swipe to dismiss with Undo.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="11" aria-label="Enlarge Job alerts"><img src="screenshots/02_job_seeker/05_job_alerts.png" alt="Job Seeker: Job alerts" loading="lazy" width="390" height="844"></button><figcaption><strong>Job alerts</strong><span>Saved searches with region and frequency; SharkHire checks for new jobs and notifies the user.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="12" aria-label="Enlarge Subscription"><img src="screenshots/02_job_seeker/06_subscription.png" alt="Job Seeker: Subscription" loading="lazy" width="390" height="844"></button><figcaption><strong>Subscription</strong><span>Premium plan: 3-day free trial, then $10/month, local price note, benefits, Restore purchases and terms.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="13" aria-label="Enlarge Settings"><img src="screenshots/02_job_seeker/07_settings.png" alt="Job Seeker: Settings" loading="lazy" width="390" height="844"></button><figcaption><strong>Settings</strong><span>Push-notification switches, weekly email digest, edit profile, change password and log out.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="14" aria-label="Enlarge Privacy and security"><img src="screenshots/02_job_seeker/08_privacy_security.png" alt="Job Seeker: Privacy and security" loading="lazy" width="390" height="844"></button><figcaption><strong>Privacy and security</strong><span>How the CV is kept private, consent for AI-assisted CV reading, request a copy of data, delete account.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="15" aria-label="Enlarge Help and support"><img src="screenshots/02_job_seeker/09_help_support.png" alt="Job Seeker: Help and support" loading="lazy" width="390" height="844"></button><figcaption><strong>Help and support</strong><span>Common questions and how to email the SharkHire team.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="16" aria-label="Enlarge Edit profile"><img src="screenshots/02_job_seeker/10_edit_profile.png" alt="Job Seeker: Edit profile" loading="lazy" width="390" height="844"></button><figcaption><strong>Edit profile</strong><span>Change name, headline, location and phone.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="17" aria-label="Enlarge Edit job preferences"><img src="screenshots/02_job_seeker/11_edit_job_preferences.png" alt="Job Seeker: Edit job preferences" loading="lazy" width="390" height="844"></button><figcaption><strong>Edit job preferences</strong><span>Update location, categories, employment type and work mode at any time.</span></figcaption></figure></div></section><section class="cat" id="03_job_search"><header class="cat-head"><h3>Job Search</h3><p>Finding Pakistan and international jobs. <span class="count">6 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="18" aria-label="Enlarge Explore"><img src="screenshots/03_job_search/01_explore.png" alt="Job Search: Explore" loading="lazy" width="390" height="844"></button><figcaption><strong>Explore</strong><span>Keyword search, quick filters, sort and result count across internal and external jobs.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="19" aria-label="Enlarge Filter sheet"><img src="screenshots/03_job_search/02_filters.png" alt="Job Search: Filter sheet" loading="lazy" width="390" height="844"></button><figcaption><strong>Filter sheet</strong><span>Bottom sheet with sort, region, employment type, work mode and how to apply.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="20" aria-label="Enlarge Job details (in-app)"><img src="screenshots/03_job_search/03_job_details_internal.png" alt="Job Search: Job details (in-app)" loading="lazy" width="390" height="844"></button><figcaption><strong>Job details (in-app)</strong><span>An employer job posted on SharkHire: verified badge, match score with reasons, Apply now.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="21" aria-label="Enlarge Job information"><img src="screenshots/03_job_search/04_job_details_info.png" alt="Job Search: Job information" loading="lazy" width="390" height="844"></button><figcaption><strong>Job information</strong><span>Salary, posted date, required skills (skills on the user&#x27;s CV shown in green) and the role description.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="22" aria-label="Enlarge Job details (external)"><img src="screenshots/03_job_search/05_job_details_external.png" alt="Job Search: Job details (external)" loading="lazy" width="390" height="844"></button><figcaption><strong>Job details (external)</strong><span>A job from an external source: source badge, a note that only the click is recorded, and Apply on employer site.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="23" aria-label="Enlarge Saved jobs"><img src="screenshots/03_job_search/06_saved_jobs.png" alt="Job Search: Saved jobs" loading="lazy" width="390" height="844"></button><figcaption><strong>Saved jobs</strong><span>Bookmarked jobs, most recently saved first.</span></figcaption></figure></div></section><section class="cat" id="04_recommendations"><header class="cat-head"><h3>Job Recommendations</h3><p>AI matching results after the CV is processed. <span class="count">4 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="24" aria-label="Enlarge Home with CV"><img src="screenshots/04_recommendations/01_home_with_cv.png" alt="Job Recommendations: Home with CV" loading="lazy" width="390" height="844"></button><figcaption><strong>Home with CV</strong><span>With a processed CV, Home leads with today&#x27;s strong matches.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="25" aria-label="Enlarge Recommended jobs"><img src="screenshots/04_recommendations/02_recommended_jobs.png" alt="Job Recommendations: Recommended jobs" loading="lazy" width="390" height="844"></button><figcaption><strong>Recommended jobs</strong><span>Job cards with match percentage, source and posted time.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="26" aria-label="Enlarge Categories and recent jobs"><img src="screenshots/04_recommendations/03_categories_and_recent.png" alt="Job Recommendations: Categories and recent jobs" loading="lazy" width="390" height="844"></button><figcaption><strong>Categories and recent jobs</strong><span>Browse by category, an active job alert, and recently posted jobs.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="27" aria-label="Enlarge Match explanation"><img src="screenshots/04_recommendations/04_match_explanation.png" alt="Job Recommendations: Match explanation" loading="lazy" width="390" height="844"></button><figcaption><strong>Match explanation</strong><span>Why a remote AI job matches: score ring, match level and plain-language reasons.</span></figcaption></figure></div></section><section class="cat" id="05_cv_management"><header class="cat-head"><h3>CV Management</h3><p>Upload a CV and check what was read from it. <span class="count">6 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="28" aria-label="Enlarge Upload CV"><img src="screenshots/05_cv_management/01_upload_cv.png" alt="CV Management: Upload CV" loading="lazy" width="390" height="844"></button><figcaption><strong>Upload CV</strong><span>Pick a PDF or DOCX (max 5 MB) with a clear privacy note.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="29" aria-label="Enlarge File selected"><img src="screenshots/05_cv_management/02_file_selected.png" alt="CV Management: File selected" loading="lazy" width="390" height="844"></button><figcaption><strong>File selected</strong><span>Chosen file with name and size, ready to upload and analyse.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="30" aria-label="Enlarge Processing"><img src="screenshots/05_cv_management/03_processing.png" alt="CV Management: Processing" loading="lazy" width="390" height="844"></button><figcaption><strong>Processing</strong><span>Four visible steps: check the file, read the CV, build the candidate profile, find matching jobs.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="31" aria-label="Enlarge Review profile"><img src="screenshots/05_cv_management/04_review_profile.png" alt="CV Management: Review profile" loading="lazy" width="390" height="844"></button><figcaption><strong>Review profile</strong><span>Extracted name, location, experience and skills; remove or add skills before matching.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="32" aria-label="Enlarge Review experience"><img src="screenshots/05_cv_management/05_review_experience.png" alt="CV Management: Review experience" loading="lazy" width="390" height="844"></button><figcaption><strong>Review experience</strong><span>Edit extracted experience, education, and certifications and projects.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="33" aria-label="Enlarge Invalid file rejected"><img src="screenshots/05_cv_management/06_invalid_file_rejected.png" alt="CV Management: Invalid file rejected" loading="lazy" width="390" height="844"></button><figcaption><strong>Invalid file rejected</strong><span>A non-CV file type is refused with a clear message.</span></figcaption></figure></div></section><section class="cat" id="06_applications"><header class="cat-head"><h3>Applications</h3><p>Applying in-app and tracking every application. <span class="count">5 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="34" aria-label="Enlarge Apply form"><img src="screenshots/06_applications/01_apply_form.png" alt="Applications: Apply form" loading="lazy" width="390" height="844"></button><figcaption><strong>Apply form</strong><span>The active CV to send, an optional cover letter with character count, and a privacy note.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="35" aria-label="Enlarge Application sent"><img src="screenshots/06_applications/02_application_sent.png" alt="Applications: Application sent" loading="lazy" width="390" height="844"></button><figcaption><strong>Application sent</strong><span>Confirmation, an offer to get alerts for similar jobs, and Track application.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="36" aria-label="Enlarge My applications"><img src="screenshots/06_applications/03_my_applications.png" alt="Applications: My applications" loading="lazy" width="390" height="844"></button><figcaption><strong>My applications</strong><span>All, Active and Closed tabs with status chips and employer notes.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="37" aria-label="Enlarge Application timeline"><img src="screenshots/06_applications/04_application_timeline.png" alt="Applications: Application timeline" loading="lazy" width="390" height="844"></button><figcaption><strong>Application timeline</strong><span>Progress stepper and dated history, including employer notes such as interview times.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="38" aria-label="Enlarge Withdraw"><img src="screenshots/06_applications/05_withdraw_option.png" alt="Applications: Withdraw" loading="lazy" width="390" height="844"></button><figcaption><strong>Withdraw</strong><span>Active applications can be withdrawn from the details screen.</span></figcaption></figure></div></section><section class="cat" id="07_employer"><header class="cat-head"><h3>Employer</h3><p>Employer app: post jobs and manage applicants. <span class="count">7 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="39" aria-label="Enlarge Overview"><img src="screenshots/07_employer/01_overview.png" alt="Employer: Overview" loading="lazy" width="390" height="844"></button><figcaption><strong>Overview</strong><span>Counts for active, pending, applicants and shortlisted, Post a job, and jobs that need attention.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="40" aria-label="Enlarge Manage jobs"><img src="screenshots/07_employer/02_manage_jobs.png" alt="Employer: Manage jobs" loading="lazy" width="390" height="844"></button><figcaption><strong>Manage jobs</strong><span>Jobs by Pending, Published, Rejected and Closed, with applicant and view counts, Close and Edit.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="41" aria-label="Enlarge Create job"><img src="screenshots/07_employer/03_create_job.png" alt="Employer: Create job" loading="lazy" width="390" height="844"></button><figcaption><strong>Create job</strong><span>Title, skills, experience, education, location, work mode, employment type and more; Submit for approval.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="42" aria-label="Enlarge Fix rejected job"><img src="screenshots/07_employer/04_fix_rejected_job.png" alt="Employer: Fix rejected job" loading="lazy" width="390" height="844"></button><figcaption><strong>Fix rejected job</strong><span>The admin&#x27;s rejection reason is shown so the employer can fix and resubmit.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="43" aria-label="Enlarge Applicants"><img src="screenshots/07_employer/05_applicants.png" alt="Employer: Applicants" loading="lazy" width="390" height="844"></button><figcaption><strong>Applicants</strong><span>Candidates by status (New, Under review, Shortlisted, Interview, Rejected).</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="44" aria-label="Enlarge Candidate details"><img src="screenshots/07_employer/06_candidate_details.png" alt="Employer: Candidate details" loading="lazy" width="390" height="844"></button><figcaption><strong>Candidate details</strong><span>Match score, skills, experience and education, CV by secure link, and Choose a new status.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="45" aria-label="Enlarge Company profile"><img src="screenshots/07_employer/07_company_profile.png" alt="Employer: Company profile" loading="lazy" width="390" height="844"></button><figcaption><strong>Company profile</strong><span>Logo, verified-employer badge, and company details (website, industry, size, headquarters, about).</span></figcaption></figure></div></section><section class="cat" id="08_admin"><header class="cat-head"><h3>Admin</h3><p>Admin panel inside the mobile app. <span class="count">14 screens</span></p></header><div class="grid"><figure class="shot"><button class="frame" type="button" data-i="46" aria-label="Enlarge Overview"><img src="screenshots/08_admin/01_overview.png" alt="Admin: Overview" loading="lazy" width="390" height="844"></button><figcaption><strong>Overview</strong><span>Platform totals and jobs waiting for approval, with Approve and Reject.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="47" aria-label="Enlarge Job approvals"><img src="screenshots/08_admin/02_job_approvals.png" alt="Admin: Job approvals" loading="lazy" width="390" height="844"></button><figcaption><strong>Job approvals</strong><span>Pending, Published and Rejected tabs; rejected jobs go back to the employer with the reason.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="48" aria-label="Enlarge Users"><img src="screenshots/08_admin/03_users.png" alt="Admin: Users" loading="lazy" width="390" height="844"></button><figcaption><strong>Users</strong><span>Search users and filter by role, with account status.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="49" aria-label="Enlarge More modules"><img src="screenshots/08_admin/04_more_modules.png" alt="Admin: More modules" loading="lazy" width="390" height="844"></button><figcaption><strong>More modules</strong><span>Entry point to every other admin tool.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="50" aria-label="Enlarge Employers"><img src="screenshots/08_admin/05_employers.png" alt="Admin: Employers" loading="lazy" width="390" height="844"></button><figcaption><strong>Employers</strong><span>Verify or reject employer companies after checking their details.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="51" aria-label="Enlarge Applications"><img src="screenshots/08_admin/06_applications.png" alt="Admin: Applications" loading="lazy" width="390" height="844"></button><figcaption><strong>Applications</strong><span>All in-app applications, filterable by each of the 7 statuses.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="52" aria-label="Enlarge External listings"><img src="screenshots/08_admin/07_external_listings.png" alt="Admin: External listings" loading="lazy" width="390" height="844"></button><figcaption><strong>External listings</strong><span>Imported jobs with source, fetch time and expiry; expired listings are hidden from job seekers.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="53" aria-label="Enlarge CV reports"><img src="screenshots/08_admin/08_cv_reports.png" alt="Admin: CV reports" loading="lazy" width="390" height="844"></button><figcaption><strong>CV reports</strong><span>Monthly upload, processed and failed counts, recent failures with reasons, and the retention policy.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="54" aria-label="Enlarge Categories and skills"><img src="screenshots/08_admin/09_categories.png" alt="Admin: Categories and skills" loading="lazy" width="390" height="844"></button><figcaption><strong>Categories and skills</strong><span>Manage the categories and skills used in onboarding, search and matching.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="55" aria-label="Enlarge Announcements"><img src="screenshots/08_admin/10_announcements.png" alt="Admin: Announcements" loading="lazy" width="390" height="844"></button><figcaption><strong>Announcements</strong><span>Write an announcement for everyone, job seekers or employers, and see sent ones.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="56" aria-label="Enlarge API monitoring"><img src="screenshots/08_admin/11_api_monitoring.png" alt="Admin: API monitoring" loading="lazy" width="390" height="844"></button><figcaption><strong>API monitoring</strong><span>JSearch requests used against the monthly limit, error rate and recent requests.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="57" aria-label="Enlarge Analytics"><img src="screenshots/08_admin/12_analytics.png" alt="Admin: Analytics" loading="lazy" width="390" height="844"></button><figcaption><strong>Analytics</strong><span>Active users, new CVs, jobs published, external apply clicks, and weekly charts (example data until the analytics API is connected).</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="58" aria-label="Enlarge Audit logs"><img src="screenshots/08_admin/13_audit_logs.png" alt="Admin: Audit logs" loading="lazy" width="390" height="844"></button><figcaption><strong>Audit logs</strong><span>Every admin action with who, what and when; entries can&#x27;t be edited.</span></figcaption></figure><figure class="shot"><button class="frame" type="button" data-i="59" aria-label="Enlarge Platform settings"><img src="screenshots/08_admin/14_platform_settings.png" alt="Admin: Platform settings" loading="lazy" width="390" height="844"></button><figcaption><strong>Platform settings</strong><span>Job-approval switch, maintenance banner, listing lifetime, CV retention and JSearch monthly limit.</span></figcaption></figure></div></section></div>
+  </section>
+
+  <div class="wrap">
+    <section class="block" id="progress">
+      <header><p class="eyebrow">Progress</p><h2>Where each milestone stands</h2>
+        <div class="legend"><span class="pill done">Implemented and tested</span><span class="pill partial">Partially implemented</span><span class="pill pending">Pending</span></div></header>
+      <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Milestone</th><th scope="col">Status</th><th scope="col">Detail</th></tr></thead>
+        <tbody><tr><td>M0 Foundation</td><td><span class="pill done">Implemented and tested</span></td><td>Project, brand theme, routing, Home, Explore, Saved, Profile</td></tr><tr><td>M1 Authentication and onboarding</td><td><span class="pill partial">Partially implemented</span></td><td>All screens and role-based routing tested; runs on a mock sign-in service</td></tr><tr><td>M2 CV upload, processing and review</td><td><span class="pill done">Implemented and tested</span></td><td>Mock and API repository both in place</td></tr><tr><td>M3 Job details, match explanation, apply</td><td><span class="pill done">Implemented and tested</span></td><td>Internal and external apply paths</td></tr><tr><td>M4 Applications, notifications, account</td><td><span class="pill partial">Partially implemented</span></td><td>UI tested; subscription purchase simulated, push notifications not wired</td></tr><tr><td>M5 Employer app</td><td><span class="pill partial">Partially implemented</span></td><td>UI tested; data kept in memory until the employer API exists</td></tr><tr><td>M6 Admin panel in the mobile app</td><td><span class="pill partial">Partially implemented</span></td><td>UI tested; data kept in memory until the admin API exists</td></tr><tr><td>QA: states, small and large phones, accessibility</td><td><span class="pill done">Implemented and tested</span></td><td>320 px and 430 px layouts, tap targets, contrast</td></tr><tr><td>M7 Backend-compatibility layer</td><td><span class="pill partial">Partially implemented</span></td><td>Done for jobs, job details and CV; other areas pending</td></tr><tr><td>Android and iOS device builds</td><td><span class="pill pending">Pending</span></td><td>Needs the Android SDK; iOS needs macOS or Codemagic</td></tr><tr><td>Live backend integration</td><td><span class="pill pending">Pending</span></td><td>Waits for the backend API and agreed JSON shapes</td></tr></tbody></table></div>
+      <p class="note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>"Partially implemented" means the screens are complete and tested, but part of the work depends on the backend or a store service that isn't connected yet.</span></p>
+    </section>
+
+    <section class="block" id="audit">
+      <header><p class="eyebrow">Audit summary</p><h2>Checked against the code</h2>
+        <p class="lede">The full report is in <code>FRONTEND_AUDIT_REPORT.md</code> beside this page.</p></header>
+      <div class="checks">
+        <div class="check"><b>Static analysis</b><span>No issues found</span></div>
+        <div class="check"><b>Automated tests</b><span>145 passing in 11 files</span></div>
+        <div class="check"><b>Phone sizes tested</b><span>320 px and 430 px, no overflow</span></div>
+      </div>
+      <div class="audit">
+        <div class="panel"><h3>Strengths</h3><ul>
+          <li>Scale Shark logo, colors and fonts throughout; no copied third-party branding</li>
+          <li>Loading, empty and error states with Retry on every list</li>
+          <li>Accessibility tested: 48 px tap targets, labelled buttons, AA text contrast</li>
+          <li>Every job shows its source: apply in-app or on the employer's site</li>
+          <li>Mock data and real API code kept apart; switching is a build setting</li>
+          <li>Typed API errors, including rate limits and timeouts, shown as friendly messages</li></ul></div>
+        <div class="panel"><h3>Fixed while preparing this showcase</h3><ul>
+          <li>Employer and admin overviews had an empty gap above the stat tiles on phones with a notch</li>
+          <li>Application progress line showed an empty box where an arrow glyph was missing from the font</li>
+          <li>"1 results" in API monitoring and "1 listing … are hidden" in external listings</li></ul>
+          <h3 style="margin-top:20px">Still to improve</h3><ul>
+          <li>Light theme only; English only</li>
+          <li>Not yet reviewed on a physical phone</li></ul></div>
+      </div>
+    </section>
+
+    <section class="block" id="remaining">
+      <header><p class="eyebrow">Remaining work</p><h2>What's left before launch</h2></header>
+      <ul class="todo"><li><strong>Connect the backend</strong><span>API repositories for applications, saved jobs, notifications, profile, employer and admin; Supabase Auth; agree final JSON shapes with the backend team.</span></li><li><strong>Build for devices</strong><span>Install the Android SDK and build the Android app; build iOS on macOS or Codemagic; test on real phones.</span></li><li><strong>Store services</strong><span>Real in-app purchase for the subscription, push notifications, Google sign-in.</span></li><li><strong>Legal texts</strong><span>Terms of Use and Privacy Policy from Scale Shark. The app shows a placeholder notice until then.</span></li><li><strong>Polish</strong><span>Dark mode, Urdu localisation, and a designer review on physical phones.</span></li><li><strong>Source control</strong><span>Move the project into the company GitHub repository.</span></li></ul>
+    </section>
+  </div>
+</main>
+
+<footer class="foot"><div class="wrap"><span>SharkHire · SCALE SHARK (PRIVATE) LIMITED</span><span>Frontend status as of 14 November 2026</span></div></footer>
+
+<dialog id="lb" aria-label="Screenshot viewer">
+  <div class="lb">
+    <img id="lb-img" alt="">
+    <div class="lb-bar">
+      <button type="button" id="lb-prev" aria-label="Previous screen">‹</button>
+      <span class="lb-title" id="lb-title"></span>
+      <button type="button" id="lb-next" aria-label="Next screen">›</button>
+      <button type="button" id="lb-close" aria-label="Close viewer">✕</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var shots = [["screenshots/01_authentication/01_splash.png","Authentication · Splash"],["screenshots/01_authentication/02_welcome.png","Authentication · Welcome"],["screenshots/01_authentication/03_login.png","Authentication · Log in"],["screenshots/01_authentication/04_register.png","Authentication · Register"],["screenshots/01_authentication/05_forgot_password.png","Authentication · Forgot password"],["screenshots/01_authentication/06_verify_email.png","Authentication · Verify email"],["screenshots/01_authentication/07_job_preferences.png","Authentication · Job preferences"],["screenshots/02_job_seeker/01_home.png","Job Seeker · Home"],["screenshots/02_job_seeker/02_profile.png","Job Seeker · Profile"],["screenshots/02_job_seeker/03_profile_menu.png","Job Seeker · Profile menu"],["screenshots/02_job_seeker/04_notifications.png","Job Seeker · Notifications"],["screenshots/02_job_seeker/05_job_alerts.png","Job Seeker · Job alerts"],["screenshots/02_job_seeker/06_subscription.png","Job Seeker · Subscription"],["screenshots/02_job_seeker/07_settings.png","Job Seeker · Settings"],["screenshots/02_job_seeker/08_privacy_security.png","Job Seeker · Privacy and security"],["screenshots/02_job_seeker/09_help_support.png","Job Seeker · Help and support"],["screenshots/02_job_seeker/10_edit_profile.png","Job Seeker · Edit profile"],["screenshots/02_job_seeker/11_edit_job_preferences.png","Job Seeker · Edit job preferences"],["screenshots/03_job_search/01_explore.png","Job Search · Explore"],["screenshots/03_job_search/02_filters.png","Job Search · Filter sheet"],["screenshots/03_job_search/03_job_details_internal.png","Job Search · Job details (in-app)"],["screenshots/03_job_search/04_job_details_info.png","Job Search · Job information"],["screenshots/03_job_search/05_job_details_external.png","Job Search · Job details (external)"],["screenshots/03_job_search/06_saved_jobs.png","Job Search · Saved jobs"],["screenshots/04_recommendations/01_home_with_cv.png","Job Recommendations · Home with CV"],["screenshots/04_recommendations/02_recommended_jobs.png","Job Recommendations · Recommended jobs"],["screenshots/04_recommendations/03_categories_and_recent.png","Job Recommendations · Categories and recent jobs"],["screenshots/04_recommendations/04_match_explanation.png","Job Recommendations · Match explanation"],["screenshots/05_cv_management/01_upload_cv.png","CV Management · Upload CV"],["screenshots/05_cv_management/02_file_selected.png","CV Management · File selected"],["screenshots/05_cv_management/03_processing.png","CV Management · Processing"],["screenshots/05_cv_management/04_review_profile.png","CV Management · Review profile"],["screenshots/05_cv_management/05_review_experience.png","CV Management · Review experience"],["screenshots/05_cv_management/06_invalid_file_rejected.png","CV Management · Invalid file rejected"],["screenshots/06_applications/01_apply_form.png","Applications · Apply form"],["screenshots/06_applications/02_application_sent.png","Applications · Application sent"],["screenshots/06_applications/03_my_applications.png","Applications · My applications"],["screenshots/06_applications/04_application_timeline.png","Applications · Application timeline"],["screenshots/06_applications/05_withdraw_option.png","Applications · Withdraw"],["screenshots/07_employer/01_overview.png","Employer · Overview"],["screenshots/07_employer/02_manage_jobs.png","Employer · Manage jobs"],["screenshots/07_employer/03_create_job.png","Employer · Create job"],["screenshots/07_employer/04_fix_rejected_job.png","Employer · Fix rejected job"],["screenshots/07_employer/05_applicants.png","Employer · Applicants"],["screenshots/07_employer/06_candidate_details.png","Employer · Candidate details"],["screenshots/07_employer/07_company_profile.png","Employer · Company profile"],["screenshots/08_admin/01_overview.png","Admin · Overview"],["screenshots/08_admin/02_job_approvals.png","Admin · Job approvals"],["screenshots/08_admin/03_users.png","Admin · Users"],["screenshots/08_admin/04_more_modules.png","Admin · More modules"],["screenshots/08_admin/05_employers.png","Admin · Employers"],["screenshots/08_admin/06_applications.png","Admin · Applications"],["screenshots/08_admin/07_external_listings.png","Admin · External listings"],["screenshots/08_admin/08_cv_reports.png","Admin · CV reports"],["screenshots/08_admin/09_categories.png","Admin · Categories and skills"],["screenshots/08_admin/10_announcements.png","Admin · Announcements"],["screenshots/08_admin/11_api_monitoring.png","Admin · API monitoring"],["screenshots/08_admin/12_analytics.png","Admin · Analytics"],["screenshots/08_admin/13_audit_logs.png","Admin · Audit logs"],["screenshots/08_admin/14_platform_settings.png","Admin · Platform settings"]];
+  var lb = document.getElementById('lb'), img = document.getElementById('lb-img'), title = document.getElementById('lb-title');
+  var i = 0;
+  function show(n) {
+    i = (n + shots.length) % shots.length;
+    img.src = shots[i][0];
+    var t = document.createElement('textarea'); t.innerHTML = shots[i][1];
+    img.alt = t.value; title.textContent = t.value + '  (' + (i + 1) + ' / ' + shots.length + ')';
+  }
+  document.querySelectorAll('.frame').forEach(function (b) {
+    b.addEventListener('click', function () { show(+b.dataset.i); if (lb.showModal) lb.showModal(); });
+  });
+  document.getElementById('lb-prev').onclick = function () { show(i - 1); };
+  document.getElementById('lb-next').onclick = function () { show(i + 1); };
+  document.getElementById('lb-close').onclick = function () { lb.close(); };
+  lb.addEventListener('click', function (e) { if (e.target === lb || e.target.classList.contains('lb')) lb.close(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.open) return;
+    if (e.key === 'ArrowLeft') show(i - 1);
+    if (e.key === 'ArrowRight') show(i + 1);
+  });
+})();
+</script>

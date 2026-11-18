@@ -1,0 +1,14 @@
+# Files Vercel never needs (Git deployments build from source with
+# tool/vercel_build.sh). Real config files and signing keys stay local.
+android/
+ios/
+build/
+.dart_tool/
+.flutter-sdk/
+test/
+config/*.json
+!config/*.example.json
+android/key.properties
+*.jks
+*.keystore
+*.iml

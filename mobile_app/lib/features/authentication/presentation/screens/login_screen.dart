@@ -1,0 +1,225 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
+import '../../../../core/config/app_config.dart';
+import '../../../../core/routing/app_routes.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/feedback.dart';
+import '../../../../core/utils/validators.dart';
+import '../../../../shared/widgets/form_fields.dart';
+import '../../data/repositories/auth_repository.dart';
+import '../providers/session_provider.dart';
+import '../widgets/auth_scaffold.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _form = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    FocusScope.of(context).unfocus();
+    if (!(_form.currentState?.validate() ?? false)) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      await ref
+          .read(sessionProvider.notifier)
+          .signIn(_email.text.trim(), _password.text);
+      // The router redirects to the right place for this user.
+    } on AuthFailure catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error =
+              'We couldn\'t log you in. Check your connection and try again.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  void _fillDemo(String email) {
+    _email.text = email;
+    _password.text = MockAuthRepository.demoPassword;
+    setState(() => _error = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AuthScaffold(
+      title: 'Welcome back',
+      subtitle: 'Log in to see your matches and applications.',
+      footer: AuthFooterLink(
+        prompt: 'New to SharkHire?',
+        action: 'Create account',
+        onTap: () => context.pushReplacement(AppRoutes.register),
+      ),
+      children: [
+        Form(
+          key: _form,
+          child: AutofillGroup(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_error != null) ...[
+                  InlineBanner(message: _error!, tone: BannerTone.error),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+                AppTextField(
+                  label: 'Email',
+                  controller: _email,
+                  hint: 'name@example.com',
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  prefixIcon: Icons.mail_outline_rounded,
+                  validator: Validators.email,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                PasswordField(
+                  controller: _password,
+                  validator: (v) =>
+                      (v == null || v.isEmpty) ? 'Enter your password' : null,
+                  onSubmitted: (_) => _submit(),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => context.push(AppRoutes.forgotPassword),
+                    child: const Text('Forgot password?'),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                LoadingButton(
+                  label: 'Log in',
+                  loading: _loading,
+                  onPressed: _submit,
+                ),
+                if (AppConfig.showGoogleSignIn) ...[
+                  const SizedBox(height: AppSpacing.xl),
+                  const LabeledDivider('or'),
+                  const SizedBox(height: AppSpacing.xl),
+                  OutlinedButton.icon(
+                    onPressed: () => AppFeedback.show(
+                      context,
+                      'Google sign-in becomes available when SharkHire is connected to its account service.',
+                    ),
+                    icon: const _GoogleMark(),
+                    label: const Text('Continue with Google'),
+                  ),
+                ],
+                if (AppConfig.useMockData) ...[
+                  const SizedBox(height: AppSpacing.xxl),
+                  _DemoAccounts(onPick: _fillDemo),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Neutral "G" mark (no third-party logo asset is bundled).
+class _GoogleMark extends StatelessWidget {
+  const _GoogleMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 22,
+      height: 22,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.borderStrong),
+      ),
+      child: const Text(
+        'G',
+        style: TextStyle(
+          fontFamily: 'Archivo',
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+}
+
+/// Development helper, shown only while the app runs on mock data.
+class _DemoAccounts extends StatelessWidget {
+  const _DemoAccounts({required this.onPick});
+
+  final ValueChanged<String> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.mist,
+        borderRadius: AppRadius.lgAll,
+        border: Border.all(color: AppColors.oceanTintStrong),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Demo accounts', style: text.titleSmall),
+          const SizedBox(height: 2),
+          Text(
+            'Preview build only. Tap to fill the form.',
+            style: text.bodySmall,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.person_outline_rounded, size: 18),
+                label: const Text('Job seeker'),
+                onPressed: () => onPick(MockAuthRepository.demoSeekerEmail),
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.business_center_outlined, size: 18),
+                label: const Text('Employer'),
+                onPressed: () => onPick(MockAuthRepository.demoEmployerEmail),
+              ),
+              ActionChip(
+                avatar: const Icon(
+                  Icons.admin_panel_settings_outlined,
+                  size: 18,
+                ),
+                label: const Text('Admin'),
+                onPressed: () => onPick(MockAuthRepository.demoAdminEmail),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

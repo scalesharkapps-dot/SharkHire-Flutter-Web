@@ -1,0 +1,10 @@
+# Native launch screen shown while Flutter starts, before SplashScreen.
+# Brand navy so there is no white flash. Android 12+ shows the app icon.
+# Regenerate after changes:  dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#0E2134"
+  android_12:
+    color: "#0E2134"
+    icon_background_color: "#FFFFFF"
+  web: false
+  fullscreen: false

@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "staging",
+  "USE_MOCK_DATA": "false",
+  "API_BASE_URL": "https://backend-job-search.onrender.com"
+}

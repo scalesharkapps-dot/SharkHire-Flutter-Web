@@ -1,0 +1,137 @@
+import '../../../shared/models/job_summary.dart';
+
+/// Local preview data used until the jobs API is connected.
+/// All companies, people and listings below are fictional.
+abstract final class MockJobs {
+  static const Duration latency = Duration(milliseconds: 650);
+
+  static const List<String> categories = [
+    'Software',
+    'Data / AI',
+    'Design',
+    'Marketing',
+    'Finance',
+    'Operations',
+  ];
+
+  static List<JobSummary> all({DateTime? now}) {
+    final t = now ?? DateTime.now();
+    DateTime ago(int days) => t.subtract(Duration(days: days, hours: 2));
+
+    return [
+      JobSummary(
+        id: 'job-01',
+        title: 'Senior Flutter Developer',
+        companyName: 'Indus Ledger',
+        companyRating: 4.4,
+        location: 'Lahore, Pakistan',
+        workMode: WorkMode.hybrid,
+        employmentType: EmploymentType.fullTime,
+        salaryLabel: 'PKR 450K – 600K / month',
+        source: JobSource.internal,
+        category: 'Software',
+        matchScore: 92,
+        postedAt: ago(2),
+      ),
+      JobSummary(
+        id: 'job-02',
+        title: 'Python Backend Developer',
+        companyName: 'Kestrel Systems',
+        companyRating: 4.2,
+        location: 'Karachi, Pakistan',
+        workMode: WorkMode.onsite,
+        employmentType: EmploymentType.fullTime,
+        salaryLabel: 'PKR 300K – 420K / month',
+        source: JobSource.external,
+        category: 'Software',
+        matchScore: 88,
+        postedAt: ago(1),
+      ),
+      JobSummary(
+        id: 'job-03',
+        title: 'AI / ML Engineer',
+        companyName: 'Datawave Labs',
+        companyRating: 4.6,
+        location: 'Remote · Worldwide',
+        workMode: WorkMode.remote,
+        employmentType: EmploymentType.fullTime,
+        salaryLabel: r'$4K – $6K / month',
+        source: JobSource.external,
+        category: 'Data / AI',
+        isInternational: true,
+        matchScore: 84,
+        postedAt: ago(3),
+      ),
+      JobSummary(
+        id: 'job-04',
+        title: 'Product Designer, AI Experiences',
+        companyName: 'Northwind Studio',
+        companyRating: 4.1,
+        location: 'Dubai, UAE',
+        workMode: WorkMode.hybrid,
+        employmentType: EmploymentType.contract,
+        salaryLabel: r'$3.5K – $5K / month',
+        source: JobSource.external,
+        category: 'Design',
+        isInternational: true,
+        matchScore: 79,
+        postedAt: ago(5),
+      ),
+      JobSummary(
+        id: 'job-05',
+        title: 'Junior FastAPI Developer',
+        companyName: 'Harbor & Co.',
+        companyRating: 3.9,
+        location: 'Lahore, Pakistan',
+        workMode: WorkMode.hybrid,
+        employmentType: EmploymentType.fullTime,
+        salaryLabel: 'PKR 150K – 220K / month',
+        source: JobSource.internal,
+        category: 'Software',
+        matchScore: 76,
+        postedAt: ago(8),
+      ),
+      JobSummary(
+        id: 'job-06',
+        title: 'Data Analyst',
+        companyName: 'Insight Grid',
+        companyRating: 4.0,
+        location: 'Islamabad, Pakistan',
+        workMode: WorkMode.onsite,
+        employmentType: EmploymentType.fullTime,
+        source: JobSource.internal,
+        category: 'Data / AI',
+        matchScore: 71,
+        postedAt: ago(6),
+      ),
+      JobSummary(
+        id: 'job-07',
+        title: 'Cloud DevOps Engineer',
+        companyName: 'Meridian Cloud',
+        companyRating: 4.3,
+        location: 'London, United Kingdom',
+        workMode: WorkMode.remote,
+        employmentType: EmploymentType.contract,
+        salaryLabel: '£55K – £70K / year',
+        source: JobSource.external,
+        category: 'Operations',
+        isInternational: true,
+        matchScore: 68,
+        postedAt: ago(4),
+      ),
+      JobSummary(
+        id: 'job-08',
+        title: 'Growth Marketing Intern',
+        companyName: 'Bluefin Media',
+        companyRating: 3.8,
+        location: 'Karachi, Pakistan',
+        workMode: WorkMode.onsite,
+        employmentType: EmploymentType.internship,
+        source: JobSource.internal,
+        category: 'Marketing',
+        matchScore: 62,
+        postedAt: ago(12),
+      ),
+    ];
+  }
+}

@@ -1,0 +1,61 @@
+# Render Blueprint – SharkHire web app (Flutter Web, static site).
+# See WEB_DEPLOYMENT_GUIDE.md. Nothing here contains secrets.
+#
+# How the API works without CORS: the browser only talks to this site.
+# Requests to /api/* are rewritten (proxied) by Render to the FastAPI
+# backend, so they are same-origin for the browser.
+services:
+  - type: web
+    name: sharkhire-web
+    runtime: static
+    rootDir: mobile_app
+    # Render has no Flutter, so the build downloads the same Flutter version
+    # the project uses (3.50.0), then builds the web app.
+    buildCommand: >-
+      git clone https://github.com/flutter/flutter.git -b 3.50.0 --depth 1 "$HOME/flutter" &&
+      "$HOME/flutter/bin/flutter" config --enable-web &&
+      "$HOME/flutter/bin/flutter" pub get &&
+      "$HOME/flutter/bin/flutter" build web --release
+      --dart-define=APP_ENV=production
+      --dart-define=USE_MOCK_DATA=false
+      --dart-define=API_BASE_URL=same-origin
+      --output build/web_production
+    staticPublishPath: build/web_production
+    pullRequestPreviewsEnabled: false
+    routes:
+      # API → backend (proxy). Must come before the app fallback.
+      - type: rewrite
+        source: /api/*
+        destination: https://backend-job-search.onrender.com/api/*
+      # Everything that isn't a real file → the Flutter app.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /main.dart.js
+        name: Cache-Control
+        value: no-cache
+      - path: /flutter_bootstrap.js
+        name: Cache-Control
+        value: no-cache
+      - path: /flutter_service_worker.js
+        name: Cache-Control
+        value: no-cache
+      - path: /version.json
+        name: Cache-Control
+        value: no-cache

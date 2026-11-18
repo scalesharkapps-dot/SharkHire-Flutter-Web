@@ -1,0 +1,37 @@
+import 'package:material_ui/material_ui.dart';
+
+import '../../core/theme/app_colors.dart';
+
+/// Initials in a brand-tinted circle (people, candidates, admins).
+class PersonAvatar extends StatelessWidget {
+  const PersonAvatar({super.key, required this.initials, this.size = 44});
+
+  final String initials;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final seed = initials.codeUnits.fold<int>(0, (s, c) => s + c);
+    const palette = [
+      (AppColors.oceanTint, AppColors.oceanDeep),
+      (AppColors.cyanTint, AppColors.ocean),
+      (Color(0xFFE4ECF3), AppColors.slate),
+    ];
+    final (bg, fg) = palette[seed % palette.length];
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+      child: Text(
+        initials,
+        style: TextStyle(
+          fontFamily: 'Archivo',
+          fontWeight: FontWeight.w700,
+          fontSize: size * 0.36,
+          color: fg,
+        ),
+      ),
+    );
+  }
+}
