@@ -17,6 +17,7 @@ import '../../../notifications/presentation/providers/notifications_provider.dar
 import '../../../profile/presentation/providers/current_user_provider.dart';
 import '../../../saved_jobs/presentation/providers/saved_jobs_provider.dart';
 import '../../../saved_jobs/presentation/widgets/async_job_sliver.dart';
+import '../../../subscription/presentation/widgets/subscription_widgets.dart';
 import '../providers/home_providers.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_sections.dart';
@@ -73,6 +74,8 @@ class HomeScreen extends ConsumerWidget {
                   onAppliedTap: () => context.push(AppRoutes.applications),
                 ),
               ),
+
+              const SliverToBoxAdapter(child: TrialBanner()),
 
               if (!user.hasCv)
                 SliverPadding(

@@ -27,6 +27,7 @@ abstract final class AppRoutes {
   static const String notifications = '/notifications';
   static const String jobAlerts = '/job-alerts';
   static const String subscription = '/subscription';
+  static const String subscriptionHistory = '/subscription/history';
   static const String settings = '/settings';
   static const String privacy = '/settings/privacy';
   static const String help = '/help';
@@ -73,6 +74,31 @@ abstract final class AppRoutes {
     register,
     forgotPassword,
   };
+
+  /// Reachable by a job seeker without paid access: the paywall, billing
+  /// history, account management, support and legal pages.
+  static const Set<String> subscriptionFreeRoutes = {
+    subscription,
+    subscriptionHistory,
+    profile,
+    editProfile,
+    settings,
+    privacy,
+    help,
+  };
+
+  /// The paywall, remembering where the user was going.
+  static String paywall({String? next}) => next == null || next.isEmpty
+      ? subscription
+      : Uri(path: subscription, queryParameters: {'next': next}).toString();
+
+  /// Only same-app paths are accepted as `next` (no open redirects).
+  static String? safeNext(String? next) {
+    if (next == null || !next.startsWith('/') || next.startsWith('//')) {
+      return null;
+    }
+    return next;
+  }
 
   static bool isAdminRoute(String location) =>
       location == adminOverview || location.startsWith('$adminOverview/');

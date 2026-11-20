@@ -19,7 +19,7 @@ import '../../../authentication/presentation/widgets/sign_out_sheet.dart';
 import '../../../resume/data/models/resume_models.dart';
 import '../../../notifications/presentation/providers/notifications_provider.dart';
 import '../../../resume/presentation/providers/cv_provider.dart';
-import '../../../settings/presentation/providers/subscription_provider.dart';
+import '../../../subscription/presentation/providers/subscription_providers.dart';
 import '../providers/current_user_provider.dart';
 
 /// Profile hub: identity, CV, premium, activity and account settings
@@ -71,7 +71,7 @@ class ProfileScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               FadeInUp(
                 delay: const Duration(milliseconds: 120),
-                child: ref.watch(subscriptionProvider).hasPremium
+                child: ref.watch(subscriptionProvider).hasAccess
                     ? AppSurface(
                         onTap: () => context.push(AppRoutes.subscription),
                         child: Row(
@@ -83,7 +83,7 @@ class ProfileScreen extends ConsumerWidget {
                             const SizedBox(width: AppSpacing.md),
                             Expanded(
                               child: Text(
-                                'SharkHire Premium is active',
+                                'Your subscription is active',
                                 style: text.titleSmall,
                               ),
                             ),
@@ -141,8 +141,8 @@ class ProfileScreen extends ConsumerWidget {
                   MenuItem(
                     Icons.workspace_premium_outlined,
                     'Subscription',
-                    trailing: ref.watch(subscriptionProvider).hasPremium
-                        ? 'Premium'
+                    trailing: ref.watch(subscriptionProvider).hasAccess
+                        ? 'Active'
                         : null,
                     onTap: () => context.push(AppRoutes.subscription),
                   ),
@@ -507,12 +507,9 @@ class _PremiumCard extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
+                TextSpan(text: 'One monthly plan', style: text.titleMedium),
                 TextSpan(
-                  text: '\$${AppConstants.monthlyPriceUsd.toStringAsFixed(0)}',
-                  style: text.titleLarge,
-                ),
-                TextSpan(
-                  text: ' / month after trial · local price at checkout',
+                  text: ' · your local price is shown by the store',
                   style: text.bodySmall,
                 ),
               ],

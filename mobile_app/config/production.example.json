@@ -1,5 +1,8 @@
 {
   "APP_ENV": "production",
   "USE_MOCK_DATA": "false",
-  "API_BASE_URL": "https://backend-job-search.onrender.com"
+  "API_BASE_URL": "https://backend-job-search.onrender.com",
+  "SUBSCRIPTIONS_ENABLED": "false",
+  "REVENUECAT_ANDROID_KEY": "",
+  "REVENUECAT_IOS_KEY": ""
 }

@@ -52,17 +52,40 @@ abstract final class AppConfig {
   static String get resolvedApiBaseUrl =>
       apiBaseUrl == sameOrigin ? (kIsWeb ? Uri.base.origin : '') : apiBaseUrl;
 
-  /// Store billing (Google Play Billing / StoreKit) is connected. Until it is,
-  /// the Premium purchase is simulated, so production builds hide Premium:
-  /// a store build must never grant Premium without a real payment.
-  static const bool inAppPurchasesReady = false;
+  /// Paid app access (RevenueCat + backend subscription API).
+  ///
+  /// OFF by default: while it is off nobody is sent to the paywall. Turn it
+  /// on (`--dart-define=SUBSCRIPTIONS_ENABLED=true`) only once the backend's
+  /// `/api/v1/subscriptions/*` endpoints are live, the store products exist
+  /// and RevenueCat is configured (see SUBSCRIPTIONS.md).
+  static const bool subscriptionsEnabled = bool.fromEnvironment(
+    'SUBSCRIPTIONS_ENABLED',
+  );
+
+  /// RevenueCat **public** SDK keys (Project settings > API keys > App
+  /// specific). Google Play keys start with `goog_`, App Store keys with
+  /// `appl_`. Never put a secret key (`sk_...`) here: it would ship inside
+  /// the app.
+  static const String revenueCatAndroidKey = String.fromEnvironment(
+    'REVENUECAT_ANDROID_KEY',
+  );
+  static const String revenueCatIosKey = String.fromEnvironment(
+    'REVENUECAT_IOS_KEY',
+  );
+
+  /// RevenueCat entitlement that unlocks the app, and the offering shown on
+  /// the paywall.
+  static const String entitlementId = 'app_access';
+  static const String offeringId = 'default';
 
   /// Google sign-in is connected through Supabase OAuth. Until it is, the
   /// button cannot sign anyone in, so production builds hide it. Note: Apple
   /// then also requires Sign in with Apple (App Review guideline 4.8).
   static const bool googleSignInReady = false;
 
-  static bool get showPremium => !isProduction || inAppPurchasesReady;
+  /// Subscription screens are reachable in development, and in production
+  /// once [subscriptionsEnabled] is on.
+  static bool get showPremium => !isProduction || subscriptionsEnabled;
   static bool get showGoogleSignIn => !isProduction || googleSignInReady;
 
   /// Why this build must not run as a production app, or null when it is
@@ -71,6 +94,7 @@ abstract final class AppConfig {
     useMockData: useMockData,
     apiBaseUrl: apiBaseUrl,
     isWeb: kIsWeb,
+    revenueCatKeys: [revenueCatAndroidKey, revenueCatIosKey],
   );
 
   /// Pure check behind [productionConfigProblem]; public for tests.
@@ -78,8 +102,14 @@ abstract final class AppConfig {
     required bool useMockData,
     required String apiBaseUrl,
     bool isWeb = false,
+    List<String> revenueCatKeys = const [],
   }) {
     if (useMockData) return 'USE_MOCK_DATA must be false in production.';
+    for (final key in revenueCatKeys) {
+      if (isRevenueCatSecretKey(key)) {
+        return 'A RevenueCat secret key was supplied. Use the public SDK key.';
+      }
+    }
     if (apiBaseUrl == sameOrigin) {
       return isWeb ? null : 'API_BASE_URL "same-origin" only works on web.';
     }
@@ -92,4 +122,8 @@ abstract final class AppConfig {
     }
     return null;
   }
+
+  /// RevenueCat secret (server) keys must never be built into the app.
+  static bool isRevenueCatSecretKey(String key) =>
+      key.startsWith('sk_') || key.startsWith('atk_');
 }

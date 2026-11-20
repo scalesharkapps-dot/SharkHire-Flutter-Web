@@ -1,4 +1,5 @@
 import '../../features/authentication/domain/session.dart';
+import '../../features/subscription/domain/subscription_status.dart';
 import 'app_routes.dart';
 
 /// Decides where a user may go. Returns the path to redirect to, or null to
@@ -6,7 +7,17 @@ import 'app_routes.dart';
 ///
 /// Roles only choose *navigation*; the backend still authorises every
 /// request (guide §3.4).
-String? routeGuard(Session session, String location) {
+///
+/// [subscription] is the backend's app-access status; pass null while
+/// subscriptions are not enforced. Job seekers without confirmed access
+/// (including while it is loading, or after an error) are sent to the
+/// paywall, which keeps [fullLocation] to return to afterwards.
+String? routeGuard(
+  Session session,
+  String location, {
+  SubscriptionStatus? subscription,
+  String? fullLocation,
+}) {
   // The splash decides on its own when to leave.
   if (location == AppRoutes.splash) return null;
 
@@ -44,6 +55,15 @@ String? routeGuard(Session session, String location) {
           : session.isEmployer
           ? onEmployerRoute
           : !onAdminRoute && !onEmployerRoute;
-      return allowed ? null : home;
+      if (!allowed) return home;
+      final needsAccess =
+          subscription != null &&
+          !session.isAdmin &&
+          !session.isEmployer &&
+          !subscription.hasAccess;
+      if (needsAccess && !AppRoutes.subscriptionFreeRoutes.contains(location)) {
+        return AppRoutes.paywall(next: fullLocation ?? location);
+      }
+      return null;
   }
 }

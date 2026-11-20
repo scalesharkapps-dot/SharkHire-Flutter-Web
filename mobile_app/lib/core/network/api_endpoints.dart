@@ -53,4 +53,12 @@ abstract final class ApiEndpoints {
   static const String employerJobs = '$_v1/employer/jobs';
   static String employerJob(String id) => '$_v1/employer/jobs/$id';
   static const String employerApplications = '$_v1/employer/applications';
+
+  // Subscriptions – INTEGRATION DEPENDENCY: not in the live API yet (404,
+  // checked 20 Nov 2026). Expected by SUBSCRIPTIONS.md.
+  static const String subscriptionStatus = '$_v1/subscriptions/status';
+  static const String subscriptionSync = '$_v1/subscriptions/sync';
+  static const String subscriptionHistory = '$_v1/subscriptions/history';
+  static const String subscriptionRestore = '$_v1/subscriptions/restore';
+  static const String subscriptionPlans = '$_v1/subscriptions/plans';
 }

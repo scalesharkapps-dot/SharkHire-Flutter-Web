@@ -24,6 +24,7 @@ flutter build web --release \
   --dart-define=APP_ENV=production \
   --dart-define=USE_MOCK_DATA=false \
   --dart-define=API_BASE_URL="${API_BASE_URL:-same-origin}" \
+  --dart-define=SUBSCRIPTIONS_ENABLED="${SUBSCRIPTIONS_ENABLED:-false}" \
   --output build/web
 
 # Fail the deployment if the output is incomplete.

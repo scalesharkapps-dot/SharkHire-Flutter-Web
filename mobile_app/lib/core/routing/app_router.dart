@@ -36,7 +36,9 @@ import '../../features/resume/presentation/screens/cv_review_screen.dart';
 import '../../features/resume/presentation/screens/cv_upload_screen.dart';
 import '../../features/saved_jobs/presentation/screens/saved_jobs_screen.dart';
 import '../../features/settings/presentation/screens/settings_screens.dart';
-import '../../features/settings/presentation/screens/subscription_screen.dart';
+import '../../features/subscription/presentation/providers/subscription_providers.dart';
+import '../../features/subscription/presentation/screens/subscription_history_screen.dart';
+import '../../features/subscription/presentation/screens/subscription_screen.dart';
 import '../../shared/widgets/main_navigation_shell.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -58,14 +60,21 @@ StatefulShellBranch _branch(String path, Widget screen) => StatefulShellBranch(
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref.listen(sessionProvider, (_, _) => refresh.value++);
+  ref.listen(subscriptionProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
-    redirect: (context, state) =>
-        routeGuard(ref.read(sessionProvider), state.matchedLocation),
+    redirect: (context, state) => routeGuard(
+      ref.read(sessionProvider),
+      state.matchedLocation,
+      subscription: ref.read(subscriptionsEnabledProvider)
+          ? ref.read(subscriptionProvider)
+          : null,
+      fullLocation: state.uri.toString(),
+    ),
     routes: [
       _route(AppRoutes.splash, (_) => const SplashScreen()),
 
@@ -105,7 +114,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       _route(AppRoutes.cvReview, (_) => const CvReviewScreen()),
       _route(AppRoutes.notifications, (_) => const NotificationsScreen()),
       _route(AppRoutes.jobAlerts, (_) => const JobAlertsScreen()),
-      _route(AppRoutes.subscription, (_) => const SubscriptionScreen()),
+      _route(
+        AppRoutes.subscription,
+        (s) => SubscriptionScreen(
+          next: AppRoutes.safeNext(s.uri.queryParameters['next']),
+        ),
+      ),
+      _route(
+        AppRoutes.subscriptionHistory,
+        (_) => const SubscriptionHistoryScreen(),
+      ),
       _route(AppRoutes.settings, (_) => const SettingsScreen()),
       _route(AppRoutes.privacy, (_) => const PrivacyScreen()),
       _route(AppRoutes.help, (_) => const HelpScreen()),

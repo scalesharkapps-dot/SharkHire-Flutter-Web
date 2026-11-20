@@ -3,7 +3,6 @@
 //   flutter test tool/showcase/capture_resend_states_test.dart
 // Output: ../frontend_showcase/screenshots/01_authentication/06b_*.png
 
-import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -54,9 +53,9 @@ Future<void> _loadFonts() async {
           ..addFont(a('Hind-SemiBold.ttf'))
           ..addFont(a('Hind-Bold.ttf')))
         .load(),
-    (FontLoader('MaterialIcons')..addFont(
-          Future.value(ByteData.sublistView(icons.readAsBytesSync())),
-        ))
+    (FontLoader(
+          'MaterialIcons',
+        )..addFont(Future.value(ByteData.sublistView(icons.readAsBytesSync()))))
         .load(),
   ]);
 }
@@ -74,7 +73,10 @@ Future<void> _launch(WidgetTester tester, List<Object> answers) async {
         overrides: [
           initialSessionProvider.overrideWithValue(
             const Session(
-              user: AppUser(fullName: 'Sara Malik', email: 'sara.malik@example.com'),
+              user: AppUser(
+                fullName: 'Sara Malik',
+                email: 'sara.malik@example.com',
+              ),
             ),
           ),
           authRepositoryProvider.overrideWithValue(_Scripted(answers)),
@@ -125,7 +127,8 @@ void main() {
   testWidgets('resend limit', (t) async {
     await _launch(t, [
       const RateLimitedException(
-        message: "You've reached the maximum resend limit. Please try again later.",
+        message:
+            "You've reached the maximum resend limit. Please try again later.",
         remainingAttempts: 0,
       ),
     ]);

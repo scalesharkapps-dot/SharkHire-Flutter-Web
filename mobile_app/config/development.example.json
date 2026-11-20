@@ -1,5 +1,6 @@
 {
   "APP_ENV": "development",
   "USE_MOCK_DATA": "true",
-  "API_BASE_URL": ""
+  "API_BASE_URL": "",
+  "SUBSCRIPTIONS_ENABLED": "false"
 }

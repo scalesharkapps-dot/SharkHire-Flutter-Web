@@ -149,6 +149,7 @@ AppUser appUserFromApi(
         p['country'],
       ].whereType<String>().where((s) => s.isNotEmpty).join(', ');
   return AppUser(
+    id: (me['id'] as String?) ?? '',
     fullName: (p['full_name'] as String?) ?? (me['full_name'] as String?) ?? '',
     email: (me['email'] as String?) ?? (p['email'] as String?) ?? '',
     roles: {appRoleFromApi(me['role'] ?? p['role'])},

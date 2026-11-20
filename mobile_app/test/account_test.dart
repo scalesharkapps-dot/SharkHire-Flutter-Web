@@ -4,7 +4,7 @@ import 'package:sharkhire/features/notifications/presentation/screens/job_alerts
 import 'package:sharkhire/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:sharkhire/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:sharkhire/features/settings/presentation/screens/settings_screens.dart';
-import 'package:sharkhire/features/settings/presentation/screens/subscription_screen.dart';
+import 'package:sharkhire/features/subscription/presentation/screens/subscription_screen.dart';
 
 import 'helpers.dart';
 
@@ -76,27 +76,32 @@ void main() {
     expect(find.text('Data roles'), findsOneWidget);
   });
 
-  testWidgets('Start the free trial and restore purchases', (tester) async {
+  testWidgets('Subscription: demo trial, restore and subscribe', (
+    tester,
+  ) async {
     usePhone(tester);
     await launchToSeekerHome(tester);
     await openProfileItem(tester, 'Subscription');
 
-    expect(find.text('Unlock Premium'), findsOneWidget);
-    expect(
-      find.text('Local price shown at checkout (PKR in Pakistan)'),
-      findsOneWidget,
+    // Status and price come from the (demo) backend and store.
+    await pumpUntil(tester, () => isShown(find.text('Free trial active')));
+    await pumpUntil(
+      tester,
+      () => isShown(
+        find.textContaining(r'$10.00 (demo) / month', findRichText: true),
+      ),
     );
 
     await scrollTo(tester, find.text('Restore purchases'));
     await tapText(tester, 'Restore purchases');
     await pumpUntil(
       tester,
-      () => isShown(find.textContaining('No previous purchases')),
+      () => isShown(find.textContaining('No active subscription was found')),
     );
 
-    await tapText(tester, 'Start free trial');
-    await pumpUntil(tester, () => isShown(find.text('Free trial active')));
-    expect(find.text('Start free trial'), findsNothing);
+    await tapText(tester, r'Subscribe for $10.00 (demo) / month');
+    await pumpUntil(tester, () => isShown(find.text('Manage subscription')));
+    expect(find.textContaining('Subscribe for'), findsNothing);
   });
 
   testWidgets('Edit profile updates the name everywhere', (tester) async {

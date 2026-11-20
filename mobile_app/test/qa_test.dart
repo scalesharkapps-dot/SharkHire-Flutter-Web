@@ -23,7 +23,7 @@ import 'package:sharkhire/features/profile/presentation/screens/profile_screen.d
 import 'package:sharkhire/features/resume/presentation/screens/cv_upload_screen.dart';
 import 'package:sharkhire/features/saved_jobs/presentation/screens/saved_jobs_screen.dart';
 import 'package:sharkhire/features/settings/presentation/screens/settings_screens.dart';
-import 'package:sharkhire/features/settings/presentation/screens/subscription_screen.dart';
+import 'package:sharkhire/features/subscription/presentation/screens/subscription_screen.dart';
 
 import 'helpers.dart';
 

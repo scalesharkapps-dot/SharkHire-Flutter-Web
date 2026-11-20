@@ -10,6 +10,7 @@ import 'domain_enums.dart';
 @immutable
 class AppUser {
   const AppUser({
+    this.id = '',
     required this.fullName,
     required this.email,
     this.roles = const {AppRole.jobSeeker},
@@ -24,6 +25,9 @@ class AppUser {
   /// Shown only in the brief moment between sign-out and redirect.
   static const guest = AppUser(fullName: 'Guest', email: '');
 
+  /// Backend (Supabase auth) user ID, also used as the RevenueCat App User
+  /// ID. Empty for demo users and older test fixtures.
+  final String id;
   final String fullName;
   final String email;
   final Set<AppRole> roles;
@@ -59,6 +63,7 @@ class AppUser {
     bool? hasCv,
     bool? isPremium,
   }) => AppUser(
+    id: id,
     fullName: fullName ?? this.fullName,
     email: email,
     roles: roles,
