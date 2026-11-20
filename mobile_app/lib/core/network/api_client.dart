@@ -19,6 +19,18 @@ class UploadFile {
   final String? contentType;
 }
 
+/// A successful SharkHire response with its envelope kept: the backend's
+/// `message`, the `data`, and `remaining_attempts` when the backend sends
+/// it. Used where the message itself matters (e.g. "verification email
+/// sent") and `data` is empty.
+class ApiEnvelope {
+  const ApiEnvelope({this.message, this.data, this.remainingAttempts});
+
+  final String? message;
+  final Object? data;
+  final int? remainingAttempts;
+}
+
 /// Contract for talking to the SharkHire FastAPI backend.
 ///
 /// Feature repositories depend on this interface only. The real
@@ -33,6 +45,9 @@ abstract interface class ApiClient {
   Future<Object?> get(String path, {Map<String, Object?>? query});
 
   Future<Object?> post(String path, {Object? body});
+
+  /// Like [post], but returns the whole success envelope.
+  Future<ApiEnvelope> postEnvelope(String path, {Object? body});
 
   Future<Object?> put(String path, {Object? body});
 

@@ -59,6 +59,15 @@ class HttpApiClient implements ApiClient {
     Future<http.Response> Function(String? token) request, {
     Duration timeout = ApiConfig.receiveTimeout,
   }) async {
+    final res = await _request(request, timeout: timeout);
+    return decodeResponse(res.statusCode, res.body, res.headers);
+  }
+
+  /// Sends [request] with the access token, renewing it once on 401.
+  Future<http.Response> _request(
+    Future<http.Response> Function(String? token) request, {
+    Duration timeout = ApiConfig.receiveTimeout,
+  }) async {
     var token = await _tokens.accessToken();
     var res = await _guard(() => request(token), timeout);
     if (res.statusCode == 401 && token != null) {
@@ -69,7 +78,19 @@ class HttpApiClient implements ApiClient {
       }
       if (res.statusCode == 401) onUnauthorized?.call();
     }
-    return decodeResponse(res.statusCode, res.body, res.headers);
+    return res;
+  }
+
+  /// `remaining_attempts` from a response body: top level, inside `data`,
+  /// or inside `error.details`. Null when the backend didn't send it.
+  static int? remainingAttemptsOf(Object? json) {
+    int? read(Object? m) =>
+        m is Map ? (m['remaining_attempts'] as num?)?.toInt() : null;
+    if (json is! Map) return null;
+    final error = json['error'];
+    return read(json) ??
+        read(json['data']) ??
+        (error is Map ? read(error['details']) : null);
   }
 
   Future<http.Response> _guard(
@@ -112,6 +133,7 @@ class HttpApiClient implements ApiClient {
     }
 
     // SharkHire envelope: {"message": ..., "error": {"code", "message", "details"}}
+    final remaining = remainingAttemptsOf(json);
     final error = json is Map ? json['error'] : null;
     final code = error is Map ? error['code'] as String? : null;
     String? message;
@@ -149,6 +171,7 @@ class HttpApiClient implements ApiClient {
           message ?? 'Please check the highlighted details.',
           fieldErrors: fields,
           code: code,
+          remainingAttempts: remaining,
         );
       case 401:
         throw message == null
@@ -164,10 +187,18 @@ class HttpApiClient implements ApiClient {
             : NotFoundException(message, code);
       case 429:
         final seconds = int.tryParse(headers['retry-after'] ?? '');
-        throw RateLimitedException(
-          retryAfter: seconds == null ? null : Duration(seconds: seconds),
-          code: code,
-        );
+        throw message == null
+            ? RateLimitedException(
+                retryAfter: seconds == null ? null : Duration(seconds: seconds),
+                code: code,
+                remainingAttempts: remaining,
+              )
+            : RateLimitedException(
+                retryAfter: seconds == null ? null : Duration(seconds: seconds),
+                message: message,
+                code: code,
+                remainingAttempts: remaining,
+              );
       case 503:
         throw ServerException(switch (code) {
           'storage_not_configured' =>
@@ -198,6 +229,30 @@ class HttpApiClient implements ApiClient {
       body: body == null ? null : jsonEncode(body),
     ),
   );
+
+  @override
+  Future<ApiEnvelope> postEnvelope(String path, {Object? body}) async {
+    final res = await _request(
+      (t) => _http.post(
+        _uri(path),
+        headers: _headers(t),
+        body: body == null ? null : jsonEncode(body),
+      ),
+    );
+    // Throws the typed ApiException for error statuses.
+    final data = decodeResponse(res.statusCode, res.body, res.headers);
+    Object? json;
+    try {
+      json = res.body.isEmpty ? null : jsonDecode(res.body);
+    } on FormatException {
+      json = null;
+    }
+    return ApiEnvelope(
+      message: json is Map ? json['message'] as String? : null,
+      data: data,
+      remainingAttempts: remainingAttemptsOf(json),
+    );
+  }
 
   @override
   Future<Object?> put(String path, {Object? body}) => _send(

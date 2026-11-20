@@ -89,11 +89,20 @@ class ApiAuthRepository implements AuthRepository {
   Future<void> sendPasswordReset(String email) =>
       _api.post(ApiEndpoints.authForgotPassword, body: {'email': email.trim()});
 
+  /// `POST /api/v1/auth/resend-verification`. Returns the backend's own
+  /// message and, when it sends one, `remaining_attempts`. The backend
+  /// enforces the limit (429).
   @override
-  Future<void> resendVerificationEmail(String email) => _api.post(
-    ApiEndpoints.authResendVerification,
-    body: {'email': email.trim()},
-  );
+  Future<ResendVerificationResult> resendVerificationEmail(String email) async {
+    final res = await _api.postEnvelope(
+      ApiEndpoints.authResendVerification,
+      body: {'email': email.trim()},
+    );
+    return ResendVerificationResult(
+      message: res.message ?? 'Verification email sent.',
+      remainingAttempts: res.remainingAttempts,
+    );
+  }
 
   /// Signs in with the sign-up details; succeeds once the email is confirmed.
   @override

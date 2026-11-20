@@ -6,10 +6,10 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/utils/feedback.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/state_views.dart';
 import '../../../profile/presentation/providers/current_user_provider.dart';
+import '../providers/resend_verification_provider.dart';
 import '../providers/session_provider.dart';
 import '../widgets/auth_scaffold.dart';
 
@@ -22,17 +22,41 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
+  /// Short pause after a confirmed resend so a double tap can't send twice.
+  /// This is not the resend limit; the backend enforces that.
   static const _cooldownSeconds = 30;
   bool _checking = false;
-  bool _resending = false;
-  int _cooldown = 0;
-  Timer? _timer;
   String? _message;
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    // Repaints the "Resend in Ns" countdown while it runs.
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted && _cooldownLeft(_resendState.lastSentAt) > 0) {
+        setState(() {});
+      }
+    });
+  }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _ticker?.cancel();
     super.dispose();
+  }
+
+  String get _emailKey =>
+      ref.read(currentUserProvider).email.trim().toLowerCase();
+
+  ResendVerificationState get _resendState =>
+      ref.read(resendVerificationProvider(_emailKey));
+
+  static int _cooldownLeft(DateTime? lastSentAt) {
+    if (lastSentAt == null) return 0;
+    final left =
+        _cooldownSeconds - DateTime.now().difference(lastSentAt).inSeconds;
+    return left > 0 ? left : 0;
   }
 
   Future<void> _check() async {
@@ -58,34 +82,26 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     });
   }
 
-  Future<void> _resend() async {
-    setState(() => _resending = true);
-    try {
-      await ref.read(sessionProvider.notifier).resendVerification();
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _resending = false);
-      AppFeedback.show(context, friendlyErrorMessage(e));
-      return;
-    }
-    if (!mounted) return;
-    setState(() {
-      _resending = false;
-      _cooldown = _cooldownSeconds;
-    });
-    AppFeedback.show(context, 'Verification email sent');
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) return t.cancel();
-      setState(() => _cooldown--);
-      if (_cooldown <= 0) t.cancel();
-    });
-  }
+  void _resend() =>
+      ref.read(resendVerificationProvider(_emailKey).notifier).resend();
 
   @override
   Widget build(BuildContext context) {
     final email = ref.watch(currentUserProvider).email;
     final text = Theme.of(context).textTheme;
+    final resend = ref.watch(
+      resendVerificationProvider(email.trim().toLowerCase()),
+    );
+    final cooldown = _cooldownLeft(resend.lastSentAt);
+    final canTap = resend.canResend && cooldown == 0;
+    final remaining = resend.remainingAttempts;
+    final resendLabel = resend.limitReached
+        ? 'Resend limit reached'
+        : resend.alreadyVerified
+        ? 'Email already confirmed'
+        : cooldown > 0
+        ? 'Resend in ${cooldown}s'
+        : 'Resend email';
 
     return AuthScaffold(
       showBack: false,
@@ -124,12 +140,57 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: _cooldown > 0 || _resending ? null : _resend,
-            child: Text(
-              _cooldown > 0 ? 'Resend in ${_cooldown}s' : 'Resend email',
-            ),
+            onPressed: canTap ? _resend : null,
+            child: resend.sending
+                ? Semantics(
+                    label: 'Sending verification email',
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: AppSpacing.sm),
+                        Text('Sending…'),
+                      ],
+                    ),
+                  )
+                : Text(resendLabel),
           ),
         ),
+        if (remaining != null && remaining > 0 && !resend.limitReached) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '$remaining ${remaining == 1 ? 'resend' : 'resends'} left',
+            textAlign: TextAlign.center,
+            style: text.bodySmall,
+          ),
+        ],
+        if (resend.notice != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          Semantics(
+            liveRegion: true,
+            child: InlineBanner(
+              message: resend.notice!,
+              tone: switch (resend.noticeTone) {
+                ResendNoticeTone.success => BannerTone.success,
+                ResendNoticeTone.info => BannerTone.info,
+                ResendNoticeTone.error => BannerTone.error,
+              },
+            ),
+          ),
+        ],
+        if (resend.limitReached) ...[
+          const SizedBox(height: AppSpacing.md),
+          Semantics(
+            liveRegion: true,
+            child: const InlineBanner(
+              message: resendLimitMessage,
+              tone: BannerTone.warning,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         Center(
           child: TextButton(

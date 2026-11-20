@@ -37,6 +37,9 @@ class _FakeApi implements ApiClient {
   @override
   Future<Object?> post(String path, {Object? body}) async => null;
   @override
+  Future<ApiEnvelope> postEnvelope(String path, {Object? body}) async =>
+      const ApiEnvelope();
+  @override
   Future<Object?> put(String path, {Object? body}) async => null;
   @override
   Future<Object?> patch(String path, {Object? body}) async => null;

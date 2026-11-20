@@ -6,9 +6,13 @@
 /// [message] is the backend's user-facing message when it sent one, and
 /// [code] its machine-readable `error.code` (e.g. `invalid_credentials`).
 sealed class ApiException implements Exception {
-  const ApiException(this.message, {this.code});
+  const ApiException(this.message, {this.code, this.remainingAttempts});
   final String message;
   final String? code;
+
+  /// The backend's `remaining_attempts`, when the response includes one
+  /// (e.g. resend-verification limits). Null when the backend didn't send it.
+  final int? remainingAttempts;
 
   @override
   String toString() => '$runtimeType(${code ?? '-'}): $message';
@@ -61,6 +65,7 @@ class ValidationException extends ApiException {
     super.message, {
     this.fieldErrors = const {},
     super.code,
+    super.remainingAttempts,
   });
   final Map<String, String> fieldErrors;
 }
@@ -73,7 +78,8 @@ class RateLimitedException extends ApiException {
     String message =
         'Job search is busy right now. Please try again in a minute.',
     String? code,
-  }) : super(message, code: code);
+    int? remainingAttempts,
+  }) : super(message, code: code, remainingAttempts: remainingAttempts);
   final Duration? retryAfter;
 }
 

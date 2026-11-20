@@ -64,3 +64,7 @@ config/*.json
 
 # Flutter SDK downloaded by tool/vercel_build.sh
 .flutter-sdk/
+
+.vercel
+.env*
+!.env.example

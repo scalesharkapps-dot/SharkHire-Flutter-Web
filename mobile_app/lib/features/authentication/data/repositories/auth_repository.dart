@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_config.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/network/auth_token_provider.dart';
 import '../../../../core/network/http_api_client.dart';
 
@@ -16,6 +17,21 @@ class AuthFailure implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// The backend's answer to a resend-verification request.
+class ResendVerificationResult {
+  const ResendVerificationResult({
+    required this.message,
+    this.remainingAttempts,
+  });
+
+  /// The backend's confirmation message.
+  final String message;
+
+  /// Resends left, from the backend's `remaining_attempts`. Null when the
+  /// backend doesn't report it.
+  final int? remainingAttempts;
 }
 
 /// Authentication contract. The production implementation
@@ -34,7 +50,10 @@ abstract interface class AuthRepository {
 
   Future<void> sendPasswordReset(String email);
 
-  Future<void> resendVerificationEmail(String email);
+  /// Asks the backend to send the confirmation email again. The backend
+  /// enforces the resend limit: when it is reached this throws a
+  /// [RateLimitedException] (HTTP 429).
+  Future<ResendVerificationResult> resendVerificationEmail(String email);
 
   /// Re-checks whether the user has confirmed their email.
   Future<bool> checkEmailVerified(String email);
@@ -149,9 +168,29 @@ class MockAuthRepository implements AuthRepository {
   Future<void> sendPasswordReset(String email) =>
       Future<void>.delayed(_latency);
 
+  /// Mirrors the backend contract for development: 2 resends, then 429.
+  final Map<String, int> _resends = {};
+  static const maxResends = 2;
+
   @override
-  Future<void> resendVerificationEmail(String email) =>
-      Future<void>.delayed(_latency);
+  Future<ResendVerificationResult> resendVerificationEmail(String email) async {
+    await Future<void>.delayed(_latency);
+    final key = _key(email);
+    final used = _resends[key] ?? 0;
+    if (used >= maxResends) {
+      throw const RateLimitedException(
+        message:
+            "You've reached the maximum resend limit. Please try again later.",
+        code: 'resend_limit_reached',
+        remainingAttempts: 0,
+      );
+    }
+    _resends[key] = used + 1;
+    return ResendVerificationResult(
+      message: 'Verification email sent. Check your inbox.',
+      remainingAttempts: maxResends - used - 1,
+    );
+  }
 
   @override
   Future<bool> checkEmailVerified(String email) async {
