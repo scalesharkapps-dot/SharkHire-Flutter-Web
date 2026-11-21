@@ -83,9 +83,10 @@ abstract final class AppConfig {
   /// then also requires Sign in with Apple (App Review guideline 4.8).
   static const bool googleSignInReady = false;
 
-  /// Subscription screens are reachable in development, and in production
-  /// once [subscriptionsEnabled] is on.
-  static bool get showPremium => !isProduction || subscriptionsEnabled;
+  /// The Subscription screen is always reachable (Profile > Subscription).
+  /// While the backend API or store keys are missing it shows that plainly
+  /// and offers no purchase; it never grants access on its own.
+  static bool get showPremium => true;
   static bool get showGoogleSignIn => !isProduction || googleSignInReady;
 
   /// Why this build must not run as a production app, or null when it is
