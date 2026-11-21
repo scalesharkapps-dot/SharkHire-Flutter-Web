@@ -145,10 +145,19 @@ class SessionTokenManager implements AuthTokenProvider {
     return _tokens;
   }
 
+  /// "Remember me": keep the session on the device between app launches.
+  /// When false, tokens live only in memory and the user signs in again
+  /// after closing the app.
+  bool persist = true;
+
   Future<void> save(SessionTokens tokens) async {
     _tokens = tokens;
     _loaded = true;
-    await store.write(tokens);
+    if (persist) {
+      await store.write(tokens);
+    } else {
+      await store.clear();
+    }
   }
 
   Future<void> clear() async {

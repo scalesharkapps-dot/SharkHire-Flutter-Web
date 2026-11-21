@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -9,6 +10,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/form_fields.dart';
+import '../../data/login_preferences.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../providers/session_provider.dart';
 import '../widgets/auth_scaffold.dart';
@@ -25,7 +27,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _loading = false;
+  bool _rememberMe = true;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  /// Fills in the remembered email and the last "Remember me" choice.
+  Future<void> _loadPreferences() async {
+    final prefs = await ref.read(loginPreferencesStoreProvider).read();
+    if (!mounted) return;
+    setState(() {
+      _rememberMe = prefs.rememberMe;
+      if (_email.text.isEmpty && prefs.email != null) {
+        _email.text = prefs.email!;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -41,10 +62,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _loading = true;
       _error = null;
     });
+    final email = _email.text.trim();
     try {
       await ref
           .read(sessionProvider.notifier)
-          .signIn(_email.text.trim(), _password.text);
+          .signIn(email, _password.text, rememberMe: _rememberMe);
+      await ref
+          .read(loginPreferencesStoreProvider)
+          .write(LoginPreferences(rememberMe: _rememberMe, email: email));
+      // Ask the phone / browser password manager to save the email and
+      // password (only with "Remember me"). The app never stores them.
+      TextInput.finishAutofillContext(shouldSave: _rememberMe);
       // The router redirects to the right place for this user.
     } on AuthFailure catch (e) {
       if (mounted) setState(() => _error = e.message);
@@ -103,12 +131,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       (v == null || v.isEmpty) ? 'Enter your password' : null,
                   onSubmitted: (_) => _submit(),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push(AppRoutes.forgotPassword),
-                    child: const Text('Forgot password?'),
-                  ),
+                const SizedBox(height: AppSpacing.xs),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _RememberMe(
+                        value: _rememberMe,
+                        onChanged: (v) => setState(() => _rememberMe = v),
+                      ),
+                    ),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.sm,
+                        ),
+                      ),
+                      onPressed: () => context.push(AppRoutes.forgotPassword),
+                      child: const Text('Forgot password?'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 LoadingButton(
@@ -138,6 +179,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "Remember me" checkbox with a tappable label.
+class _RememberMe extends StatelessWidget {
+  const _RememberMe({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return MergeSemantics(
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        borderRadius: AppRadius.mdAll,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.square(
+                dimension: 32,
+                child: Checkbox(
+                  visualDensity: VisualDensity.compact,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  value: value,
+                  onChanged: (v) => onChanged(v ?? false),
+                  activeColor: AppColors.ink,
+                  checkColor: AppColors.onInk,
+                  side: BorderSide(color: AppColors.borderStrong, width: 1.5),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.smAll,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Flexible(
+                child: Text(
+                  'Remember me',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

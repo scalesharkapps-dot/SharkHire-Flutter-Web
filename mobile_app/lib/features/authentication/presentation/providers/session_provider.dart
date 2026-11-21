@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/auth_token_provider.dart';
 import '../../../../core/network/session_expiry.dart';
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/models/domain_enums.dart';
@@ -24,7 +25,14 @@ class SessionController extends Notifier<Session> {
     return ref.read(initialSessionProvider);
   }
 
-  Future<void> signIn(String email, String password) async {
+  /// [rememberMe] keeps the session on this device after the app closes;
+  /// when false the user signs in again next time.
+  Future<void> signIn(
+    String email,
+    String password, {
+    bool rememberMe = true,
+  }) async {
+    ref.read(sessionTokenManagerProvider).persist = rememberMe;
     state = await _repo.signIn(email: email, password: password);
   }
 
@@ -34,6 +42,7 @@ class SessionController extends Notifier<Session> {
     required String password,
     required AppRole role,
   }) async {
+    ref.read(sessionTokenManagerProvider).persist = true;
     state = await _repo.signUp(
       fullName: fullName,
       email: email,
