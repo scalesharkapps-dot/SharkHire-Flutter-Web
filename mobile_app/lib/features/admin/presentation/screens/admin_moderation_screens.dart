@@ -281,7 +281,7 @@ class AdminCvReportsScreen extends ConsumerWidget {
             elevated: false,
             child: Row(
               children: [
-                const Icon(Icons.error_outline_rounded, color: AppColors.error),
+                Icon(Icons.error_outline_rounded, color: AppColors.error),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(

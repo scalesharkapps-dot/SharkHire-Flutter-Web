@@ -474,11 +474,7 @@ class _EntryCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(
-              Icons.edit_outlined,
-              size: 18,
-              color: AppColors.textTertiary,
-            ),
+            Icon(Icons.edit_outlined, size: 18, color: AppColors.textTertiary),
           ],
         ),
       ),

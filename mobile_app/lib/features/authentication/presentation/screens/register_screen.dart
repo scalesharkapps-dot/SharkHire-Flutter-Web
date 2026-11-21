@@ -197,7 +197,7 @@ class _RoleCard extends StatelessWidget {
           duration: AppDurations.medium,
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: selected ? AppColors.oceanTint : AppColors.white,
+            color: selected ? AppColors.oceanTint : AppColors.surface,
             borderRadius: AppRadius.lgAll,
             border: Border.all(
               color: selected ? AppColors.ocean : AppColors.border,
@@ -217,7 +217,7 @@ class _RoleCard extends StatelessWidget {
                   AnimatedOpacity(
                     duration: AppDurations.fast,
                     opacity: selected ? 1 : 0,
-                    child: const Icon(
+                    child: Icon(
                       Icons.check_circle_rounded,
                       color: AppColors.ocean,
                       size: 20,
@@ -244,7 +244,7 @@ class _StrengthMeter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const labels = ['Too short', 'Okay', 'Good', 'Strong'];
-    const colors = [
+    final colors = [
       AppColors.error,
       AppColors.warning,
       AppColors.ocean,

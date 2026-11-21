@@ -100,7 +100,7 @@ class SharkHireWordmark extends StatelessWidget {
       fontSize: fontSize,
       height: 1,
       letterSpacing: -0.02 * fontSize,
-      color: onDark ? AppColors.white : AppColors.navy,
+      color: onDark ? AppColors.white : AppColors.ink,
     );
     // A logotype: announced as one image, exempt from text-contrast rules.
     return Semantics(

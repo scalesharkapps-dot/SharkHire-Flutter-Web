@@ -252,7 +252,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                           Container(
                             width: 40,
                             height: 40,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               color: AppColors.oceanTint,
                               shape: BoxShape.circle,
                             ),

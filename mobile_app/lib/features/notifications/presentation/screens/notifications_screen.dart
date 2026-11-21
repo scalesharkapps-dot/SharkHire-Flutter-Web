@@ -39,7 +39,7 @@ class NotificationsScreen extends ConsumerWidget {
     NotificationKind.system => (
       Icons.info_outline_rounded,
       AppColors.slate,
-      Color(0xFFEDF2F6),
+      AppColors.surfaceMuted,
     ),
   };
 
@@ -168,14 +168,11 @@ class _Tile extends ConsumerWidget {
         background: Container(
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.only(right: AppSpacing.xl),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.errorTint,
             borderRadius: AppRadius.xlAll,
           ),
-          child: const Icon(
-            Icons.delete_outline_rounded,
-            color: AppColors.error,
-          ),
+          child: Icon(Icons.delete_outline_rounded, color: AppColors.error),
         ),
         onDismissed: (_) {
           // Capture the controller now: this tile is gone by the time Undo is tapped.
@@ -192,7 +189,7 @@ class _Tile extends ConsumerWidget {
         },
         child: AppSurface(
           onTap: onTap,
-          color: n.isRead ? AppColors.white : AppColors.mist,
+          color: n.isRead ? AppColors.surface : AppColors.mist,
           borderColor: n.isRead ? AppColors.border : AppColors.oceanTintStrong,
           elevated: false,
           child: Row(
@@ -236,7 +233,7 @@ class _Tile extends ConsumerWidget {
                     margin: const EdgeInsets.only(top: 6),
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.ocean,
                       shape: BoxShape.circle,
                     ),

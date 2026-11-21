@@ -44,9 +44,9 @@ class ExploreFilterSheet extends ConsumerWidget {
       selected: selected,
       onSelected: (_) => onTap(),
       labelStyle: text.labelMedium?.copyWith(
-        color: selected ? AppColors.white : AppColors.navy,
+        color: selected ? AppColors.onInk : AppColors.ink,
       ),
-      side: BorderSide(color: selected ? AppColors.navy : AppColors.border),
+      side: BorderSide(color: selected ? AppColors.ink : AppColors.border),
     );
 
     return Padding(

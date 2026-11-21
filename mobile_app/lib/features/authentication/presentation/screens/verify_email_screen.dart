@@ -114,9 +114,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               const TextSpan(text: 'We sent a confirmation link to '),
               TextSpan(
                 text: email,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.navy,
+                  color: AppColors.ink,
                 ),
               ),
               const TextSpan(

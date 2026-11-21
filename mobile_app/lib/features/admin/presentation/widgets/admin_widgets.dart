@@ -105,8 +105,8 @@ class StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Material(
-      color: AppColors.white,
-      shape: const RoundedRectangleBorder(
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
         borderRadius: AppRadius.xlAll,
         side: BorderSide(color: AppColors.border),
       ),

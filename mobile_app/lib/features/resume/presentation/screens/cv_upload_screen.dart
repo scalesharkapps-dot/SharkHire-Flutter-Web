@@ -247,7 +247,7 @@ class _DropZone extends StatelessWidget {
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.white,
+                  color: AppColors.surface,
                   border: Border.all(color: AppColors.border),
                 ),
                 child: Icon(
@@ -305,7 +305,7 @@ class _ProcessingSteps extends StatelessWidget {
                   child: AnimatedSwitcher(
                     duration: AppDurations.medium,
                     child: s.index < current.index
-                        ? const Icon(
+                        ? Icon(
                             Icons.check_circle_rounded,
                             key: ValueKey('done'),
                             color: AppColors.success,
@@ -317,7 +317,7 @@ class _ProcessingSteps extends StatelessWidget {
                             padding: EdgeInsets.all(3),
                             child: CircularProgressIndicator(strokeWidth: 2.4),
                           )
-                        : const Icon(
+                        : Icon(
                             Icons.radio_button_unchecked_rounded,
                             key: ValueKey('todo'),
                             color: AppColors.borderStrong,
@@ -331,7 +331,7 @@ class _ProcessingSteps extends StatelessWidget {
                     s.label,
                     style: text.bodyLarge?.copyWith(
                       color: s.index <= current.index
-                          ? AppColors.navy
+                          ? AppColors.ink
                           : AppColors.textTertiary,
                       fontWeight: s == current
                           ? FontWeight.w600

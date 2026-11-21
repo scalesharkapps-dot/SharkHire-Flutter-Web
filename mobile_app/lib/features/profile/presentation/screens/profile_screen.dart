@@ -76,7 +76,7 @@ class ProfileScreen extends ConsumerWidget {
                         onTap: () => context.push(AppRoutes.subscription),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.workspace_premium_rounded,
                               color: AppColors.ocean,
                             ),
@@ -87,7 +87,7 @@ class ProfileScreen extends ConsumerWidget {
                                 style: text.titleSmall,
                               ),
                             ),
-                            const Icon(
+                            Icon(
                               Icons.chevron_right_rounded,
                               color: AppColors.textTertiary,
                             ),
@@ -215,13 +215,15 @@ class _IdentityCard extends StatelessWidget {
                 width: 64,
                 height: 64,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.ocean,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   user.initials,
-                  style: text.titleLarge?.copyWith(color: AppColors.white),
+                  style: text.titleLarge?.copyWith(
+                    color: AppColors.isDark ? AppColors.navy : AppColors.white,
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.lg),
@@ -248,7 +250,7 @@ class _IdentityCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.location_on_outlined,
                             size: 14,
                             color: AppColors.textTertiary,
@@ -268,7 +270,7 @@ class _IdentityCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.edit_outlined,
                 size: 20,
                 color: AppColors.textTertiary,
@@ -410,7 +412,7 @@ class _CvCard extends ConsumerWidget {
                 IconButton(
                   tooltip: 'Remove CV',
                   onPressed: () => _remove(context, ref),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.delete_outline_rounded,
                     color: AppColors.textTertiary,
                   ),
@@ -440,7 +442,7 @@ class _CvCard extends ConsumerWidget {
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.lock_outline_rounded,
                 size: 14,
                 color: AppColors.textTertiary,
@@ -477,7 +479,7 @@ class _PremiumCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.workspace_premium_outlined,
                 color: AppColors.ocean,
                 size: 18,

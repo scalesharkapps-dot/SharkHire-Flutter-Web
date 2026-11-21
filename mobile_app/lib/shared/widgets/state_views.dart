@@ -9,16 +9,19 @@ class StateIllustration extends StatelessWidget {
   const StateIllustration({
     super.key,
     required this.icon,
-    this.tone = AppColors.ocean,
-    this.tint = AppColors.oceanTint,
-  });
+    Color? tone,
+    Color? tint,
+  }) : _tone = tone,
+       _tint = tint;
 
   final IconData icon;
-  final Color tone;
-  final Color tint;
+  final Color? _tone;
+  final Color? _tint;
 
   @override
   Widget build(BuildContext context) {
+    final tone = _tone ?? AppColors.ocean;
+    final tint = _tint ?? AppColors.oceanTint;
     return SizedBox.square(
       dimension: 120,
       child: Stack(
@@ -38,9 +41,9 @@ class StateIllustration extends StatelessWidget {
           Container(
             width: 56,
             height: 56,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.white,
+              color: AppColors.surface,
               boxShadow: AppColors.cardShadow,
             ),
             child: Icon(icon, size: 28, color: tone),
@@ -135,7 +138,7 @@ class ErrorStateView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const StateIllustration(
+          StateIllustration(
             icon: Icons.wifi_off_rounded,
             tone: AppColors.error,
             tint: AppColors.errorTint,

@@ -32,11 +32,11 @@ class CvPromptCard extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.oceanTint,
                   borderRadius: AppRadius.mdAll,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.description_outlined,
                   size: 20,
                   color: AppColors.ocean,
@@ -146,7 +146,7 @@ class CategoryStrip extends StatelessWidget {
               width: 96,
               padding: const EdgeInsets.all(AppSpacing.md),
               decoration: BoxDecoration(
-                color: AppColors.white,
+                color: AppColors.surface,
                 borderRadius: AppRadius.xlAll,
                 border: Border.all(color: AppColors.border),
               ),
@@ -198,10 +198,7 @@ class JobAlertCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.notifications_active_outlined,
-            color: AppColors.ocean,
-          ),
+          Icon(Icons.notifications_active_outlined, color: AppColors.ocean),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -212,10 +209,7 @@ class JobAlertCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textTertiary,
-          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
         ],
       ),
     );

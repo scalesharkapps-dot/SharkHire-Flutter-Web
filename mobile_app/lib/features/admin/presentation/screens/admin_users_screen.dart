@@ -131,10 +131,7 @@ class _UserCard extends ConsumerWidget {
           ),
           PopupMenuButton<AccountStatus>(
             tooltip: 'Actions for ${u.name}',
-            icon: const Icon(
-              Icons.more_vert_rounded,
-              color: AppColors.textSecondary,
-            ),
+            icon: Icon(Icons.more_vert_rounded, color: AppColors.textSecondary),
             onSelected: (s) {
               ref.read(adminUsersProvider.notifier).setStatus(u.id, s);
               AppFeedback.show(context, '${u.name}: ${s.label.toLowerCase()}');

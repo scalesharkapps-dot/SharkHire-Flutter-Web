@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import 'app_surface.dart';
 
@@ -50,8 +51,10 @@ class Skeleton extends StatelessWidget {
   final double height;
   final double radius;
 
-  static const _from = Color(0xFFE6EDF3);
-  static const _to = Color(0xFFF2F6F9);
+  static Color get _from =>
+      AppColors.isDark ? const Color(0xFF1A2836) : const Color(0xFFE6EDF3);
+  static Color get _to =>
+      AppColors.isDark ? const Color(0xFF223345) : const Color(0xFFF2F6F9);
 
   @override
   Widget build(BuildContext context) {

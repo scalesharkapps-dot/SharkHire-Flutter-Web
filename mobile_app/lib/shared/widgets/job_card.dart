@@ -146,12 +146,12 @@ class _CompanyLine extends StatelessWidget {
         ),
         if (rating != null) ...[
           const SizedBox(width: 6),
-          const Icon(Icons.star_rounded, size: 15, color: AppColors.navy),
+          Icon(Icons.star_rounded, size: 15, color: AppColors.ink),
           const SizedBox(width: 2),
           Text(
             rating!.toStringAsFixed(1),
             style: style?.copyWith(
-              color: AppColors.navy,
+              color: AppColors.ink,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -187,7 +187,7 @@ class _MetaRow extends StatelessWidget {
             style: emphasize
                 ? base?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.navy,
+                    color: AppColors.ink,
                   )
                 : base?.copyWith(color: AppColors.textSecondary),
           ),

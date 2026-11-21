@@ -112,10 +112,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       selected: selected,
                       onSelected: (_) => controller.toggle(f),
                       labelStyle: text.labelMedium?.copyWith(
-                        color: selected ? AppColors.white : AppColors.navy,
+                        color: selected ? AppColors.onInk : AppColors.ink,
                       ),
                       side: BorderSide(
-                        color: selected ? AppColors.navy : AppColors.border,
+                        color: selected ? AppColors.ink : AppColors.border,
                       ),
                     );
                   },
@@ -210,7 +210,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.info_outline_rounded,
                       size: 16,
                       color: AppColors.textTertiary,
@@ -249,7 +249,7 @@ class _SortMenu extends StatelessWidget {
       initialValue: value,
       onSelected: onChanged,
       tooltip: 'Sort jobs',
-      color: AppColors.white,
+      color: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
       itemBuilder: (_) => [
@@ -266,11 +266,7 @@ class _SortMenu extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.swap_vert_rounded,
-                size: 18,
-                color: AppColors.ocean,
-              ),
+              Icon(Icons.swap_vert_rounded, size: 18, color: AppColors.ocean),
               const SizedBox(width: 4),
               Text(
                 value.label,

@@ -70,8 +70,8 @@ class AdminCategoriesScreen extends ConsumerWidget {
       intro:
           'Categories appear in onboarding and search. Skills help match CVs to jobs.',
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.navy,
-        foregroundColor: AppColors.white,
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.onInk,
         onPressed: () async {
           final name = await _askValue(
             context,

@@ -48,8 +48,8 @@ class HomeHeader extends StatelessWidget {
         AppSpacing.screenHorizontal,
         AppSpacing.xl,
       ),
-      decoration: const BoxDecoration(
-        color: AppColors.white,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.border)),
       ),
       child: Column(
@@ -92,7 +92,7 @@ class HomeHeader extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '$strongMatches strong matches',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.ocean,
                     fontWeight: FontWeight.w600,
                   ),
@@ -225,7 +225,7 @@ class _HeaderIconButton extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(icon, color: AppColors.navy, size: 24),
+                Icon(icon, color: AppColors.ink, size: 24),
                 if (showDot)
                   Positioned(
                     top: 12,
@@ -236,7 +236,10 @@ class _HeaderIconButton extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.error,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.white, width: 1.5),
+                        border: Border.all(
+                          color: AppColors.surface,
+                          width: 1.5,
+                        ),
                       ),
                     ),
                   ),
@@ -260,7 +263,7 @@ class _Avatar extends StatelessWidget {
     return Tooltip(
       message: 'Profile',
       child: Material(
-        color: AppColors.navy,
+        color: AppColors.ink,
         shape: const CircleBorder(),
         child: InkWell(
           onTap: onTap,
@@ -271,7 +274,7 @@ class _Avatar extends StatelessWidget {
               child: Text(
                 initials,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AppColors.white,
+                  color: AppColors.onInk,
                   fontSize: 14,
                 ),
               ),

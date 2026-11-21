@@ -47,8 +47,8 @@ class AdminOverviewScreen extends ConsumerWidget {
                   AppSpacing.screenHorizontal,
                   AppSpacing.xxl,
                 ),
-                decoration: const BoxDecoration(
-                  color: AppColors.white,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
                   border: Border(bottom: BorderSide(color: AppColors.border)),
                 ),
                 child: Column(
@@ -150,7 +150,7 @@ class AdminOverviewScreen extends ConsumerWidget {
                                 style: text.titleMedium,
                               ),
                             ),
-                            const Icon(
+                            Icon(
                               Icons.chevron_right_rounded,
                               color: AppColors.textTertiary,
                             ),
@@ -199,7 +199,7 @@ class AdminOverviewScreen extends ConsumerWidget {
                         for (var i = 0; i < audit.take(4).length; i++) ...[
                           if (i > 0) const Divider(indent: AppSpacing.lg),
                           ListTile(
-                            leading: const Icon(
+                            leading: Icon(
                               Icons.history_rounded,
                               color: AppColors.ocean,
                             ),

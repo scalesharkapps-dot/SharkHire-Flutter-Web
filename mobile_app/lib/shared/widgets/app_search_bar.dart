@@ -35,7 +35,7 @@ class AppSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final bg = dark ? AppColors.navySoft : AppColors.white;
+    final bg = dark ? AppColors.navySoft : AppColors.surface;
     final fg = dark ? AppColors.textOnDarkMuted : AppColors.textTertiary;
     final iconColor = dark
         ? AppColors.textOnDarkMuted
@@ -135,8 +135,8 @@ class _FilterButton extends StatelessWidget {
         backgroundColor: AppColors.ocean,
         offset: const Offset(-2, 2),
         child: Material(
-          color: active ? AppColors.navy : AppColors.white,
-          shape: const RoundedRectangleBorder(
+          color: active ? AppColors.ink : AppColors.surface,
+          shape: RoundedRectangleBorder(
             borderRadius: AppRadius.lgAll,
             side: BorderSide(color: AppColors.borderStrong),
           ),
@@ -148,7 +148,7 @@ class _FilterButton extends StatelessWidget {
               child: Icon(
                 Icons.tune_rounded,
                 size: 20,
-                color: active ? AppColors.white : AppColors.navy,
+                color: active ? AppColors.onInk : AppColors.ink,
               ),
             ),
           ),

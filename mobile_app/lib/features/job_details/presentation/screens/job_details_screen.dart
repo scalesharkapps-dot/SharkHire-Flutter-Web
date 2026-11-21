@@ -57,7 +57,7 @@ class JobDetailsScreen extends ConsumerWidget {
             },
             icon: Icon(
               isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-              color: isSaved ? AppColors.ocean : AppColors.navy,
+              color: isSaved ? AppColors.ocean : AppColors.ink,
             ),
           ),
         ],
@@ -153,10 +153,10 @@ class _DetailsBody extends ConsumerWidget {
                             if (s.companyRating != null)
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.star_rounded,
                                     size: 16,
-                                    color: AppColors.navy,
+                                    color: AppColors.ink,
                                   ),
                                   const SizedBox(width: 2),
                                   Text(
@@ -184,7 +184,7 @@ class _DetailsBody extends ConsumerWidget {
                         bordered: true,
                       ),
                       if (s.isInternal)
-                        const InfoPill(
+                        InfoPill(
                           label: 'Apply in-app · Verified employer',
                           icon: Icons.verified_rounded,
                           background: AppColors.oceanTint,
@@ -374,8 +374,8 @@ class _MatchCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            decoration: const BoxDecoration(
-              color: AppColors.white,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
               shape: BoxShape.circle,
             ),
             padding: const EdgeInsets.all(4),
@@ -533,7 +533,7 @@ class _BulletLine extends StatelessWidget {
           margin: const EdgeInsets.only(top: 9, right: AppSpacing.sm),
           width: 5,
           height: 5,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.ocean,
             shape: BoxShape.circle,
           ),

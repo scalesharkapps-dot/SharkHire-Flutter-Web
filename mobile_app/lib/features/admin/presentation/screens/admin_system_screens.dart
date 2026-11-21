@@ -8,6 +8,7 @@ import '../../../../shared/widgets/app_surface.dart';
 import '../../../../shared/widgets/bottom_action_bar.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/menu_group.dart';
+import '../../../../shared/widgets/appearance_picker.dart';
 import '../../../../shared/widgets/status_chip.dart';
 import '../../data/models/admin_models.dart';
 import '../providers/admin_providers.dart';
@@ -256,7 +257,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 2),
                   child: Icon(
                     Icons.history_rounded,
@@ -369,6 +370,8 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> {
               AppSpacing.xxl,
             ),
             children: [
+              const AppearancePicker(),
+              const SizedBox(height: AppSpacing.xl),
               MenuGroup(
                 title: 'Moderation',
                 items: [

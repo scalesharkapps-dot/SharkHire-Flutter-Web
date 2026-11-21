@@ -145,7 +145,7 @@ class _ApplicationDetailsScreenState
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textTertiary,
                     ),
@@ -168,7 +168,7 @@ class _ApplicationDetailsScreenState
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.description_outlined,
                           size: 20,
                           color: AppColors.ocean,
@@ -202,10 +202,7 @@ class _ApplicationDetailsScreenState
                 OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
-                    side: const BorderSide(
-                      color: AppColors.errorTint,
-                      width: 1.4,
-                    ),
+                    side: BorderSide(color: AppColors.errorTint, width: 1.4),
                   ),
                   onPressed: _withdrawing ? null : () => _withdraw(a),
                   child: Text(
@@ -300,7 +297,7 @@ class _Dot extends StatelessWidget {
     height: current ? 18 : 14,
     decoration: BoxDecoration(
       shape: BoxShape.circle,
-      color: done ? AppColors.success : AppColors.white,
+      color: done ? AppColors.success : AppColors.surface,
       border: Border.all(
         color: done ? AppColors.success : AppColors.borderStrong,
         width: 2,

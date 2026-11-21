@@ -8,14 +8,24 @@ import '../../core/theme/app_typography.dart';
 
 /// Match strength tiers (aligned with the guide: 80+ strong, 65+ good).
 enum MatchTier {
-  strong('Strong match', AppColors.success, AppColors.successTint),
-  good('Good match', AppColors.ocean, AppColors.oceanTint),
-  fair('Fair match', AppColors.warning, AppColors.warningTint);
+  strong('Strong match'),
+  good('Good match'),
+  fair('Fair match');
 
-  const MatchTier(this.label, this.color, this.tint);
+  const MatchTier(this.label);
   final String label;
-  final Color color;
-  final Color tint;
+
+  Color get color => switch (this) {
+    strong => AppColors.success,
+    good => AppColors.ocean,
+    fair => AppColors.warning,
+  };
+
+  Color get tint => switch (this) {
+    strong => AppColors.successTint,
+    good => AppColors.oceanTint,
+    fair => AppColors.warningTint,
+  };
 
   static MatchTier of(int score) => score >= 80
       ? MatchTier.strong
@@ -70,7 +80,7 @@ class MatchScoreRing extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   fontSize: size * 0.27,
                   height: 1,
-                  color: AppColors.navy,
+                  color: AppColors.ink,
                 ),
               ),
             ),

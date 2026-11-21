@@ -8,6 +8,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/company_logo.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/menu_group.dart';
+import '../../../../shared/widgets/appearance_picker.dart';
 import '../../../authentication/presentation/widgets/sign_out_sheet.dart';
 import '../../../settings/presentation/providers/settings_provider.dart';
 import '../../data/models/employer_models.dart';
@@ -216,6 +217,8 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: AppSpacing.xl),
+                  const AppearancePicker(),
                   const SizedBox(height: AppSpacing.xl),
                   MenuGroup(
                     items: [

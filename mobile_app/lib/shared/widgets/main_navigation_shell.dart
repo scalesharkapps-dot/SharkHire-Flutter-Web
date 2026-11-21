@@ -81,7 +81,7 @@ class MainNavigationShell extends StatelessWidget {
       return Scaffold(
         body: navigationShell,
         bottomNavigationBar: DecoratedBox(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(top: BorderSide(color: AppColors.border)),
           ),
           child: NavigationBar(
@@ -106,8 +106,8 @@ class MainNavigationShell extends StatelessWidget {
       body: Row(
         children: [
           DecoratedBox(
-            decoration: const BoxDecoration(
-              color: AppColors.white,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
               border: Border(right: BorderSide(color: AppColors.border)),
             ),
             child: SafeArea(

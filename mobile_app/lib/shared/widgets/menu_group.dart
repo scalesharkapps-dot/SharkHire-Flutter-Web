@@ -82,7 +82,7 @@ class _MenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final color = item.destructive ? AppColors.error : AppColors.navy;
+    final color = item.destructive ? AppColors.error : AppColors.ink;
 
     // Switch rows use SwitchListTile so screen readers announce one labelled
     // toggle instead of an unlabelled switch inside a row.
@@ -105,7 +105,7 @@ class _MenuTile extends StatelessWidget {
           if (item.trailing != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.oceanTint,
                 borderRadius: AppRadius.pillAll,
               ),
@@ -115,10 +115,7 @@ class _MenuTile extends StatelessWidget {
               ),
             ),
           const SizedBox(width: 4),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textTertiary,
-          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
         ],
       );
     }

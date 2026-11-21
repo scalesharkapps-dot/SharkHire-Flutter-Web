@@ -18,11 +18,11 @@ class CompanyLogo extends StatelessWidget {
   final double size;
   final String? imageUrl;
 
-  static const _palettes = [
+  static List<(Color, Color)> get _palettes => [
     (AppColors.oceanTint, AppColors.oceanDeep),
     (AppColors.cyanTint, AppColors.ocean),
-    (Color(0xFFE8EEF4), AppColors.navy),
-    (Color(0xFFE4ECF3), AppColors.slate),
+    (AppColors.surfaceMuted, AppColors.ink),
+    (AppColors.surfaceMuted, AppColors.slate),
   ];
 
   @override
@@ -63,32 +63,45 @@ class InfoPill extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
-    this.background = AppColors.surfaceSubtle,
-    this.foreground = AppColors.textSecondary,
+    Color? background,
+    Color? foreground,
     this.bordered = false,
-  });
+  }) : _background = background,
+       _foreground = foreground;
 
   /// "Apply in-app" – internal SharkHire job.
   const InfoPill.internal({super.key})
     : label = 'Apply in-app',
       icon = Icons.verified_outlined,
-      background = AppColors.oceanTint,
-      foreground = AppColors.oceanDeep,
+      _background = _oceanTint,
+      _foreground = _oceanDeep,
       bordered = false;
 
   /// "External" – job from an external board; apply on the source site.
   const InfoPill.external({super.key})
     : label = 'External',
       icon = Icons.north_east_rounded,
-      background = AppColors.surfaceSubtle,
-      foreground = AppColors.textSecondary,
+      _background = null,
+      _foreground = null,
       bordered = true;
 
   final String label;
   final IconData? icon;
-  final Color background;
-  final Color foreground;
+  final Color? _background;
+  final Color? _foreground;
   final bool bordered;
+
+  // Markers for the theme's ocean tint / deep ocean (resolved at build).
+  static const _oceanTint = Color(0x00000001);
+  static const _oceanDeep = Color(0x00000002);
+
+  Color get background => identical(_background, _oceanTint)
+      ? AppColors.oceanTint
+      : _background ?? AppColors.surfaceSubtle;
+
+  Color get foreground => identical(_foreground, _oceanDeep)
+      ? AppColors.oceanDeep
+      : _foreground ?? AppColors.textSecondary;
 
   @override
   Widget build(BuildContext context) {

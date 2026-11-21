@@ -261,10 +261,7 @@ class _CandidateDetailsScreenState
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.picture_as_pdf_outlined,
-                      color: AppColors.ocean,
-                    ),
+                    Icon(Icons.picture_as_pdf_outlined, color: AppColors.ocean),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
@@ -278,7 +275,7 @@ class _CandidateDetailsScreenState
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.open_in_new_rounded,
                       size: 18,
                       color: AppColors.textTertiary,

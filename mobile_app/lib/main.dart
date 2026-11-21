@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'core/config/app_config.dart';
 import 'core/config/misconfigured_app.dart';
+import 'core/theme/theme_mode_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,5 +28,21 @@ Future<void> main() async {
     return;
   }
 
-  runApp(const ProviderScope(child: SharkHireApp()));
+  // The saved appearance, before the first frame (no flash of the wrong
+  // theme). Falls back to the system setting.
+  final themeMode = await const SecureThemePreferenceStore().read().timeout(
+    const Duration(seconds: 2),
+    onTimeout: () => null,
+  );
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        initialThemeModeProvider.overrideWithValue(
+          themeMode ?? ThemeMode.system,
+        ),
+      ],
+      child: const SharkHireApp(),
+    ),
+  );
 }

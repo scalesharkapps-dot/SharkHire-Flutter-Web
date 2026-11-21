@@ -48,7 +48,7 @@ class SectionHeader extends StatelessWidget {
               children: [
                 Text(actionLabel!),
                 const SizedBox(width: 2),
-                const Icon(
+                Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
                   color: AppColors.ocean,

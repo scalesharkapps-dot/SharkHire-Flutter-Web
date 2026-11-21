@@ -44,8 +44,8 @@ class _EmployerJobsScreenState extends ConsumerState<EmployerJobsScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push(AppRoutes.employerNewJob),
-        backgroundColor: AppColors.navy,
-        foregroundColor: AppColors.white,
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.onInk,
         icon: const Icon(Icons.add_rounded),
         label: const Text('Create job'),
       ),

@@ -20,9 +20,9 @@ abstract final class AppTypography {
     const display = AppFonts.display;
     const label = AppFonts.label;
     const body = AppFonts.body;
-    const color = AppColors.textPrimary;
+    final color = AppColors.textPrimary;
 
-    return const TextTheme(
+    return TextTheme(
       // Large brand moments (splash, onboarding hero).
       displayLarge: TextStyle(
         fontFamily: display,

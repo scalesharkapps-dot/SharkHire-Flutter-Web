@@ -193,12 +193,12 @@ class LoadingButton extends StatelessWidget {
     final child = AnimatedSwitcher(
       duration: AppDurations.fast,
       child: loading
-          ? const SizedBox.square(
+          ? SizedBox.square(
               key: ValueKey('spinner'),
               dimension: 22,
               child: CircularProgressIndicator(
                 strokeWidth: 2.4,
-                color: AppColors.white,
+                color: AppColors.onInk,
               ),
             )
           : Row(
@@ -259,10 +259,10 @@ class ChoiceChipGroup<T> extends StatelessWidget {
             selected: selected.contains(o),
             showCheckmark: false,
             labelStyle: text.labelMedium?.copyWith(
-              color: selected.contains(o) ? AppColors.white : AppColors.navy,
+              color: selected.contains(o) ? AppColors.onInk : AppColors.ink,
             ),
             side: BorderSide(
-              color: selected.contains(o) ? AppColors.navy : AppColors.border,
+              color: selected.contains(o) ? AppColors.ink : AppColors.border,
             ),
             onSelected: (on) {
               if (!multiSelect) {
@@ -296,21 +296,23 @@ class InlineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (bg, fg, icon) = switch (tone) {
+    // Quiet card: neutral surface and hairline border; colour lives only in
+    // the small status mark, so the words stay calm and readable.
+    final (tint, mark, icon) = switch (tone) {
       BannerTone.info => (
         AppColors.oceanTint,
-        AppColors.oceanDeep,
+        AppColors.ocean,
         Icons.info_outline_rounded,
       ),
       BannerTone.success => (
         AppColors.successTint,
         AppColors.success,
-        Icons.check_circle_outline_rounded,
+        Icons.check_rounded,
       ),
       BannerTone.warning => (
         AppColors.warningTint,
         AppColors.warning,
-        Icons.lightbulb_outline_rounded,
+        Icons.priority_high_rounded,
       ),
       BannerTone.error => (
         AppColors.errorTint,
@@ -319,28 +321,62 @@ class InlineBanner extends StatelessWidget {
       ),
     };
     final text = Theme.of(context).textTheme;
+    final hasTitle = title != null;
     return Semantics(
       liveRegion: tone == BannerTone.error,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(color: bg, borderRadius: AppRadius.lgAll),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppSpacing.md,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.lgAll,
+          border: Border.all(color: AppColors.border),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 20, color: fg),
-            const SizedBox(width: AppSpacing.sm),
+            Container(
+              width: 28,
+              height: 28,
+              decoration: BoxDecoration(
+                color: tint,
+                borderRadius: AppRadius.smAll,
+              ),
+              child: Icon(icon, size: 16, color: mark),
+            ),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (title != null)
-                    Text(title!, style: text.titleSmall?.copyWith(color: fg)),
-                  Text(
-                    message,
-                    style: text.bodyMedium?.copyWith(color: fg, height: 1.35),
-                  ),
-                ],
+              child: Padding(
+                // Centres a one-line message on the 28px mark.
+                padding: EdgeInsets.only(top: hasTitle ? 2 : 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (hasTitle) ...[
+                      Text(
+                        title!,
+                        style: text.titleSmall?.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                    ],
+                    Text(
+                      message,
+                      style: text.bodyMedium?.copyWith(
+                        color: hasTitle
+                            ? AppColors.textSecondary
+                            : AppColors.textPrimary,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

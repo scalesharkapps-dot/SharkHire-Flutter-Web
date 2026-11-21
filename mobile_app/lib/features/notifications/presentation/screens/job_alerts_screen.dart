@@ -36,8 +36,8 @@ class JobAlertsScreen extends ConsumerWidget {
           ? null
           : FloatingActionButton.extended(
               onPressed: () => _create(context, ref),
-              backgroundColor: AppColors.navy,
-              foregroundColor: AppColors.white,
+              backgroundColor: AppColors.ink,
+              foregroundColor: AppColors.onInk,
               icon: const Icon(Icons.add_rounded),
               label: const Text('New alert'),
             ),
@@ -80,7 +80,7 @@ class JobAlertsScreen extends ConsumerWidget {
                                 decoration: BoxDecoration(
                                   color: a.isActive
                                       ? AppColors.oceanTint
-                                      : const Color(0xFFEDF2F6),
+                                      : AppColors.surfaceMuted,
                                   borderRadius: AppRadius.lgAll,
                                 ),
                                 child: Icon(

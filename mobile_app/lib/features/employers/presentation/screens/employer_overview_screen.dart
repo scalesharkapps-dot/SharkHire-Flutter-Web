@@ -58,8 +58,8 @@ class EmployerOverviewScreen extends ConsumerWidget {
                   AppSpacing.screenHorizontal,
                   AppSpacing.xxl,
                 ),
-                decoration: const BoxDecoration(
-                  color: AppColors.white,
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
                   border: Border(bottom: BorderSide(color: AppColors.border)),
                 ),
                 child: Column(
@@ -232,7 +232,7 @@ class _Stat extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Material(
       color: AppColors.surfaceSubtle,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: AppRadius.lgAll,
         side: BorderSide(color: AppColors.border),
       ),
@@ -307,10 +307,7 @@ class _AttentionRow extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textTertiary,
-          ),
+          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
         ],
       ),
     );

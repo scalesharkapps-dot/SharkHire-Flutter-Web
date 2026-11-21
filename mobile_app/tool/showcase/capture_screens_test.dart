@@ -66,12 +66,20 @@ const _verifiedNewSeeker = Session(
   emailVerified: true,
 );
 const _employer = Session(
-  user: AppUser(fullName: 'Bilal Ahmed', email: 'employer@sharkhire.app', roles: {AppRole.employer}),
+  user: AppUser(
+    fullName: 'Bilal Ahmed',
+    email: 'employer@sharkhire.app',
+    roles: {AppRole.employer},
+  ),
   emailVerified: true,
   onboardingComplete: true,
 );
 const _admin = Session(
-  user: AppUser(fullName: 'Sana Iqbal', email: 'admin@sharkhire.app', roles: {AppRole.admin}),
+  user: AppUser(
+    fullName: 'Sana Iqbal',
+    email: 'admin@sharkhire.app',
+    roles: {AppRole.admin},
+  ),
   emailVerified: true,
   onboardingComplete: true,
 );
@@ -79,14 +87,14 @@ const _admin = Session(
 class _CvUploaded extends CvController {
   @override
   CvState build() => CvState(
-        active: Resume(
-          id: 'cv-1',
-          fileName: 'Ayesha_Khan_CV.pdf',
-          sizeBytes: 241000,
-          uploadedAt: DateTime.now().subtract(const Duration(days: 2)),
-          status: ResumeStatus.processed,
-        ),
-      );
+    active: Resume(
+      id: 'cv-1',
+      fileName: 'Ayesha_Khan_CV.pdf',
+      sizeBytes: 241000,
+      uploadedAt: DateTime.now().subtract(const Duration(days: 2)),
+      status: ResumeStatus.processed,
+    ),
+  );
 }
 
 class _SomeSaved extends SavedJobIdsNotifier {
@@ -97,7 +105,9 @@ class _SomeSaved extends SavedJobIdsNotifier {
 // ── Harness ─────────────────────────────────────────────────────────────────
 Future<void> _loadFonts() async {
   Future<ByteData> a(String p) => rootBundle.load('assets/fonts/$p');
-  final icons = File('C:/src/flutter/bin/cache/artifacts/material_fonts/materialicons-regular.otf');
+  final icons = File(
+    'C:/src/flutter/bin/cache/artifacts/material_fonts/materialicons-regular.otf',
+  );
   await Future.wait([
     (FontLoader('ArchivoBlack')..addFont(a('ArchivoBlack-Regular.ttf'))).load(),
     (FontLoader('Archivo')
@@ -111,12 +121,19 @@ Future<void> _loadFonts() async {
           ..addFont(a('Hind-SemiBold.ttf'))
           ..addFont(a('Hind-Bold.ttf')))
         .load(),
-    (FontLoader('MaterialIcons')..addFont(Future.value(ByteData.sublistView(icons.readAsBytesSync())))).load(),
+    (FontLoader(
+          'MaterialIcons',
+        )..addFont(Future.value(ByteData.sublistView(icons.readAsBytesSync()))))
+        .load(),
   ]);
 }
 
 /// Starts the real app on a 390 × 844 phone with status-bar and home-bar insets.
-Future<void> _launch(WidgetTester tester, Session session, {List<Override> overrides = const []}) async {
+Future<void> _launch(
+  WidgetTester tester,
+  Session session, {
+  List<Override> overrides = const [],
+}) async {
   debugDisableShadows = false;
   addTearDown(() => debugDisableShadows = true);
   tester.view.physicalSize = const Size(390, 844) * 3;
@@ -124,20 +141,32 @@ Future<void> _launch(WidgetTester tester, Session session, {List<Override> overr
   tester.view.padding = const FakeViewPadding(top: 47 * 3, bottom: 34 * 3);
   tester.view.viewPadding = const FakeViewPadding(top: 47 * 3, bottom: 34 * 3);
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(RepaintBoundary(
-    key: _frame,
-    child: ProviderScope(
-      overrides: [initialSessionProvider.overrideWithValue(session), ...overrides],
-      child: const SharkHireApp(),
+  await tester.pumpWidget(
+    RepaintBoundary(
+      key: _frame,
+      child: ProviderScope(
+        overrides: [
+          initialSessionProvider.overrideWithValue(session),
+          ...overrides,
+        ],
+        child: const SharkHireApp(),
+      ),
     ),
-  ));
+  );
   await tester.pump();
 }
 
 /// Opens [path]. With [from], opens that screen first and then pushes [path]
 /// on top, the way a user gets there (so the back arrow shows).
-Future<void> _go(WidgetTester tester, String path, {String? from, Duration wait = const Duration(milliseconds: 1500)}) async {
-  final router = ProviderScope.containerOf(tester.element(find.byType(SharkHireApp))).read(appRouterProvider);
+Future<void> _go(
+  WidgetTester tester,
+  String path, {
+  String? from,
+  Duration wait = const Duration(milliseconds: 1500),
+}) async {
+  final router = ProviderScope.containerOf(
+    tester.element(find.byType(SharkHireApp)),
+  ).read(appRouterProvider);
   if (from != null) {
     router.go(from);
     await tester.pump();
@@ -151,7 +180,12 @@ Future<void> _go(WidgetTester tester, String path, {String? from, Duration wait 
   await tester.pumpAndSettle();
 }
 
-Future<void> _shot(WidgetTester tester, String category, String name, {bool settle = true}) async {
+Future<void> _shot(
+  WidgetTester tester,
+  String category,
+  String name, {
+  bool settle = true,
+}) async {
   if (settle) await tester.pumpAndSettle();
   // Decode every image (logo) before capturing.
   await tester.runAsync(() async {
@@ -161,7 +195,8 @@ Future<void> _shot(WidgetTester tester, String category, String name, {bool sett
   });
   await tester.pump(const Duration(milliseconds: 50));
   if (settle) await tester.pumpAndSettle();
-  final boundary = _frame.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final boundary =
+      _frame.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   final bytes = await tester.runAsync(() async {
     final image = await boundary.toImage(pixelRatio: 2);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -179,14 +214,23 @@ Future<void> _shot(WidgetTester tester, String category, String name, {bool sett
   ];
   File('build/showcase_text/$category/$name.txt')
     ..createSync(recursive: true)
-    ..writeAsStringSync(texts.where((t) => t.trim().isNotEmpty && t.codeUnits.every((c) => c < 0xE000)).join(String.fromCharCode(10)));
+    ..writeAsStringSync(
+      texts
+          .where(
+            (t) => t.trim().isNotEmpty && t.codeUnits.every((c) => c < 0xE000),
+          )
+          .join(String.fromCharCode(10)),
+    );
 }
 
 bool _onScreen(Element e, Size view) {
   final box = e.renderObject;
   if (box is! RenderBox || !box.hasSize || !box.attached) return false;
   final r = box.localToGlobal(Offset.zero) & box.size;
-  return r.bottom > 0 && r.top < view.height && r.right > 0 && r.left < view.width;
+  return r.bottom > 0 &&
+      r.top < view.height &&
+      r.right > 0 &&
+      r.left < view.width;
 }
 
 Future<void> _scroll(WidgetTester tester, double dy) async {
@@ -254,7 +298,11 @@ void main() {
     await _shot(t, seeker, '01_home');
   });
   testWidgets('profile', (t) async {
-    await _launch(t, _seekerWithCv, overrides: [cvProvider.overrideWith(_CvUploaded.new)]);
+    await _launch(
+      t,
+      _seekerWithCv,
+      overrides: [cvProvider.overrideWith(_CvUploaded.new)],
+    );
     await _go(t, '/profile');
     await _shot(t, seeker, '02_profile');
     await _scroll(t, 700);
@@ -287,7 +335,11 @@ void main() {
     await _shot(t, search, '02_filters');
   });
   testWidgets('job details', (t) async {
-    await _launch(t, _seekerWithCv, overrides: [cvProvider.overrideWith(_CvUploaded.new)]);
+    await _launch(
+      t,
+      _seekerWithCv,
+      overrides: [cvProvider.overrideWith(_CvUploaded.new)],
+    );
     await _go(t, '/jobs/job-01', from: '/explore');
     await _shot(t, search, '03_job_details_internal');
     await _scroll(t, 650);
@@ -296,14 +348,22 @@ void main() {
     await _shot(t, search, '05_job_details_external');
   });
   testWidgets('saved', (t) async {
-    await _launch(t, _seeker, overrides: [savedJobIdsProvider.overrideWith(_SomeSaved.new)]);
+    await _launch(
+      t,
+      _seeker,
+      overrides: [savedJobIdsProvider.overrideWith(_SomeSaved.new)],
+    );
     await _go(t, '/saved');
     await _shot(t, search, '06_saved_jobs');
   });
 
   const recs = '04_recommendations';
   testWidgets('recommendations', (t) async {
-    await _launch(t, _seekerWithCv, overrides: [cvProvider.overrideWith(_CvUploaded.new)]);
+    await _launch(
+      t,
+      _seekerWithCv,
+      overrides: [cvProvider.overrideWith(_CvUploaded.new)],
+    );
     await _go(t, '/home');
     await _shot(t, recs, '01_home_with_cv');
     await _scroll(t, 420);
@@ -316,10 +376,19 @@ void main() {
 
   const cv = '05_cv_management';
   testWidgets('cv upload', (t) async {
-    await _launch(t, _seeker, overrides: [
-      cvPickerProvider.overrideWithValue(() async => const PickedCvFile(name: 'Ayesha_Khan_CV.pdf', sizeBytes: 241000)),
-      resumeRepositoryProvider.overrideWithValue(const MockResumeRepository(stepDelay: Duration(seconds: 2))),
-    ]);
+    await _launch(
+      t,
+      _seeker,
+      overrides: [
+        cvPickerProvider.overrideWithValue(
+          () async =>
+              const PickedCvFile(name: 'Ayesha_Khan_CV.pdf', sizeBytes: 241000),
+        ),
+        resumeRepositoryProvider.overrideWithValue(
+          const MockResumeRepository(stepDelay: Duration(seconds: 2)),
+        ),
+      ],
+    );
     await _go(t, '/cv/upload?from=onboarding');
     await _shot(t, cv, '01_upload_cv');
     await t.tap(find.text('Choose a file'));
@@ -337,9 +406,18 @@ void main() {
     await _shot(t, cv, '05_review_experience');
   });
   testWidgets('cv invalid', (t) async {
-    await _launch(t, _seeker, overrides: [
-      cvPickerProvider.overrideWithValue(() async => const PickedCvFile(name: 'portfolio_photo.png', sizeBytes: 900000)),
-    ]);
+    await _launch(
+      t,
+      _seeker,
+      overrides: [
+        cvPickerProvider.overrideWithValue(
+          () async => const PickedCvFile(
+            name: 'portfolio_photo.png',
+            sizeBytes: 900000,
+          ),
+        ),
+      ],
+    );
     await _go(t, '/cv/upload', from: '/profile');
     await t.tap(find.text('Choose a file'));
     await t.pumpAndSettle();
@@ -348,10 +426,16 @@ void main() {
 
   const apps = '06_applications';
   testWidgets('apply', (t) async {
-    await _launch(t, _seekerWithCv, overrides: [cvProvider.overrideWith(_CvUploaded.new)]);
+    await _launch(
+      t,
+      _seekerWithCv,
+      overrides: [cvProvider.overrideWith(_CvUploaded.new)],
+    );
     await _go(t, '/jobs/job-01/apply', from: '/jobs/job-01');
-    await t.enterText(find.byType(TextField).last,
-        'I have shipped two Flutter apps to the Play Store and would love to help Indus Ledger build its next product.');
+    await t.enterText(
+      find.byType(TextField).last,
+      'I have shipped two Flutter apps to the Play Store and would love to help Indus Ledger build its next product.',
+    );
     await t.pumpAndSettle();
     await _shot(t, apps, '01_apply_form');
     await _go(t, '/applications/app-4/sent');
@@ -377,7 +461,11 @@ void main() {
   ]) {
     testWidgets('employer $name', (t) async {
       await _launch(t, _employer);
-      await _go(t, path, from: _parentOf(path, const ['/employer/jobs', '/employer/applicants']));
+      await _go(
+        t,
+        path,
+        from: _parentOf(path, const ['/employer/jobs', '/employer/applicants']),
+      );
       await _shot(t, emp, name);
     });
   }
@@ -401,7 +489,19 @@ void main() {
   ]) {
     testWidgets('admin $name', (t) async {
       await _launch(t, _admin);
-      await _go(t, path, from: const {'/admin', '/admin/jobs', '/admin/users', '/admin/more'}.contains(path) ? null : '/admin/more');
+      await _go(
+        t,
+        path,
+        from:
+            const {
+              '/admin',
+              '/admin/jobs',
+              '/admin/users',
+              '/admin/more',
+            }.contains(path)
+            ? null
+            : '/admin/more',
+      );
       await _shot(t, adm, name);
     });
   }

@@ -27,7 +27,7 @@ class MisconfiguredApp extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.settings_suggest_outlined,
                     size: 40,
                     color: AppColors.ocean,

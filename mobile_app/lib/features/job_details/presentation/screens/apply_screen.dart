@@ -181,10 +181,7 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.description_rounded,
-                        color: AppColors.ocean,
-                      ),
+                      Icon(Icons.description_rounded, color: AppColors.ocean),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Column(
@@ -205,10 +202,7 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
                           ],
                         ),
                       ),
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: AppColors.ocean,
-                      ),
+                      Icon(Icons.check_circle_rounded, color: AppColors.ocean),
                     ],
                   ),
                 ),
@@ -277,7 +271,7 @@ class _ApplicationSentScreenState extends ConsumerState<ApplicationSentScreen> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
             children: [
               const SizedBox(height: AppSpacing.xxl),
-              const Center(
+              Center(
                 child: StateIllustration(
                   icon: Icons.check_rounded,
                   tone: AppColors.success,
@@ -305,7 +299,7 @@ class _ApplicationSentScreenState extends ConsumerState<ApplicationSentScreen> {
                 onChanged: (v) => setState(() => _notifySimilar = v ?? false),
                 controlAffinity: ListTileControlAffinity.leading,
                 contentPadding: EdgeInsets.zero,
-                activeColor: AppColors.navy,
+                activeColor: AppColors.ink,
                 title: Text(
                   job == null
                       ? 'Notify me about similar jobs'

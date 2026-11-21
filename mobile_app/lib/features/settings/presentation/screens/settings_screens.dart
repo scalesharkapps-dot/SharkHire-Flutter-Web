@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/widgets/app_surface.dart';
+import '../../../../shared/widgets/appearance_picker.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/legal_sheet.dart';
 import '../../../../shared/widgets/menu_group.dart';
@@ -65,6 +66,7 @@ class SettingsScreen extends ConsumerWidget {
     return _SettingsPage(
       title: 'Settings',
       children: [
+        const AppearancePicker(),
         MenuGroup(
           title: 'Push notifications',
           items: [

@@ -12,10 +12,10 @@ class PersonAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seed = initials.codeUnits.fold<int>(0, (s, c) => s + c);
-    const palette = [
+    final palette = [
       (AppColors.oceanTint, AppColors.oceanDeep),
       (AppColors.cyanTint, AppColors.ocean),
-      (Color(0xFFE4ECF3), AppColors.slate),
+      (AppColors.surfaceMuted, AppColors.slate),
     ];
     final (bg, fg) = palette[seed % palette.length];
     return Container(

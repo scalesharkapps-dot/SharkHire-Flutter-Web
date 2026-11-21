@@ -5,15 +5,27 @@ import '../models/domain_enums.dart';
 
 /// Visual tone of a status. Semantic colours only – never decoration.
 enum StatusTone {
-  neutral(AppColors.textSecondary, Color(0xFFEDF2F6)),
-  info(AppColors.oceanDeep, AppColors.oceanTint),
-  progress(AppColors.warning, AppColors.warningTint),
-  positive(AppColors.success, AppColors.successTint),
-  negative(AppColors.error, AppColors.errorTint);
+  neutral,
+  info,
+  progress,
+  positive,
+  negative;
 
-  const StatusTone(this.fg, this.bg);
-  final Color fg;
-  final Color bg;
+  Color get fg => switch (this) {
+    neutral => AppColors.textSecondary,
+    info => AppColors.oceanDeep,
+    progress => AppColors.warning,
+    positive => AppColors.success,
+    negative => AppColors.error,
+  };
+
+  Color get bg => switch (this) {
+    neutral => AppColors.surfaceMuted,
+    info => AppColors.oceanTint,
+    progress => AppColors.warningTint,
+    positive => AppColors.successTint,
+    negative => AppColors.errorTint,
+  };
 }
 
 StatusTone toneOfApplication(ApplicationStatus s) => switch (s) {
