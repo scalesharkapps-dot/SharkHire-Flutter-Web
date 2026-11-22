@@ -27,6 +27,33 @@ class RolesScreen extends ConsumerStatefulWidget {
     'DevOps Engineer',
   ];
 
+  /// Turns a long posting title into a short role name for the wheel, e.g.
+  /// "Python Developers Hiring - Lahore | Urgent" → "Python Developers".
+  static String shortRole(String title) {
+    var t = title.trim();
+    // Drop a leading "Hiring:" / "Urgent" style prefix.
+    t = t.replaceFirst(
+      RegExp(
+        r'^(urgent(ly)?|now|we are|we.re)?\s*(hiring|wanted|required)\b[\s:!\-–—|]*',
+        caseSensitive: false,
+      ),
+      '',
+    );
+    // Keep the part before separators, locations and "hiring" tails.
+    t = t.split(RegExp(r'\s[-–—|]\s|[|(\[,:;!]|\s[-–—]')).first;
+    t = t
+        .split(
+          RegExp(
+            r'\s(hiring|wanted|required|needed|urgent(ly)?|at|for|in|with|job|jobs|opportunity)\b',
+            caseSensitive: false,
+          ),
+        )
+        .first;
+    final words = t.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    final short = words.take(4).join(' ');
+    return short.isEmpty ? title.trim() : short;
+  }
+
   @override
   ConsumerState<RolesScreen> createState() => _RolesScreenState();
 }
@@ -54,7 +81,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
     final seen = <String>{};
     final roles = [
       for (final t in [...loaded, ...RolesScreen.fallbackRoles])
-        if (seen.add(t.toLowerCase())) t,
+        if (RolesScreen.shortRole(t) case final r
+            when r.isNotEmpty && seen.add(r.toLowerCase()))
+          r,
     ];
     return roles;
   }
@@ -316,20 +345,18 @@ class _RoleItem extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                // The selected role shrinks to fit instead of being cut off.
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    active ? label.toUpperCase() : label,
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontFamily: active ? AppFonts.display : AppFonts.label,
-                      fontWeight: active ? FontWeight.w400 : FontWeight.w600,
-                      fontSize: active ? 22 : 18,
-                      letterSpacing: active ? 0.2 : 0,
-                      color: active ? Bold.onLight : Bold.ink,
-                    ),
+                // Stays readable: wraps to two lines, never shrinks.
+                child: Text(
+                  active ? label.toUpperCase() : label,
+                  maxLines: active ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: active ? AppFonts.display : AppFonts.label,
+                    fontWeight: active ? FontWeight.w400 : FontWeight.w600,
+                    fontSize: active ? 19 : 17,
+                    height: 1.05,
+                    letterSpacing: active ? 0.2 : 0,
+                    color: active ? Bold.onLight : Bold.ink,
                   ),
                 ),
               ),

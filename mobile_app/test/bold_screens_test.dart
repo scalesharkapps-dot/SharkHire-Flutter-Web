@@ -71,4 +71,32 @@ void main() {
     final field = tester.widget<TextField>(find.byType(TextField).first);
     expect(field.controller!.text, isNotEmpty);
   });
+
+  test('long posting titles become short role names', () {
+    expect(
+      RolesScreen.shortRole(
+        'Python Developers Hiring - Lahore | Urgent Python Backend Job',
+      ),
+      'Python Developers',
+    );
+    expect(
+      RolesScreen.shortRole('Hiring: Senior Flutter Developer (Remote)'),
+      'Senior Flutter Developer',
+    );
+    expect(RolesScreen.shortRole('AI / ML Engineer'), 'AI / ML Engineer');
+    expect(
+      RolesScreen.shortRole('Product Designer, AI Experiences'),
+      'Product Designer',
+    );
+    expect(
+      RolesScreen.shortRole('Artificial Intelligence Engineer at Systems Ltd'),
+      'Artificial Intelligence Engineer',
+    );
+    expect(
+      RolesScreen.shortRole(
+        'Senior Full Stack JavaScript React Node Developer',
+      ).split(' ').length,
+      4,
+    );
+  });
 }
