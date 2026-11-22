@@ -11,8 +11,10 @@ import 'package:sharkhire/shared/models/app_user.dart';
 
 import 'helpers.dart';
 
-Future<void> _waitForWelcome(WidgetTester tester) =>
-    pumpUntil(tester, () => isShown(find.text('Find work that fits you.')));
+Future<void> _waitForWelcome(WidgetTester tester) => pumpUntil(
+  tester,
+  () => isShown(find.bySemanticsLabel('Find work that fits you.')),
+);
 
 Future<void> _tapButton(WidgetTester tester, String label) async {
   final button = find

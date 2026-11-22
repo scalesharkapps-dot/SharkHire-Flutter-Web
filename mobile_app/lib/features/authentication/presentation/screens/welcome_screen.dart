@@ -3,33 +3,16 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/routing/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/brand_logo.dart';
 import '../../../../shared/widgets/fade_in_up.dart';
+import '../../../../shared/widgets/bold_kit.dart';
 
-/// First screen for signed-out users: what SharkHire does and the two
-/// ways in (create an account or log in).
+/// First screen for signed-out users (Bold concept): a big statement, the
+/// brand mark, and the two ways in.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
-
-  static const _points = [
-    (
-      Icons.fact_check_outlined,
-      'Matches from your CV',
-      'Upload once. We rank every job by how well it fits you.',
-    ),
-    (
-      Icons.public_rounded,
-      'Pakistan and international',
-      'Local roles and remote jobs worldwide in one place.',
-    ),
-    (
-      Icons.track_changes_rounded,
-      'Every application tracked',
-      'See when you are reviewed, shortlisted or invited to interview.',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -38,193 +21,137 @@ class WelcomeScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppColors.navy,
-        body: LayoutBuilder(
-          builder: (context, constraints) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: [
-                    // Brand + promise
-                    Expanded(
-                      child: SafeArea(
-                        bottom: false,
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 480),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                AppSpacing.xxl,
-                                AppSpacing.xxxl,
-                                AppSpacing.xxl,
-                                AppSpacing.xxl,
-                              ),
-                              child: FadeInUp(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        SharkBadge(size: 52, glow: false),
-                                        SizedBox(width: AppSpacing.md),
-                                        Flexible(
-                                          child: FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: SharkHireWordmark(
-                                              fontSize: 26,
-                                              onDark: true,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: AppSpacing.xxxl),
-                                    Text(
-                                      'Find work that fits you.',
-                                      style: text.displaySmall?.copyWith(
-                                        color: AppColors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpacing.md),
-                                    Text(
-                                      'Job search and hiring for Pakistan and beyond, by Scale Shark.',
-                                      style: text.bodyLarge?.copyWith(
-                                        color: AppColors.textOnDarkMuted,
-                                      ),
-                                    ),
-                                    const SizedBox(height: AppSpacing.xxl),
-                                    for (final (icon, title, body) in _points)
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: AppSpacing.lg,
-                                        ),
-                                        child: _ValuePoint(
-                                          icon: icon,
-                                          title: title,
-                                          body: body,
-                                        ),
-                                      ),
-                                  ],
-                                ),
+        backgroundColor: Bold.ground,
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 480),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.xxl,
+                        AppSpacing.xl,
+                        AppSpacing.xxl,
+                        AppSpacing.xl,
+                      ),
+                      child: IntrinsicHeight(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const BoldTopBar(),
+                            const SizedBox(height: 40),
+                            const FadeInUp(
+                              child: BoldHeadline(
+                                semanticsLabel: 'Find work that fits you.',
+                                spans: [
+                                  ('Find\nwork\nthat ', false),
+                                  ('fits', true),
+                                  ('\nyou.', false),
+                                ],
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Actions
-                    Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(28),
-                        ),
-                      ),
-                      child: SafeArea(
-                        top: false,
-                        child: Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 480),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                AppSpacing.xxl,
-                                AppSpacing.xxl,
-                                AppSpacing.xxl,
-                                AppSpacing.xl,
-                              ),
-                              child: Column(
+                            const SizedBox(height: AppSpacing.xxl),
+                            FadeInUp(
+                              delay: const Duration(milliseconds: 80),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: FilledButton(
-                                      onPressed: () =>
-                                          context.push(AppRoutes.register),
-                                      child: const Text('Create account'),
+                                  Container(
+                                    width: 132,
+                                    height: 132,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(30),
+                                      ),
                                     ),
+                                    alignment: Alignment.center,
+                                    child: const SharkMark(size: 116),
                                   ),
-                                  const SizedBox(height: AppSpacing.md),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton(
-                                      onPressed: () =>
-                                          context.push(AppRoutes.login),
-                                      child: const Text('Log in'),
+                                  const SizedBox(width: AppSpacing.lg),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'CV',
+                                            style: TextStyle(
+                                              fontFamily: AppFonts.display,
+                                              fontSize: 36,
+                                              height: 1,
+                                              color: Bold.accent,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Upload once. Every job in '
+                                            'Pakistan and worldwide is ranked '
+                                            'for you.',
+                                            style: text.bodyMedium?.copyWith(
+                                              color: Bold.muted,
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: AppSpacing.lg),
-                                  Text(
-                                    'Hiring? Create an employer account to post jobs.',
-                                    textAlign: TextAlign.center,
-                                    style: text.bodySmall,
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                            const Spacer(),
+                            const SizedBox(height: AppSpacing.xxl),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: BoldPrimaryButton(
+                                    label: 'Create account',
+                                    onPressed: () =>
+                                        context.push(AppRoutes.register),
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.sm),
+                                SizedBox(
+                                  width: 120,
+                                  child: BoldSecondaryButton(
+                                    label: 'Log in',
+                                    onPressed: () =>
+                                        context.push(AppRoutes.login),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Center(
+                              child: TextButton(
+                                onPressed: () =>
+                                    context.push(AppRoutes.employerWelcome),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Bold.ink,
+                                ),
+                                child: const Text(
+                                  'Hiring? Create an employer account',
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ValuePoint extends StatelessWidget {
-  const _ValuePoint({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
-
-  final IconData icon;
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: const BoxDecoration(
-            color: AppColors.navySoft,
-            borderRadius: AppRadius.lgAll,
-          ),
-          child: Icon(icon, color: AppColors.cyan, size: 20),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: text.titleSmall?.copyWith(color: AppColors.white),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                body,
-                style: text.bodyMedium?.copyWith(
-                  color: AppColors.textOnDarkMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

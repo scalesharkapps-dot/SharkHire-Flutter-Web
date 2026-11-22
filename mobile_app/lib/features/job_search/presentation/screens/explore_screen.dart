@@ -1,6 +1,8 @@
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_search_bar.dart';
@@ -69,7 +71,21 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Explore jobs', style: text.headlineMedium),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Explore jobs',
+                            style: text.headlineMedium,
+                          ),
+                        ),
+                        TextButton.icon(
+                          onPressed: () => context.push(AppRoutes.roles),
+                          icon: const Icon(Icons.blur_circular_rounded),
+                          label: const Text('By role'),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       'Pakistan and international roles, matched to you',

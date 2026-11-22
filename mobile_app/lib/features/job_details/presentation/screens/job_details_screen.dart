@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/date_formatters.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/models/job_summary.dart';
@@ -614,10 +615,60 @@ class _JobBand extends StatelessWidget {
               ),
             ],
           ),
+          if (s.matchScore != null) ...[
+            const SizedBox(height: AppSpacing.xl),
+            Semantics(
+              label: '${s.matchScore} percent fit with your CV',
+              excludeSemantics: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${s.matchScore}',
+                    style: TextStyle(
+                      fontFamily: AppFonts.display,
+                      fontSize: 92,
+                      height: 0.86,
+                      letterSpacing: -3,
+                      color: AppColors.teal,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '%',
+                    style: TextStyle(
+                      fontFamily: AppFonts.display,
+                      fontSize: 24,
+                      color: AppColors.teal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'FIT WITH YOUR CV',
+              style: text.labelSmall?.copyWith(
+                color: AppColors.bandMuted,
+                letterSpacing: 2,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
-          Text(
-            s.title,
-            style: text.headlineMedium?.copyWith(color: AppColors.bandInk),
+          Semantics(
+            header: true,
+            label: s.title,
+            excludeSemantics: true,
+            child: Text(
+              s.title.toUpperCase(),
+              style: text.headlineMedium?.copyWith(
+                color: AppColors.bandInk,
+                fontSize: 30,
+                height: 1,
+                letterSpacing: -0.6,
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           Container(

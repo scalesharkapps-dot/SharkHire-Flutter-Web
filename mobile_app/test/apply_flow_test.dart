@@ -89,6 +89,12 @@ void main() {
     await scrollTo(tester, find.text('Python Backend Developer'));
     await tapText(tester, 'Python Backend Developer');
     await pumpUntil(tester, () => isShown(find.text('Apply on employer site')));
+    // The match hero makes the header taller: scroll to the notice.
+    await tester.scrollUntilVisible(
+      find.textContaining('SharkHire only records'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(
       find.textContaining(
         'SharkHire only records that you opened the application',

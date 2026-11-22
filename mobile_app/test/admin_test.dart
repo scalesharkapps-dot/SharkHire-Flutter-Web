@@ -80,7 +80,7 @@ void main() {
     await launchApp(tester);
     await pumpUntil(
       tester,
-      () => isShown(find.text('Find work that fits you.')),
+      () => isShown(find.bySemanticsLabel('Find work that fits you.')),
     );
     await tapText(tester, 'Log in');
     await tapText(tester, 'Admin');

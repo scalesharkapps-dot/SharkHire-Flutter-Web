@@ -12,6 +12,7 @@ import '../../features/admin/presentation/screens/admin_users_screen.dart';
 import '../../features/applications/presentation/screens/application_details_screen.dart';
 import '../../features/applications/presentation/screens/applications_screen.dart';
 import '../../features/authentication/presentation/providers/session_provider.dart';
+import '../../features/authentication/presentation/screens/employer_welcome_screen.dart';
 import '../../features/authentication/presentation/screens/forgot_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
 import '../../features/authentication/presentation/screens/register_screen.dart';
@@ -26,6 +27,7 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/job_details/presentation/screens/apply_screen.dart';
 import '../../features/job_details/presentation/screens/job_details_screen.dart';
 import '../../features/job_search/presentation/screens/explore_screen.dart';
+import '../../features/job_search/presentation/screens/roles_screen.dart';
 import '../../features/notifications/presentation/screens/job_alerts_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/onboarding/presentation/screens/job_preferences_screen.dart';
@@ -39,6 +41,7 @@ import '../../features/settings/presentation/screens/settings_screens.dart';
 import '../../features/subscription/presentation/providers/subscription_providers.dart';
 import '../../features/subscription/presentation/screens/subscription_history_screen.dart';
 import '../../features/subscription/presentation/screens/subscription_screen.dart';
+import '../../shared/models/domain_enums.dart';
 import '../../shared/widgets/main_navigation_shell.dart';
 import 'app_routes.dart';
 import 'route_guard.dart';
@@ -81,7 +84,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Sign-in and account setup
       _route(AppRoutes.welcome, (_) => const WelcomeScreen()),
       _route(AppRoutes.login, (_) => const LoginScreen()),
-      _route(AppRoutes.register, (_) => const RegisterScreen()),
+      _route(
+        AppRoutes.register,
+        (s) => RegisterScreen(
+          initialRole: s.uri.queryParameters['role'] == 'employer'
+              ? AppRole.employer
+              : AppRole.jobSeeker,
+        ),
+      ),
+      _route(AppRoutes.employerWelcome, (_) => const EmployerWelcomeScreen()),
+      _route(AppRoutes.roles, (_) => const RolesScreen()),
       _route(AppRoutes.forgotPassword, (_) => const ForgotPasswordScreen()),
       _route(AppRoutes.verifyEmail, (_) => const VerifyEmailScreen()),
       _route(

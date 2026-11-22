@@ -15,7 +15,11 @@ import '../widgets/auth_scaffold.dart';
 
 /// Account creation with the job seeker / employer choice (guide §3.5, 4.1).
 class RegisterScreen extends ConsumerStatefulWidget {
-  const RegisterScreen({super.key});
+  const RegisterScreen({super.key, this.initialRole = AppRole.jobSeeker});
+
+  /// Role picked when the screen opens (the employer welcome passes
+  /// [AppRole.employer]).
+  final AppRole initialRole;
 
   @override
   ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
@@ -26,7 +30,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  AppRole _role = AppRole.jobSeeker;
+  late AppRole _role = widget.initialRole;
   bool _loading = false;
   String? _error;
 

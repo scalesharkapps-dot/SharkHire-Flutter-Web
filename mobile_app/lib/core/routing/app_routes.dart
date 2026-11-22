@@ -8,6 +8,10 @@ abstract final class AppRoutes {
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
+  static const String employerWelcome = '/welcome/employer';
+
+  /// Registration with the employer role picked.
+  static const String registerEmployer = '/register?role=employer';
 
   // Account setup
   static const String verifyEmail = '/verify-email';
@@ -26,6 +30,7 @@ abstract final class AppRoutes {
   static const String cvReview = '/cv/review';
   static const String notifications = '/notifications';
   static const String jobAlerts = '/job-alerts';
+  static const String roles = '/roles';
   static const String subscription = '/subscription';
   static const String subscriptionHistory = '/subscription/history';
   static const String settings = '/settings';
@@ -73,6 +78,7 @@ abstract final class AppRoutes {
     login,
     register,
     forgotPassword,
+    employerWelcome,
   };
 
   /// Reachable by a job seeker without paid access: the paywall, billing
