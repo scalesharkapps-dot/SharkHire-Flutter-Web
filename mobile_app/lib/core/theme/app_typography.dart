@@ -50,18 +50,16 @@ abstract final class AppTypography {
       // Calm, editorial headings (Archivo Bold, tight tracking) – the
       // heavy display face is kept for brand moments only.
       headlineLarge: TextStyle(
-        fontFamily: label,
-        fontWeight: FontWeight.w700,
-        fontSize: 28,
-        height: 1.2,
+        fontFamily: display,
+        fontSize: 30,
+        height: 1.1,
         letterSpacing: -0.6,
         color: color,
       ),
       headlineMedium: TextStyle(
-        fontFamily: label,
-        fontWeight: FontWeight.w700,
-        fontSize: 24,
-        height: 1.22,
+        fontFamily: display,
+        fontSize: 26,
+        height: 1.12,
         letterSpacing: -0.5,
         color: color,
       ),
@@ -142,7 +140,7 @@ abstract final class AppTypography {
         fontWeight: FontWeight.w600,
         fontSize: 11,
         height: 1.2,
-        letterSpacing: 0.3,
+        letterSpacing: 0.8,
         color: color,
       ),
     );

@@ -80,9 +80,15 @@ class MainNavigationShell extends StatelessWidget {
     if (width < railBreakpoint) {
       return Scaffold(
         body: navigationShell,
+        // Signal: navy bar (see navigationBarTheme), hairline on dark only.
         bottomNavigationBar: DecoratedBox(
           decoration: BoxDecoration(
-            border: Border(top: BorderSide(color: AppColors.border)),
+            color: AppColors.nav,
+            border: Border(
+              top: BorderSide(
+                color: AppColors.isDark ? AppColors.bandLine : AppColors.nav,
+              ),
+            ),
           ),
           child: NavigationBar(
             selectedIndex: navigationShell.currentIndex,

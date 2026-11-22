@@ -27,7 +27,7 @@ void main() {
       expect(find.text('Recommended for you'), findsOneWidget);
       await scrollTo(tester, find.text('Senior Flutter Developer'));
       expect(find.text('Senior Flutter Developer'), findsOneWidget);
-      expect(find.byType(MatchScoreRing), findsWidgets);
+      expect(find.byType(FitScoreBlock), findsWidgets);
       expect(find.byType(NavigationBar), findsOneWidget);
 
       // Save a job → Riverpod state flips the bookmark.

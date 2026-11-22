@@ -18,7 +18,10 @@ import 'package:sharkhire/features/authentication/presentation/providers/session
 import 'package:sharkhire/features/job_search/data/mock_jobs.dart';
 import 'package:sharkhire/shared/models/app_user.dart';
 
-const _out = '../frontend_showcase/screenshots/10_dark_theme';
+const _light = bool.fromEnvironment('LIGHT');
+const _out = _light
+    ? '../frontend_showcase/screenshots/11_signal_light'
+    : '../frontend_showcase/screenshots/10_dark_theme';
 final _frame = GlobalKey();
 
 const _seeker = Session(
@@ -91,7 +94,9 @@ void main() {
         child: ProviderScope(
           overrides: [
             initialSessionProvider.overrideWithValue(_seeker),
-            initialThemeModeProvider.overrideWithValue(ThemeMode.dark),
+            initialThemeModeProvider.overrideWithValue(
+              _light ? ThemeMode.light : ThemeMode.dark,
+            ),
           ],
           child: const SharkHireApp(),
         ),
@@ -114,6 +119,17 @@ void main() {
     await tab('Saved', '03_saved');
     await tab('Profile', '04_profile');
 
+    await tester.tap(find.text('Home').last);
+    await tester.pumpAndSettle();
+    await tester.pump(MockJobs.latency + const Duration(milliseconds: 400));
+    await tester.tap(find.text('Senior Flutter Developer').first);
+    await tester.pumpAndSettle();
+    await tester.pump(MockJobs.latency + const Duration(milliseconds: 400));
+    await _shot(tester, '06_job_details');
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     await _shot(tester, '05_settings_appearance');

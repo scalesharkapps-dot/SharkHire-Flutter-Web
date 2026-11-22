@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/utils/date_formatters.dart';
 import '../models/job_summary.dart';
 import 'app_surface.dart';
@@ -29,14 +30,14 @@ class JobCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final score = job.matchScore;
 
-    return AppSurface(
-      onTap: onTap,
+    final details = Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.xs,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,88 +45,93 @@ class JobCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CompanyLogo(name: job.companyName),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      job.title,
-                      style: text.titleMedium,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    _CompanyLine(
-                      name: job.companyName,
-                      rating: job.companyRating,
-                    ),
-                  ],
-                ),
-              ),
-              if (job.matchScore != null) ...[
-                const SizedBox(width: AppSpacing.sm),
-                Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.sm),
-                  child: MatchScoreRing(score: job.matchScore!, size: 42),
-                ),
+              if (score == null) ...[
+                CompanyLogo(name: job.companyName, size: 40),
+                const SizedBox(width: AppSpacing.md),
               ],
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _MetaRow(
-                  icon: Icons.location_on_outlined,
-                  text:
-                      '${job.location}  ·  ${job.workMode.label}  ·  '
-                      '${job.employmentType.label}',
-                ),
-                if (job.salaryLabel != null) ...[
-                  const SizedBox(height: 6),
-                  _MetaRow(
-                    icon: Icons.payments_outlined,
-                    text: job.salaryLabel!,
-                    emphasize: true,
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              job.isInternal
-                  ? const InfoPill.internal()
-                  : const InfoPill.external(),
-              const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Text(
-                  DateFormatters.relativeAge(job.postedAt),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: text.bodySmall?.copyWith(
-                    color: AppColors.textTertiary,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    job.title,
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
               _BookmarkButton(isSaved: isSaved, onPressed: onToggleSave),
             ],
           ),
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _CompanyLine(
+                  name: job.companyName,
+                  rating: job.companyRating,
+                  meta: '${job.location} · ${job.workMode.label}',
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        job.salaryLabel ??
+                            '${job.employmentType.label} · '
+                                '${DateFormatters.relativeAge(job.postedAt)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.labelLarge?.copyWith(
+                          fontSize: 14,
+                          color: job.salaryLabel != null
+                              ? AppColors.ink
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    _SourceBadge(internal: job.isInternal),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+
+    // Signal: the match score is the card's signature, a solid FIT block.
+    return AppSurface(
+      onTap: onTap,
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: AppRadius.xlAll,
+        child: score == null
+            ? details
+            : IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    FitScoreBlock(score: score),
+                    Expanded(child: details),
+                  ],
+                ),
+              ),
       ),
     );
   }
 }
 
 class _CompanyLine extends StatelessWidget {
-  const _CompanyLine({required this.name, this.rating});
+  const _CompanyLine({required this.name, required this.meta, this.rating});
 
   final String name;
+  final String meta;
   final double? rating;
 
   @override
@@ -133,66 +139,67 @@ class _CompanyLine extends StatelessWidget {
     final style = Theme.of(context).textTheme.bodyMedium?.copyWith(
       color: AppColors.textSecondary,
       height: 1.3,
+      fontSize: 14,
     );
-    return Row(
-      children: [
-        Flexible(
-          child: Text(
-            name,
-            style: style,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        if (rating != null) ...[
-          const SizedBox(width: 6),
-          Icon(Icons.star_rounded, size: 15, color: AppColors.ink),
-          const SizedBox(width: 2),
-          Text(
-            rating!.toStringAsFixed(1),
-            style: style?.copyWith(
-              color: AppColors.ink,
-              fontWeight: FontWeight.w600,
+    // One line that trims at the end, so the company name stays whole and
+    // the location gives way first.
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: name),
+          if (rating != null) ...[
+            const TextSpan(text: '  '),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Icon(Icons.star_rounded, size: 14, color: AppColors.ink),
             ),
-          ),
+            TextSpan(
+              text: ' ${rating!.toStringAsFixed(1)}',
+              style: TextStyle(
+                color: AppColors.ink,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          TextSpan(text: '  ·  $meta'),
         ],
-      ],
+      ),
+      style: style,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 }
 
-class _MetaRow extends StatelessWidget {
-  const _MetaRow({
-    required this.icon,
-    required this.text,
-    this.emphasize = false,
-  });
+/// Compact source badge: "IN-APP" (apply on SharkHire) or "EXTERNAL".
+class _SourceBadge extends StatelessWidget {
+  const _SourceBadge({required this.internal});
 
-  final IconData icon;
-  final String text;
-  final bool emphasize;
+  final bool internal;
 
   @override
   Widget build(BuildContext context) {
-    final base = Theme.of(context).textTheme.bodyMedium;
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.textTertiary),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: emphasize
-                ? base?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
-                  )
-                : base?.copyWith(color: AppColors.textSecondary),
+    return Semantics(
+      label: internal ? 'Apply in-app' : 'External job',
+      excludeSemantics: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(
+          color: internal ? AppColors.successTint : Colors.transparent,
+          borderRadius: AppRadius.smAll,
+          border: internal ? null : Border.all(color: AppColors.borderStrong),
+        ),
+        child: Text(
+          internal ? 'IN-APP' : 'EXTERNAL',
+          style: TextStyle(
+            fontFamily: AppFonts.label,
+            fontWeight: FontWeight.w700,
+            fontSize: 10,
+            letterSpacing: 0.8,
+            color: internal ? AppColors.success : AppColors.textSecondary,
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -213,7 +220,7 @@ class _BookmarkButton extends StatelessWidget {
         child: Icon(
           isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
           key: ValueKey(isSaved),
-          color: isSaved ? AppColors.ocean : AppColors.textSecondary,
+          color: isSaved ? AppColors.ocean : AppColors.textTertiary,
         ),
       ),
     );

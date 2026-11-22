@@ -47,7 +47,8 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      // Light status bar over the navy header band.
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         body: RefreshIndicator(
           onRefresh: refresh,

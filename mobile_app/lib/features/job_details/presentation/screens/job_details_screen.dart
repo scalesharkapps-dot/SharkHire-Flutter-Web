@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -40,6 +41,12 @@ class JobDetailsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.band,
+        foregroundColor: AppColors.bandInk,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        titleTextStyle: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(color: AppColors.bandInk),
         title: Text(
           details.value?.summary.title ?? 'Job details',
           maxLines: 1,
@@ -57,7 +64,7 @@ class JobDetailsScreen extends ConsumerWidget {
             },
             icon: Icon(
               isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-              color: isSaved ? AppColors.ocean : AppColors.ink,
+              color: isSaved ? AppColors.teal : AppColors.bandInk,
             ),
           ),
         ],
@@ -129,206 +136,144 @@ class _DetailsBody extends ConsumerWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 640),
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.sm,
-            AppSpacing.screenHorizontal,
-            AppSpacing.xxxl,
-          ),
+          padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
           children: [
-            // Header
-            FadeInUp(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CompanyLogo(name: s.companyName, size: 52),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
+            _JobBand(details: details),
+            for (final w in <Widget>[
+              const SizedBox(height: AppSpacing.lg),
+
+              // Match
+              FadeInUp(
+                delay: const Duration(milliseconds: 60),
+                child: cv.hasCv || s.matchScore != null
+                    ? _MatchCard(
+                        score: s.matchScore ?? 0,
+                        reasons: details.matchReasons,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
+              if (!s.isInternal) ...[
+                const SizedBox(height: AppSpacing.lg),
+                const InlineBanner(
+                  tone: BannerTone.warning,
+                  message:
+                      'You\'ll apply on the employer\'s website. SharkHire only records that you '
+                      'opened the application, not whether it was submitted.',
+                ),
+              ],
+
+              _Heading('Job information'),
+              AppSurface(
+                padding: EdgeInsets.zero,
+                elevated: false,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < facts.length; i++) ...[
+                      if (i > 0)
+                        const Divider(
+                          indent: AppSpacing.lg,
+                          endIndent: AppSpacing.lg,
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: 12,
+                        ),
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(s.companyName, style: text.titleSmall),
-                            if (s.companyRating != null)
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.star_rounded,
-                                    size: 16,
-                                    color: AppColors.ink,
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    s.companyRating!.toStringAsFixed(1),
-                                    style: text.bodySmall,
-                                  ),
-                                ],
+                            Expanded(
+                              child: Text(
+                                facts[i].$1,
+                                style: text.bodyMedium?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Flexible(
+                              child: Text(
+                                facts[i].$2,
+                                textAlign: TextAlign.right,
+                                style: text.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(s.title, style: text.headlineMedium),
-                  const SizedBox(height: AppSpacing.sm),
-                  Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      InfoPill(
-                        label: s.location,
-                        icon: Icons.location_on_outlined,
-                        bordered: true,
-                      ),
-                      if (s.isInternal)
-                        InfoPill(
-                          label: 'Apply in-app · Verified employer',
-                          icon: Icons.verified_rounded,
-                          background: AppColors.oceanTint,
-                          foreground: AppColors.oceanDeep,
-                        )
-                      else
-                        InfoPill(
-                          label:
-                              'External · ${details.publisher ?? 'Job board'}',
-                          icon: Icons.north_east_rounded,
-                          bordered: true,
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            // Match
-            FadeInUp(
-              delay: const Duration(milliseconds: 60),
-              child: cv.hasCv || s.matchScore != null
-                  ? _MatchCard(
-                      score: s.matchScore ?? 0,
-                      reasons: details.matchReasons,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-
-            if (!s.isInternal) ...[
-              const SizedBox(height: AppSpacing.lg),
-              const InlineBanner(
-                tone: BannerTone.warning,
-                message:
-                    'You\'ll apply on the employer\'s website. SharkHire only records that you '
-                    'opened the application, not whether it was submitted.',
-              ),
-            ],
-
-            _Heading('Job information'),
-            AppSurface(
-              padding: EdgeInsets.zero,
-              elevated: false,
-              child: Column(
-                children: [
-                  for (var i = 0; i < facts.length; i++) ...[
-                    if (i > 0)
-                      const Divider(
-                        indent: AppSpacing.lg,
-                        endIndent: AppSpacing.lg,
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                        vertical: 12,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              facts[i].$1,
-                              style: text.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Flexible(
-                            child: Text(
-                              facts[i].$2,
-                              textAlign: TextAlign.right,
-                              style: text.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            _Heading('Required skills'),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final k in details.requiredSkills)
-                  mySkills.contains(k.toLowerCase())
-                      ? InfoPill(
-                          label: k,
-                          icon: Icons.check_rounded,
-                          background: AppColors.successTint,
-                          foreground: AppColors.success,
-                        )
-                      : InfoPill(label: k, bordered: true),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text('Green skills are on your CV.', style: text.bodySmall),
-
-            _Heading('About the role'),
-            Text(details.description, style: text.bodyLarge),
-            if (details.responsibilities.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text('What you\'ll do', style: text.titleSmall),
-              const SizedBox(height: AppSpacing.sm),
-              ...details.responsibilities.map((r) => _BulletLine(r)),
-            ],
-            if (details.requirements.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text('What they\'re looking for', style: text.titleSmall),
-              const SizedBox(height: AppSpacing.sm),
-              ...details.requirements.map((r) => _BulletLine(r)),
-            ],
-
-            if (details.applicationInstructions != null) ...[
-              _Heading('How to apply'),
-              Text(details.applicationInstructions!, style: text.bodyLarge),
-            ],
-
-            if (details.companyAbout != null) ...[
-              _Heading('About ${s.companyName}'),
-              AppSurface(
-                elevated: false,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CompanyLogo(name: s.companyName, size: 40),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Text(
-                        details.companyAbout!,
-                        style: text.bodyMedium,
-                      ),
-                    ),
                   ],
                 ),
               ),
-            ],
+
+              _Heading('Required skills'),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  for (final k in details.requiredSkills)
+                    mySkills.contains(k.toLowerCase())
+                        ? InfoPill(
+                            label: k,
+                            icon: Icons.check_rounded,
+                            background: AppColors.successTint,
+                            foreground: AppColors.success,
+                          )
+                        : InfoPill(label: k, bordered: true),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text('Green skills are on your CV.', style: text.bodySmall),
+
+              _Heading('About the role'),
+              Text(details.description, style: text.bodyLarge),
+              if (details.responsibilities.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text('What you\'ll do', style: text.titleSmall),
+                const SizedBox(height: AppSpacing.sm),
+                ...details.responsibilities.map((r) => _BulletLine(r)),
+              ],
+              if (details.requirements.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text('What they\'re looking for', style: text.titleSmall),
+                const SizedBox(height: AppSpacing.sm),
+                ...details.requirements.map((r) => _BulletLine(r)),
+              ],
+
+              if (details.applicationInstructions != null) ...[
+                _Heading('How to apply'),
+                Text(details.applicationInstructions!, style: text.bodyLarge),
+              ],
+
+              if (details.companyAbout != null) ...[
+                _Heading('About ${s.companyName}'),
+                AppSurface(
+                  elevated: false,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CompanyLogo(name: s.companyName, size: 40),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Text(
+                          details.companyAbout!,
+                          style: text.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ])
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.screenHorizontal,
+                ),
+                child: w,
+              ),
           ],
         ),
       ),
@@ -578,4 +523,120 @@ class _DetailsSkeleton extends StatelessWidget {
       ),
     ],
   );
+}
+
+/// Signal header band: company, title and key facts on navy.
+class _JobBand extends StatelessWidget {
+  const _JobBand({required this.details});
+
+  final JobDetails details;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final s = details.summary;
+    Widget fact(String label, String value, {bool first = false}) => Expanded(
+      child: Container(
+        padding: EdgeInsets.only(left: first ? 0 : AppSpacing.md),
+        decoration: BoxDecoration(
+          border: first
+              ? null
+              : Border(left: BorderSide(color: AppColors.bandLine)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: text.bodySmall?.copyWith(color: AppColors.bandMuted),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: text.titleSmall?.copyWith(
+                color: AppColors.bandInk,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return Container(
+      color: AppColors.band,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenHorizontal,
+        AppSpacing.xs,
+        AppSpacing.screenHorizontal,
+        AppSpacing.xl,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CompanyLogo(name: s.companyName, size: 44),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.companyName.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.labelSmall?.copyWith(
+                        color: AppColors.teal,
+                        letterSpacing: 1.3,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      [
+                        if (s.companyRating != null)
+                          '${s.companyRating!.toStringAsFixed(1)} rating',
+                        s.isInternal
+                            ? 'Apply in-app · Verified employer'
+                            : 'External · ${details.publisher ?? 'Job board'}',
+                      ].join('  ·  '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: text.bodySmall?.copyWith(
+                        color: AppColors.bandMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            s.title,
+            style: text.headlineMedium?.copyWith(color: AppColors.bandInk),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Container(
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: AppColors.bandLine)),
+            ),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  fact('Location', s.location, first: true),
+                  fact('Mode', s.workMode.label),
+                  fact('Type', s.employmentType.label),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

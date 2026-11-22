@@ -49,30 +49,31 @@ abstract final class AppColors {
   // ── Text & strong fills ─────────────────────────────────────────────────
   /// Main text and icons; also the fill of selected chips and the primary
   /// button (with [onInk] on top).
-  static Color get ink => _pick(navy, const Color(0xFFE8EEF4));
+  static Color get ink => _pick(navy, const Color(0xFFEAF0F6));
 
   /// Text and icons on an [ink] fill.
-  static Color get onInk => _pick(white, navy);
+  static Color get onInk => _pick(white, const Color(0xFF062030));
 
   static Color get textPrimary => ink;
 
   /// Website muted foreground (hsl 208 24% 35%).
   static Color get textSecondary =>
-      _pick(const Color(0xFF445A6F), const Color(0xFFA9B9C9));
+      _pick(const Color(0xFF4A5E72), const Color(0xFFA9B9C9));
 
   /// Meets WCAG AA (4.5:1) on the surface and the canvas in both themes.
   static Color get textTertiary =>
-      _pick(const Color(0xFF5E7082), const Color(0xFF8B9DB0));
+      _pick(const Color(0xFF5E7082), const Color(0xFF8597AA));
 
   // ── Accents ─────────────────────────────────────────────────────────────
-  /// Logo ocean blue, main interactive accent (links, focus, selection).
-  /// Lightened on dark so it keeps 4.5:1 contrast.
+  /// Main interactive accent (links, focus, selection): the deep brand
+  /// teal of the "Hire" wordmark, tuned for 4.5:1 text contrast in both
+  /// themes (Signal design).
   static Color get ocean =>
-      _pick(const Color(0xFF066CBE), const Color(0xFF5AAEF0));
+      _pick(const Color(0xFF08707F), const Color(0xFF4BB8C6));
 
   /// Strong / pressed states of [ocean].
   static Color get oceanDeep =>
-      _pick(const Color(0xFF064B92), const Color(0xFF9ACBF5));
+      _pick(const Color(0xFF075E6C), const Color(0xFF8AD3DD));
 
   /// Logo shark body slate – avatars and neutral illustration tones.
   static Color get slate =>
@@ -80,50 +81,79 @@ abstract final class AppColors {
 
   // ── Tints ───────────────────────────────────────────────────────────────
   static Color get oceanTint =>
-      _pick(const Color(0xFFE6F1FA), const Color(0xFF13304A));
+      _pick(const Color(0xFFE0F4F7), const Color(0xFF0F3340));
   static Color get oceanTintStrong =>
-      _pick(const Color(0xFFCCE3F5), const Color(0xFF1A4163));
+      _pick(const Color(0xFFC4E9EF), const Color(0xFF14475A));
   static Color get cyanTint =>
       _pick(const Color(0xFFE3F6FD), const Color(0xFF10313F));
 
   // ── Surfaces ────────────────────────────────────────────────────────────
   /// Cards, sheets, bars and inputs.
-  static Color get surface => _pick(white, const Color(0xFF121E2A));
+  static Color get surface => _pick(white, const Color(0xFF111F2D));
 
   /// App canvas behind cards.
   static Color get canvas =>
-      _pick(const Color(0xFFF5F7F9), const Color(0xFF0A131C));
+      _pick(const Color(0xFFF2F5F8), const Color(0xFF0A1520));
 
   /// Tinted brand panels (website page background).
   static Color get mist =>
       _pick(const Color(0xFFF0FAFF), const Color(0xFF102233));
 
   static Color get surfaceSubtle =>
-      _pick(const Color(0xFFF7F9FB), const Color(0xFF0F1A25));
+      _pick(const Color(0xFFF7F9FB), const Color(0xFF0E1B28));
 
   /// Quiet filled areas (neutral chips, placeholders, read rows).
   static Color get surfaceMuted =>
-      _pick(const Color(0xFFEDF2F6), const Color(0xFF1B2938));
+      _pick(const Color(0xFFEEF2F6), const Color(0xFF172839));
 
   // ── Lines ───────────────────────────────────────────────────────────────
   static Color get border =>
-      _pick(const Color(0xFFE3EAF0), const Color(0xFF223346));
+      _pick(const Color(0xFFE0E7EE), const Color(0xFF20334A));
   static Color get borderStrong =>
-      _pick(const Color(0xFFC3D0DB), const Color(0xFF34495F));
+      _pick(const Color(0xFFC9D5E0), const Color(0xFF2C445C));
 
   // ── Semantic (status only, never decoration) ────────────────────────────
   static Color get success =>
-      _pick(const Color(0xFF12924A), const Color(0xFF45C784));
+      _pick(const Color(0xFF0B7A3E), const Color(0xFF49C987));
   static Color get successTint =>
-      _pick(const Color(0xFFE2F5EA), const Color(0xFF10291D));
+      _pick(const Color(0xFFE3F4EA), const Color(0xFF0F2B1F));
   static Color get warning =>
-      _pick(const Color(0xFFC27803), const Color(0xFFEDB14E));
+      _pick(const Color(0xFF9A5B00), const Color(0xFFEDB14E));
   static Color get warningTint =>
       _pick(const Color(0xFFFDF1DC), const Color(0xFF2E2410));
   static Color get error =>
       _pick(const Color(0xFFC0352A), const Color(0xFFF27D71));
   static Color get errorTint =>
       _pick(const Color(0xFFFCE7E4), const Color(0xFF341816));
+
+  // ── Signal: navy bands, FIT blocks, bottom bar ──────────────────────────
+  /// Navy header band at the top of the main screens.
+  static Color get band => _pick(navy, const Color(0xFF0F2337));
+  static Color get bandInk => _pick(white, const Color(0xFFEAF0F6));
+  static Color get bandMuted =>
+      _pick(const Color(0xFFC3D0DC), const Color(0xFFA9B9C9));
+  static Color get bandLine =>
+      _pick(const Color(0xFF2A4058), const Color(0xFF22394F));
+
+  /// Raised controls on the band (icon buttons, search field on dark).
+  static Color get bandSoft =>
+      _pick(const Color(0xFF1A3049), const Color(0xFF18314A));
+
+  /// Soft filled background of secondary buttons (no outline).
+  static Color get tonal =>
+      _pick(const Color(0xFFE3E9EF), const Color(0xFF1A2B3D));
+
+  /// The "92 % FIT" block on job cards.
+  static Color get fit => _pick(navy, const Color(0xFF18314A));
+  static Color get fitInk => _pick(white, const Color(0xFFEAF0F6));
+  static Color get fitLabel =>
+      _pick(const Color(0xFF18ACC3), const Color(0xFF4BB8C6));
+
+  /// Bottom navigation bar.
+  static Color get nav => _pick(navy, const Color(0xFF0C1A28));
+  static Color get navInk =>
+      _pick(const Color(0xFFAFC0D0), const Color(0xFF8597AA));
+  static Color get navOn => _pick(white, const Color(0xFFEAF0F6));
 
   // ── Elevation ───────────────────────────────────────────────────────────
   /// Cards are defined by a hairline border; the shadow only lifts them a

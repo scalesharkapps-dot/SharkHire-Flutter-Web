@@ -98,43 +98,55 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.ink,
           foregroundColor: AppColors.onInk,
-          disabledBackgroundColor: AppColors.border,
-          disabledForegroundColor: AppColors.textSecondary,
-          minimumSize: const Size(64, 48),
+          disabledBackgroundColor: AppColors.tonal,
+          disabledForegroundColor: AppColors.textTertiary,
+          minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          textStyle: textTheme.labelLarge?.copyWith(fontSize: 15),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.xlAll),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.ocean,
-          foregroundColor: dark ? AppColors.navy : AppColors.white,
+          backgroundColor: AppColors.ink,
+          foregroundColor: AppColors.onInk,
           elevation: 0,
-          minimumSize: const Size(64, 48),
+          minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          textStyle: textTheme.labelLarge?.copyWith(fontSize: 15),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.xlAll),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.ink,
-          backgroundColor: AppColors.surface,
-          minimumSize: const Size(64, 48),
+          backgroundColor: AppColors.tonal,
+          minimumSize: const Size(64, 52),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
-          side: BorderSide(color: AppColors.borderStrong),
-          shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-          textStyle: textTheme.labelLarge?.copyWith(fontSize: 15),
+          side: BorderSide.none,
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.xlAll),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.ocean,
-          textStyle: textTheme.labelMedium?.copyWith(fontSize: 14),
+          textStyle: textTheme.labelMedium?.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
         ),
       ),
@@ -148,7 +160,7 @@ abstract final class AppTheme {
         fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md + 2,
+          vertical: AppSpacing.lg,
         ),
         hintStyle: textTheme.bodyMedium?.copyWith(
           color: AppColors.textTertiary,
@@ -159,19 +171,19 @@ abstract final class AppTheme {
         prefixIconColor: AppColors.textSecondary,
         suffixIconColor: AppColors.textSecondary,
         border: OutlineInputBorder(
-          borderRadius: AppRadius.mdAll,
-          borderSide: BorderSide(color: AppColors.border),
+          borderRadius: AppRadius.xlAll,
+          borderSide: BorderSide(color: AppColors.borderStrong),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.mdAll,
-          borderSide: BorderSide(color: AppColors.border),
+          borderRadius: AppRadius.xlAll,
+          borderSide: BorderSide(color: AppColors.borderStrong),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.mdAll,
-          borderSide: BorderSide(color: AppColors.ocean, width: 1.5),
+          borderRadius: AppRadius.xlAll,
+          borderSide: BorderSide(color: AppColors.ink, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: AppRadius.mdAll,
+          borderRadius: AppRadius.xlAll,
           borderSide: BorderSide(color: AppColors.error),
         ),
       ),
@@ -181,9 +193,11 @@ abstract final class AppTheme {
         selectedColor: AppColors.ink,
         disabledColor: AppColors.surfaceSubtle,
         checkmarkColor: AppColors.onInk,
-        side: BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.borderStrong),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
-        labelStyle: textTheme.labelMedium,
+        labelStyle: textTheme.labelMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
         secondaryLabelStyle: textTheme.labelMedium?.copyWith(
           color: AppColors.onInk,
         ),
@@ -192,12 +206,13 @@ abstract final class AppTheme {
       ),
 
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
+        backgroundColor: AppColors.nav,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        height: 64,
-        // Quiet navigation: colour and weight mark the active tab, no pill.
-        indicatorColor: Colors.transparent,
+        height: 68,
+        // Signal: navy bar; a short teal bar marks the active tab.
+        indicatorColor: AppColors.teal,
+        indicatorShape: const _TopMarkIndicator(),
         overlayColor: WidgetStateProperty.all(Colors.transparent),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
@@ -206,14 +221,14 @@ abstract final class AppTheme {
             fontSize: 12,
             letterSpacing: 0,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? AppColors.ink : AppColors.textTertiary,
+            color: selected ? AppColors.navOn : AppColors.navInk,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
             size: 24,
-            color: selected ? AppColors.ink : AppColors.textTertiary,
+            color: selected ? AppColors.teal : AppColors.navInk,
           );
         }),
       ),
@@ -269,11 +284,12 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: dark ? AppColors.surfaceMuted : AppColors.navy,
+        elevation: 0,
         contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: dark ? AppColors.ink : AppColors.white,
         ),
-        actionTextColor: AppColors.cyan,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.mdAll),
+        actionTextColor: AppColors.teal,
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xlAll),
         insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       ),
 
@@ -291,4 +307,37 @@ abstract final class AppTheme {
       ),
     );
   }
+}
+
+/// Active-tab mark of the bottom bar: a short bar on the top edge of the
+/// tab, instead of a filled pill around the icon.
+class _TopMarkIndicator extends ShapeBorder {
+  const _TopMarkIndicator();
+
+  static const double _width = 28;
+  static const double _height = 3;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  Rect _mark(Rect rect) => Rect.fromLTWH(
+    rect.center.dx - _width / 2,
+    rect.top - 10,
+    _width,
+    _height,
+  );
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => Path()
+    ..addRRect(RRect.fromRectAndRadius(_mark(rect), const Radius.circular(2)));
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => this;
 }

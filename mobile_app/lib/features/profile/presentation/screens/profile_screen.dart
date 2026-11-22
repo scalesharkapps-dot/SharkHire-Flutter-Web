@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/widgets/app_surface.dart';
@@ -34,157 +36,155 @@ class ProfileScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final unread = ref.watch(unreadNotificationsProvider);
 
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal,
-            AppSpacing.lg,
-            AppSpacing.screenHorizontal,
-            AppSpacing.xxxl,
-          ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        body: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            Row(
-              children: [
-                Expanded(child: Text('Profile', style: text.headlineMedium)),
-                IconButton(
-                  tooltip: 'Settings',
-                  onPressed: () => context.push(AppRoutes.settings),
-                  icon: const Icon(Icons.settings_outlined),
-                ),
-              ],
+            _ProfileBand(
+              user: user,
+              onEdit: () => context.push(AppRoutes.editProfile),
+              onSettings: () => context.push(AppRoutes.settings),
             ),
-            const SizedBox(height: AppSpacing.md),
-            FadeInUp(
-              child: _IdentityCard(
-                user: user,
-                onEdit: () => context.push(AppRoutes.editProfile),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenHorizontal,
+                AppSpacing.lg,
+                AppSpacing.screenHorizontal,
+                AppSpacing.xxxl,
               ),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            FadeInUp(
-              delay: const Duration(milliseconds: 60),
-              child: const _CvCard(),
-            ),
-            if (AppConfig.showPremium) ...[
-              const SizedBox(height: AppSpacing.md),
-              FadeInUp(
-                delay: const Duration(milliseconds: 120),
-                child: ref.watch(subscriptionProvider).hasAccess
-                    ? AppSurface(
-                        onTap: () => context.push(AppRoutes.subscription),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.workspace_premium_rounded,
-                              color: AppColors.ocean,
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: Text(
-                                'Your subscription is active',
-                                style: text.titleSmall,
-                              ),
-                            ),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              color: AppColors.textTertiary,
-                            ),
-                          ],
-                        ),
-                      )
-                    : _PremiumCard(
-                        onStart: () => context.push(AppRoutes.subscription),
-                      ),
-              ),
-            ],
-            const SizedBox(height: AppSpacing.xxl),
-            MenuGroup(
-              title: 'Job activity',
-              items: [
-                MenuItem(
-                  Icons.psychology_outlined,
-                  'CV & extracted skills',
-                  onTap: () => ref.read(cvProvider).hasCv
-                      ? context.push(AppRoutes.cvReview)
-                      : context.push(AppRoutes.cvUpload),
-                ),
-                MenuItem(
-                  Icons.send_outlined,
-                  'Applications',
-                  onTap: () => context.push(AppRoutes.applications),
-                ),
-                MenuItem(
-                  Icons.bookmark_border_rounded,
-                  'Saved jobs',
-                  trailing: savedCount > 0 ? '$savedCount' : null,
-                  onTap: () => context.go(AppRoutes.saved),
-                ),
-                MenuItem(
-                  Icons.notifications_active_outlined,
-                  'Job alerts',
-                  onTap: () => context.push(AppRoutes.jobAlerts),
-                ),
-                MenuItem(
-                  Icons.tune_rounded,
-                  'Job preferences',
-                  onTap: () => context.push(AppRoutes.jobPreferences),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            MenuGroup(
-              title: 'Account',
-              items: [
-                if (AppConfig.showPremium)
-                  MenuItem(
-                    Icons.workspace_premium_outlined,
-                    'Subscription',
-                    trailing: ref.watch(subscriptionProvider).hasAccess
-                        ? 'Active'
-                        : null,
-                    onTap: () => context.push(AppRoutes.subscription),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 60),
+                    child: const _CvCard(),
                   ),
-                MenuItem(
-                  Icons.notifications_none_rounded,
-                  'Notifications',
-                  trailing: unread > 0 ? '$unread' : null,
-                  onTap: () => context.push(AppRoutes.notifications),
-                ),
-                MenuItem(
-                  Icons.lock_outline_rounded,
-                  'Privacy & security',
-                  onTap: () => context.push(AppRoutes.privacy),
-                ),
-                MenuItem(
-                  Icons.help_outline_rounded,
-                  'Help & support',
-                  onTap: () => context.push(AppRoutes.help),
-                ),
-                MenuItem(
-                  Icons.settings_outlined,
-                  'Settings',
-                  onTap: () => context.push(AppRoutes.settings),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            MenuGroup(
-              items: [
-                MenuItem(
-                  Icons.logout_rounded,
-                  'Log out',
-                  destructive: true,
-                  onTap: () => confirmSignOut(context, ref),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-            Center(
-              child: Text(
-                '${AppConstants.appName} v${AppConstants.appVersion}  ·  by ${AppConstants.companyName}',
-                style: text.bodySmall?.copyWith(color: AppColors.textTertiary),
+                  if (AppConfig.showPremium) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 120),
+                      child: ref.watch(subscriptionProvider).hasAccess
+                          ? AppSurface(
+                              onTap: () => context.push(AppRoutes.subscription),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.workspace_premium_rounded,
+                                    color: AppColors.ocean,
+                                  ),
+                                  const SizedBox(width: AppSpacing.md),
+                                  Expanded(
+                                    child: Text(
+                                      'Your subscription is active',
+                                      style: text.titleSmall,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: AppColors.textTertiary,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : _PremiumCard(
+                              onStart: () =>
+                                  context.push(AppRoutes.subscription),
+                            ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xxl),
+                  MenuGroup(
+                    title: 'Job activity',
+                    items: [
+                      MenuItem(
+                        Icons.psychology_outlined,
+                        'CV & extracted skills',
+                        onTap: () => ref.read(cvProvider).hasCv
+                            ? context.push(AppRoutes.cvReview)
+                            : context.push(AppRoutes.cvUpload),
+                      ),
+                      MenuItem(
+                        Icons.send_outlined,
+                        'Applications',
+                        onTap: () => context.push(AppRoutes.applications),
+                      ),
+                      MenuItem(
+                        Icons.bookmark_border_rounded,
+                        'Saved jobs',
+                        trailing: savedCount > 0 ? '$savedCount' : null,
+                        onTap: () => context.go(AppRoutes.saved),
+                      ),
+                      MenuItem(
+                        Icons.notifications_active_outlined,
+                        'Job alerts',
+                        onTap: () => context.push(AppRoutes.jobAlerts),
+                      ),
+                      MenuItem(
+                        Icons.tune_rounded,
+                        'Job preferences',
+                        onTap: () => context.push(AppRoutes.jobPreferences),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  MenuGroup(
+                    title: 'Account',
+                    items: [
+                      if (AppConfig.showPremium)
+                        MenuItem(
+                          Icons.workspace_premium_outlined,
+                          'Subscription',
+                          trailing: ref.watch(subscriptionProvider).hasAccess
+                              ? 'Active'
+                              : null,
+                          onTap: () => context.push(AppRoutes.subscription),
+                        ),
+                      MenuItem(
+                        Icons.notifications_none_rounded,
+                        'Notifications',
+                        trailing: unread > 0 ? '$unread' : null,
+                        onTap: () => context.push(AppRoutes.notifications),
+                      ),
+                      MenuItem(
+                        Icons.lock_outline_rounded,
+                        'Privacy & security',
+                        onTap: () => context.push(AppRoutes.privacy),
+                      ),
+                      MenuItem(
+                        Icons.help_outline_rounded,
+                        'Help & support',
+                        onTap: () => context.push(AppRoutes.help),
+                      ),
+                      MenuItem(
+                        Icons.settings_outlined,
+                        'Settings',
+                        onTap: () => context.push(AppRoutes.settings),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  MenuGroup(
+                    items: [
+                      MenuItem(
+                        Icons.logout_rounded,
+                        'Log out',
+                        destructive: true,
+                        onTap: () => confirmSignOut(context, ref),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xxl),
+                  Center(
+                    child: Text(
+                      '${AppConstants.appName} v${AppConstants.appVersion}  ·  by ${AppConstants.companyName}',
+                      style: text.bodySmall?.copyWith(
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -194,88 +194,110 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-class _IdentityCard extends StatelessWidget {
-  const _IdentityCard({required this.user, required this.onEdit});
+/// Signal header band: avatar, name, role and profile strength on navy.
+class _ProfileBand extends StatelessWidget {
+  const _ProfileBand({
+    required this.user,
+    required this.onEdit,
+    required this.onSettings,
+  });
 
   final AppUser user;
   final VoidCallback onEdit;
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final percent = (user.profileCompletion * 100).round();
+    final subtitle = [
+      if (user.headline != null) user.headline!,
+      if (user.location != null) user.location!,
+    ].join(' · ');
 
-    return AppSurface(
-      onTap: onEdit,
+    Widget squareButton(IconData icon, String tooltip, VoidCallback onTap) =>
+        Tooltip(
+          message: tooltip,
+          child: Material(
+            color: AppColors.bandSoft,
+            shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+            child: InkWell(
+              onTap: onTap,
+              customBorder: const RoundedRectangleBorder(
+                borderRadius: AppRadius.lgAll,
+              ),
+              child: SizedBox.square(
+                dimension: 48,
+                child: Icon(icon, size: 21, color: AppColors.bandInk),
+              ),
+            ),
+          ),
+        );
+
+    return Container(
+      color: AppColors.band,
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.screenHorizontal,
+        MediaQuery.paddingOf(context).top + AppSpacing.lg,
+        AppSpacing.screenHorizontal,
+        AppSpacing.xl,
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 66,
+                height: 66,
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.ocean,
-                  shape: BoxShape.circle,
+                decoration: const BoxDecoration(
+                  color: AppColors.teal,
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
                 child: Text(
                   user.initials,
-                  style: text.titleLarge?.copyWith(
-                    color: AppColors.isDark ? AppColors.navy : AppColors.white,
+                  style: TextStyle(
+                    fontFamily: AppFonts.display,
+                    fontSize: 22,
+                    color: AppColors.isDark ? AppColors.onInk : AppColors.navy,
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user.fullName,
-                      style: text.titleLarge,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (user.headline != null)
-                      Text(
-                        user.headline!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    if (user.location != null) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 14,
-                            color: AppColors.textTertiary,
-                          ),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              user.location!,
-                              style: text.bodySmall,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.edit_outlined,
-                size: 20,
-                color: AppColors.textTertiary,
-              ),
+              const Spacer(),
+              squareButton(Icons.edit_outlined, 'Edit profile', onEdit),
+              const SizedBox(width: AppSpacing.sm),
+              squareButton(Icons.settings_outlined, 'Settings', onSettings),
             ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          InkWell(
+            onTap: onEdit,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.fullName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.headlineMedium?.copyWith(
+                    color: AppColors.bandInk,
+                  ),
+                ),
+                if (subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodyMedium?.copyWith(
+                      color: AppColors.bandMuted,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
@@ -283,14 +305,15 @@ class _IdentityCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Profile strength',
-                  style: text.labelMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  style: text.bodySmall?.copyWith(color: AppColors.bandMuted),
                 ),
               ),
               Text(
                 '$percent%',
-                style: text.labelMedium?.copyWith(color: AppColors.ocean),
+                style: text.labelMedium?.copyWith(
+                  color: AppColors.teal,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -299,7 +322,9 @@ class _IdentityCard extends StatelessWidget {
             borderRadius: AppRadius.pillAll,
             child: LinearProgressIndicator(
               value: user.profileCompletion,
-              minHeight: 6,
+              minHeight: 5,
+              color: AppColors.teal,
+              backgroundColor: AppColors.bandLine,
             ),
           ),
         ],

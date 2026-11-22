@@ -134,6 +134,54 @@ class _RingPainter extends CustomPainter {
       old.progress != progress || old.color != color;
 }
 
+/// Signal "FIT" block: the match score as a solid navy column on the left
+/// edge of a job card ("92 / % FIT").
+class FitScoreBlock extends StatelessWidget {
+  const FitScoreBlock({super.key, required this.score, this.width = 76});
+
+  final int score;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: '$score percent match',
+      excludeSemantics: true,
+      child: Container(
+        width: width,
+        color: AppColors.fit,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              '${score.clamp(0, 100)}',
+              style: TextStyle(
+                fontFamily: AppFonts.display,
+                fontSize: 26,
+                height: 1,
+                color: AppColors.fitInk,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '% FIT',
+              style: TextStyle(
+                fontFamily: AppFonts.label,
+                fontWeight: FontWeight.w700,
+                fontSize: 10,
+                letterSpacing: 1,
+                color: AppColors.fitLabel,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Compact pill variant: "92% match", tinted by tier.
 class MatchScorePill extends StatelessWidget {
   const MatchScorePill({super.key, required this.score});
