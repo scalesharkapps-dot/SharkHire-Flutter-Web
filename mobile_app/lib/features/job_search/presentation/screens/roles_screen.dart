@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,12 +6,13 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/models/job_summary.dart';
 import '../../../../shared/widgets/bold_kit.dart';
 import '../../../profile/presentation/providers/current_user_provider.dart';
 import '../providers/explore_providers.dart';
 
-/// "Your roles" (Bold concept): spin a curved wheel of job titles, then open
-/// Explore filtered to the chosen role.
+/// "Your roles" (Bold concept): spin a wheel of job titles, each with its
+/// best CV fit, then open Explore filtered to the chosen role.
 class RolesScreen extends ConsumerStatefulWidget {
   const RolesScreen({super.key});
 
@@ -80,6 +79,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
       for (final e in prefs.employmentTypes) e.label,
     ];
 
+    final stats = _stats(roles, jobs);
+    final count = stats[selected]?.count ?? 0;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
@@ -111,12 +113,14 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     const Expanded(
                       child: Text(
                         'PICK YOUR NEXT ROLE',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: AppFonts.label,
                           fontWeight: FontWeight.w800,
                           fontSize: 11,
                           letterSpacing: 2,
-                          color: Bold.accent,
+                          color: Bold.muted,
                         ),
                       ),
                     ),
@@ -141,71 +145,55 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                   spans: [('Your\nroles', false), ('.', true)],
                 ),
               ),
+              const SizedBox(height: AppSpacing.sm),
               Expanded(
-                child: LayoutBuilder(
-                  builder: (context, c) => Stack(
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(painter: _RingsPainter()),
-                      ),
-                      // Selection band and teal capsule.
-                      Center(
-                        child: Container(
-                          height: 58,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF0B141D),
-                            border: Border.symmetric(
-                              horizontal: BorderSide(color: Color(0xFF142130)),
-                            ),
-                          ),
+                child: Stack(
+                  children: [
+                    // Solid accent band behind the selected role.
+                    Center(
+                      child: Container(
+                        height: _itemExtent,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Bold.accent,
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
                         ),
                       ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          width: 8,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: Bold.accent,
-                            borderRadius: BorderRadius.horizontal(
-                              left: Radius.circular(4),
-                            ),
-                          ),
+                    ),
+                    ListWheelScrollView.useDelegate(
+                      controller: _wheel,
+                      itemExtent: _itemExtent,
+                      diameterRatio: 2.4,
+                      perspective: 0.003,
+                      overAndUnderCenterOpacity: 0.55,
+                      physics: const FixedExtentScrollPhysics(),
+                      onSelectedItemChanged: (i) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _selected = i);
+                      },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        childCount: roles.length,
+                        builder: (context, i) => _RoleItem(
+                          label: roles[i],
+                          score: stats[roles[i]]?.best,
+                          active: i == _selected,
+                          onTap: () {
+                            if (i == _selected) {
+                              _open(roles[i]);
+                            } else {
+                              _wheel.animateToItem(
+                                i,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                              );
+                            }
+                          },
                         ),
                       ),
-                      ListWheelScrollView.useDelegate(
-                        controller: _wheel,
-                        itemExtent: 58,
-                        diameterRatio: 1.6,
-                        perspective: 0.004,
-                        offAxisFraction: -0.55,
-                        overAndUnderCenterOpacity: 0.45,
-                        physics: const FixedExtentScrollPhysics(),
-                        onSelectedItemChanged: (i) {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selected = i);
-                        },
-                        childDelegate: ListWheelChildBuilderDelegate(
-                          childCount: roles.length,
-                          builder: (context, i) => _RoleItem(
-                            label: roles[i],
-                            active: i == _selected,
-                            onTap: () {
-                              if (i == _selected) {
-                                _open(roles[i]);
-                              } else {
-                                _wheel.animateToItem(
-                                  i,
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeOutCubic,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
@@ -225,54 +213,25 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'SELECTED · MATCHED TO YOUR CV',
-                                  style: TextStyle(
-                                    fontFamily: AppFonts.label,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 10,
-                                    letterSpacing: 1.8,
-                                    color: Bold.faint,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    selected,
-                                    maxLines: 1,
-                                    style: const TextStyle(
-                                      fontFamily: AppFonts.display,
-                                      fontSize: 22,
-                                      color: Bold.ink,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                      const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: 'SELECTED · '),
+                            TextSpan(
+                              text: 'MATCHED TO YOUR CV',
+                              style: TextStyle(color: Bold.accent),
                             ),
-                          ),
-                          Container(
-                            width: 34,
-                            height: 34,
-                            decoration: const BoxDecoration(
-                              color: Bold.accent,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.check_rounded,
-                              size: 18,
-                              color: Bold.onLight,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: AppFonts.label,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          letterSpacing: 1.8,
+                          color: Bold.faint,
+                        ),
                       ),
                       if (chips.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.md),
@@ -286,7 +245,10 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                       ],
                       const SizedBox(height: AppSpacing.md),
                       BoldPrimaryButton(
-                        label: 'Show these jobs',
+                        label: count > 0
+                            ? 'Show $count ${count == 1 ? 'job' : 'jobs'}'
+                            : 'Show these jobs',
+                        accent: true,
                         trailingArrow: true,
                         onPressed: () => _open(selected),
                       ),
@@ -302,56 +264,108 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   }
 }
 
+/// How many loaded jobs match a role, and the best CV fit among them.
+typedef _RoleStats = ({int count, int? best});
+
+const double _itemExtent = 60;
+
+Map<String, _RoleStats> _stats(List<String> roles, List<JobSummary> jobs) {
+  final out = <String, _RoleStats>{};
+  for (final role in roles) {
+    final r = role.toLowerCase();
+    var count = 0;
+    int? best;
+    for (final j in jobs) {
+      if (!j.title.toLowerCase().contains(r)) continue;
+      count++;
+      final s = j.matchScore;
+      if (s != null && (best == null || s > best)) best = s;
+    }
+    out[role] = (count: count, best: best);
+  }
+  return out;
+}
+
 class _RoleItem extends StatelessWidget {
   const _RoleItem({
     required this.label,
+    required this.score,
     required this.active,
     required this.onTap,
   });
 
   final String label;
+  final int? score;
   final bool active;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? Bold.accent : Bold.ink;
+    final score = this.score;
+    final fit = score == null ? '' : ', $score% fit';
     return Semantics(
       button: true,
       selected: active,
-      label: label,
+      label: '$label$fit',
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.only(left: 24, right: 34),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg + 16),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Flexible(
+              Expanded(
                 // The selected role shrinks to fit instead of being cut off.
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     active ? label.toUpperCase() : label,
                     maxLines: 1,
                     style: TextStyle(
                       fontFamily: active ? AppFonts.display : AppFonts.label,
                       fontWeight: active ? FontWeight.w400 : FontWeight.w600,
-                      fontSize: active ? 28 : 19,
-                      color: color,
+                      fontSize: active ? 22 : 18,
+                      letterSpacing: active ? 0.2 : 0,
+                      color: active ? Bold.onLight : Bold.ink,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: active ? 26 : 18,
-                color: color,
-              ),
+              if (score != null) ...[
+                const SizedBox(width: AppSpacing.sm),
+                if (active)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Bold.onLight,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    child: Text(
+                      '$score% fit',
+                      style: const TextStyle(
+                        fontFamily: AppFonts.label,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: Bold.accent,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    '$score%',
+                    style: const TextStyle(
+                      fontFamily: AppFonts.label,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Bold.muted,
+                    ),
+                  ),
+              ],
             ],
           ),
         ),
@@ -387,32 +401,4 @@ class _RoundButton extends StatelessWidget {
       ),
     ),
   );
-}
-
-/// Two arcs curving with the wheel on the right edge.
-class _RingsPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width + size.height * 0.18, size.height / 2);
-    final inner = Paint()
-      ..color = const Color(0xFF1A2531)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    final outer = Paint()
-      ..color = const Color(0xFF121B25)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawCircle(center, size.height * 0.48, inner);
-    canvas.drawCircle(center, size.height * 0.8, outer);
-    // Small mark at the selected position.
-    final mark = Offset(center.dx - size.height * 0.48, center.dy);
-    canvas.drawCircle(
-      mark,
-      math.max(2.5, size.height * 0.008),
-      Paint()..color = Bold.accent,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_RingsPainter old) => false;
 }

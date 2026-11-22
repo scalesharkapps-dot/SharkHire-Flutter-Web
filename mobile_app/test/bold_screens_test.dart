@@ -64,7 +64,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(RolesScreen), findsOneWidget);
 
-    await tester.tap(find.text('Show these jobs'));
+    // The button names how many loaded jobs match, e.g. "Show 2 jobs".
+    await tester.tap(find.textContaining(RegExp(r'^Show \d+ jobs?$')));
     await tester.pumpAndSettle();
     expect(find.byType(ExploreScreen), findsOneWidget);
     final field = tester.widget<TextField>(find.byType(TextField).first);

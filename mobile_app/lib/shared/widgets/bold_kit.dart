@@ -144,22 +144,26 @@ ButtonStyle _boldStyle(Color bg, Color fg) => FilledButton.styleFrom(
   ),
 );
 
-/// Light pill button on the dark ground.
+/// Light (or accent) pill button on the dark ground.
 class BoldPrimaryButton extends StatelessWidget {
   const BoldPrimaryButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.trailingArrow = false,
+    this.accent = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool trailingArrow;
 
+  /// Fills the button with the accent instead of the light ink.
+  final bool accent;
+
   @override
   Widget build(BuildContext context) {
-    final style = _boldStyle(Bold.ink, Bold.onLight);
+    final style = _boldStyle(accent ? Bold.accent : Bold.ink, Bold.onLight);
     if (!trailingArrow) {
       return FilledButton(
         onPressed: onPressed,
