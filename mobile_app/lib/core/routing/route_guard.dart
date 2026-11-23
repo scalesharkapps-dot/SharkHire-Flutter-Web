@@ -20,6 +20,8 @@ String? routeGuard(
 }) {
   // The splash decides on its own when to leave.
   if (location == AppRoutes.splash) return null;
+  // Email confirmation and password-reset links work in every state.
+  if (AppRoutes.authLinkRoutes.contains(location)) return null;
 
   final isPublic = AppRoutes.publicRoutes.contains(location);
 

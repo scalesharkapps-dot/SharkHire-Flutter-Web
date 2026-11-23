@@ -14,10 +14,8 @@ import '../../../../shared/widgets/appearance_picker.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/legal_sheet.dart';
 import '../../../../shared/widgets/menu_group.dart';
-import '../../../authentication/data/repositories/auth_repository.dart';
 import '../../../authentication/presentation/widgets/sign_out_sheet.dart';
 import '../../../profile/presentation/providers/current_user_provider.dart';
-import '../../../authentication/presentation/providers/session_provider.dart';
 import '../../data/repositories/account_repository.dart';
 import '../providers/settings_provider.dart';
 
@@ -119,17 +117,7 @@ class SettingsScreen extends ConsumerWidget {
             MenuItem(
               Icons.password_rounded,
               'Change password',
-              onTap: () async {
-                await ref
-                    .read(authRepositoryProvider)
-                    .sendPasswordReset(user.email);
-                if (context.mounted) {
-                  AppFeedback.show(
-                    context,
-                    'We sent a password reset link to ${user.email}',
-                  );
-                }
-              },
+              onTap: () => context.push(AppRoutes.changePassword),
             ),
             MenuItem(
               Icons.lock_outline_rounded,
@@ -156,67 +144,6 @@ class SettingsScreen extends ConsumerWidget {
 /// Privacy & security (guide §3.12).
 class PrivacyScreen extends ConsumerWidget {
   const PrivacyScreen({super.key});
-
-  Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
-    final ok = await showModalBottomSheet<bool>(
-      context: context,
-      useRootNavigator: true,
-      builder: (sheet) {
-        final text = Theme.of(sheet).textTheme;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screenHorizontal,
-              0,
-              AppSpacing.screenHorizontal,
-              AppSpacing.lg,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Delete your account?', style: text.headlineSmall),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'We\'ll delete your profile, CVs, saved jobs and applications. '
-                  'Employers you applied to keep the copy you sent them. This can\'t be undone.',
-                  style: text.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                  ),
-                  onPressed: () => Navigator.of(sheet).pop(true),
-                  child: const Text('Request deletion'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(sheet).pop(false),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    if (!(ok ?? false) || !context.mounted) return;
-    try {
-      await ref.read(accountRepositoryProvider).requestDeletion();
-    } catch (e) {
-      if (context.mounted) AppFeedback.show(context, friendlyErrorMessage(e));
-      return;
-    }
-    if (context.mounted) {
-      AppFeedback.show(
-        context,
-        'Your account is being deleted. We\'ll confirm by email.',
-      );
-    }
-    await ref.read(sessionProvider.notifier).signOut();
-  }
 
   Future<void> _requestData(BuildContext context, WidgetRef ref) async {
     try {
@@ -284,7 +211,7 @@ class PrivacyScreen extends ConsumerWidget {
               Icons.delete_forever_outlined,
               'Delete account',
               destructive: true,
-              onTap: () => _confirmDelete(context, ref),
+              onTap: () => context.push(AppRoutes.deleteAccount),
             ),
           ],
         ),

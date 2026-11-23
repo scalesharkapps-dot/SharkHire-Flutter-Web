@@ -15,17 +15,22 @@ abstract interface class AccountRepository {
   Future<void> requestDataExport();
 }
 
-/// REAL – the deployed API (OpenAPI, 17 Nov 2026) has **no** endpoint for
-/// account deletion or data export yet, so these report that honestly
-/// instead of pretending. Store blocker: see MOBILE_RELEASE_CHECKLIST.md.
+/// REAL – the deployed API (OpenAPI re-checked 23 Nov 2026) has **no**
+/// endpoint for account deletion or data export yet, so these report that
+/// honestly instead of pretending; nothing is deleted and the user stays
+/// signed in. INTEGRATION DEPENDENCY: when the backend adds the endpoint,
+/// call it in [requestDeletion] – the Delete account screen already clears
+/// the session and returns to the welcome screen on success.
+/// Store blocker: see MOBILE_RELEASE_CHECKLIST.md and AUTH_DEEP_LINKS.md.
 class ApiAccountRepository implements AccountRepository {
   const ApiAccountRepository();
 
   @override
   Future<void> requestDeletion() async =>
       throw const FeatureUnavailableException(
-        "Deleting your account from the app isn't available yet. "
-        "Please contact SharkHire support and we'll delete it for you.",
+        "The SharkHire server can't delete accounts from the app yet, so "
+        'nothing was deleted. Email support and the team will delete your '
+        'account for you.',
       );
 
   @override

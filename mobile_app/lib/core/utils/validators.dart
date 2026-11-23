@@ -22,6 +22,43 @@ abstract final class Validators {
     return null;
   }
 
+  /// A new password, checked against the SharkHire password policy (the
+  /// backend checks it again): 8–72 characters with a lowercase letter, an
+  /// uppercase letter and a number, and not a common password.
+  static String? newPassword(String? value) {
+    final v = value ?? '';
+    if (v.isEmpty) return 'Enter a new password';
+    if (v.length < 8) return 'Use at least 8 characters';
+    if (v.length > 72) return 'Use 72 characters or fewer';
+    if (!RegExp(r'[a-z]').hasMatch(v)) return 'Add a lowercase letter';
+    if (!RegExp(r'[A-Z]').hasMatch(v)) return 'Add an uppercase letter';
+    if (!RegExp(r'\d').hasMatch(v)) return 'Add a number';
+    if (_commonPasswords.contains(v.toLowerCase())) {
+      return 'This password is too common. Choose another.';
+    }
+    return null;
+  }
+
+  static const _commonPasswords = {
+    'password',
+    'password1',
+    'password123',
+    '12345678',
+    '123456789',
+    'qwerty123',
+  };
+
+  /// The confirmation must repeat [original].
+  static String? Function(String?) matches(
+    String Function() original, {
+    String message = "Passwords don't match",
+  }) =>
+      (v) => (v ?? '').isEmpty
+      ? 'Repeat the password'
+      : v != original()
+      ? message
+      : null;
+
   static String? fullName(String? value) {
     final v = value?.trim() ?? '';
     if (v.isEmpty) return 'Enter your full name';

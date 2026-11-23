@@ -11,7 +11,9 @@ import '../../features/admin/presentation/screens/admin_system_screens.dart';
 import '../../features/admin/presentation/screens/admin_users_screen.dart';
 import '../../features/applications/presentation/screens/application_details_screen.dart';
 import '../../features/applications/presentation/screens/applications_screen.dart';
+import '../../features/authentication/presentation/providers/auth_link_provider.dart';
 import '../../features/authentication/presentation/providers/session_provider.dart';
+import '../../features/authentication/presentation/screens/auth_link_screens.dart';
 import '../../features/authentication/presentation/screens/employer_welcome_screen.dart';
 import '../../features/authentication/presentation/screens/forgot_password_screen.dart';
 import '../../features/authentication/presentation/screens/login_screen.dart';
@@ -37,6 +39,7 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/resume/presentation/screens/cv_review_screen.dart';
 import '../../features/resume/presentation/screens/cv_upload_screen.dart';
 import '../../features/saved_jobs/presentation/screens/saved_jobs_screen.dart';
+import '../../features/settings/presentation/screens/account_screens.dart';
 import '../../features/settings/presentation/screens/settings_screens.dart';
 import '../../features/subscription/presentation/providers/subscription_providers.dart';
 import '../../features/subscription/presentation/screens/subscription_history_screen.dart';
@@ -70,14 +73,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
-    redirect: (context, state) => routeGuard(
-      ref.read(sessionProvider),
-      state.matchedLocation,
-      subscription: ref.read(subscriptionsEnabledProvider)
-          ? ref.read(subscriptionProvider)
-          : null,
-      fullLocation: state.uri.toString(),
-    ),
+    redirect: (context, state) =>
+        // Email links first: store the link, show its screen.
+        ref.read(authLinkProvider.notifier).capture(state.uri) ??
+        routeGuard(
+          ref.read(sessionProvider),
+          state.matchedLocation,
+          subscription: ref.read(subscriptionsEnabledProvider)
+              ? ref.read(subscriptionProvider)
+              : null,
+          fullLocation: state.uri.toString(),
+        ),
     routes: [
       _route(AppRoutes.splash, (_) => const SplashScreen()),
 
@@ -96,6 +102,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       _route(AppRoutes.roles, (_) => const RolesScreen()),
       _route(AppRoutes.forgotPassword, (_) => const ForgotPasswordScreen()),
       _route(AppRoutes.verifyEmail, (_) => const VerifyEmailScreen()),
+      _route(AppRoutes.authCallback, (_) => const AuthCallbackScreen()),
+      _route(AppRoutes.resetPassword, (_) => const ResetPasswordScreen()),
       _route(
         AppRoutes.onboardingPreferences,
         (_) => const JobPreferencesScreen(),
@@ -138,6 +146,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       _route(AppRoutes.settings, (_) => const SettingsScreen()),
       _route(AppRoutes.privacy, (_) => const PrivacyScreen()),
+      _route(AppRoutes.changePassword, (_) => const ChangePasswordScreen()),
+      _route(AppRoutes.deleteAccount, (_) => const DeleteAccountScreen()),
       _route(AppRoutes.help, (_) => const HelpScreen()),
       _route(AppRoutes.editProfile, (_) => const EditProfileScreen()),
       _route(

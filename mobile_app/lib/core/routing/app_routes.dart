@@ -10,6 +10,11 @@ abstract final class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String employerWelcome = '/welcome/employer';
 
+  // Email links (Supabase sends users back here; see AUTH_DEEP_LINKS.md).
+  // Web: https://<site>/auth/callback · Mobile: sharkhire://auth/callback
+  static const String authCallback = '/auth/callback';
+  static const String resetPassword = '/auth/reset-password';
+
   /// Registration with the employer role picked.
   static const String registerEmployer = '/register?role=employer';
 
@@ -35,6 +40,8 @@ abstract final class AppRoutes {
   static const String subscriptionHistory = '/subscription/history';
   static const String settings = '/settings';
   static const String privacy = '/settings/privacy';
+  static const String changePassword = '/settings/password';
+  static const String deleteAccount = '/settings/delete-account';
   static const String help = '/help';
   static const String editProfile = '/profile/edit';
 
@@ -90,8 +97,14 @@ abstract final class AppRoutes {
     editProfile,
     settings,
     privacy,
+    changePassword,
+    deleteAccount,
     help,
   };
+
+  /// Email-link screens: open in every sign-in state (a link can be opened
+  /// signed out, mid sign-up or signed in).
+  static const Set<String> authLinkRoutes = {authCallback, resetPassword};
 
   /// The paywall, remembering where the user was going.
   static String paywall({String? next}) => next == null || next.isEmpty

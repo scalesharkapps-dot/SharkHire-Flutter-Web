@@ -38,6 +38,11 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Email links (confirm email, reset password). The https host is the
+        // web app's; change it per environment with -PappLinkHost=<host>.
+        // See AUTH_DEEP_LINKS.md.
+        manifestPlaceholders["appLinkHost"] =
+            (project.findProperty("appLinkHost") as String?) ?: "sharkhire.vercel.app"
     }
 
     signingConfigs {

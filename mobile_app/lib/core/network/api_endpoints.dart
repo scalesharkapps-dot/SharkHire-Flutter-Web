@@ -18,6 +18,10 @@ abstract final class ApiEndpoints {
   static const String authResendVerification = '$_v1/auth/resend-verification';
   static const String authForgotPassword = '$_v1/auth/forgot-password';
 
+  /// Sets a new password. Authorised by the recovery link's access token,
+  /// its `token_hash`, or (Change password) the signed-in session.
+  static const String authResetPassword = '$_v1/auth/reset-password';
+
   // Profile
   static const String profileMe = '$_v1/profile/me';
 

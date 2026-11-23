@@ -27,6 +27,23 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Email links from SharkHire (confirm email, reset password) open the
+                 app; Flutter hands them to GoRouter (see AUTH_DEEP_LINKS.md).
+                 1) Custom scheme: sharkhire://auth/callback, sharkhire://auth/reset-password -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="sharkhire" android:host="auth"/>
+            </intent-filter>
+            <!-- 2) App Link: https://<appLinkHost>/auth/... Verified only once the site
+                 serves /.well-known/assetlinks.json for this app's signing key. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="${appLinkHost}" android:pathPrefix="/auth/"/>
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -48,6 +65,11 @@
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="https"/>
+        </intent>
+        <!-- url_launcher: "Email support" (Delete account). -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
         </intent>
     </queries>
 </manifest>

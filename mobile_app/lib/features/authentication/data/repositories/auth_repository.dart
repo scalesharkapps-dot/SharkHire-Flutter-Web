@@ -7,6 +7,7 @@ import '../../../../core/network/http_api_client.dart';
 
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/models/domain_enums.dart';
+import '../../domain/auth_link.dart';
 import '../../domain/session.dart';
 import 'api_auth_repository.dart';
 
@@ -49,6 +50,25 @@ abstract interface class AuthRepository {
   });
 
   Future<void> sendPasswordReset(String email);
+
+  /// Signs in with the session carried by a confirmation link.
+  Future<Session> signInWithLink(AuthLink link);
+
+  /// Sets a new password from a recovery link: with its [tokenHash], or
+  /// with its [recoveryToken] (access token). The user signs in afterwards.
+  Future<void> resetPassword({
+    required String newPassword,
+    String? tokenHash,
+    String? recoveryToken,
+  });
+
+  /// Changes the signed-in user's password. [currentPassword] is checked
+  /// first; a wrong one throws [AuthFailure].
+  Future<void> changePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  });
 
   /// Asks the backend to send the confirmation email again. The backend
   /// enforces the resend limit: when it is reached this throws a
@@ -168,6 +188,44 @@ class MockAuthRepository implements AuthRepository {
   Future<void> sendPasswordReset(String email) =>
       Future<void>.delayed(_latency);
 
+  /// Development: email links only exist with the live server.
+  @override
+  Future<Session> signInWithLink(AuthLink link) async {
+    await Future<void>.delayed(_latency);
+    throw const AuthFailure(
+      'Email links only work with the SharkHire server. Log in instead.',
+    );
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String newPassword,
+    String? tokenHash,
+    String? recoveryToken,
+  }) async {
+    await Future<void>.delayed(_latency);
+    if (tokenHash == null && recoveryToken == null) {
+      throw const UnauthorizedException(
+        'This reset link is invalid or has expired.',
+        'invalid_token',
+      );
+    }
+  }
+
+  @override
+  Future<void> changePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await Future<void>.delayed(_latency);
+    final account = _accounts[_key(email)];
+    if (account == null || account.password != currentPassword) {
+      throw const AuthFailure('Your current password is incorrect.');
+    }
+    account.password = newPassword;
+  }
+
   /// Mirrors the backend contract for development: 2 resends, then 429.
   final Map<String, int> _resends = {};
   static const maxResends = 2;
@@ -218,7 +276,7 @@ class _Account {
   });
 
   final AppUser user;
-  final String password;
+  String password;
   bool verified;
   bool onboarded;
 }

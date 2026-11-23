@@ -1,10 +1,13 @@
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/api_config.dart';
 import '../../../../core/network/auth_token_provider.dart';
+import '../../../../core/network/http_api_client.dart';
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/models/backend_json.dart';
 import '../../../../shared/models/domain_enums.dart';
+import '../../domain/auth_link.dart';
 import '../../domain/session.dart';
 import 'auth_repository.dart';
 
@@ -12,10 +15,23 @@ import 'auth_repository.dart';
 /// (`/api/v1/auth/*`). Tokens are kept by [SessionTokenManager] in secure
 /// storage; passwords are never stored.
 class ApiAuthRepository implements AuthRepository {
-  ApiAuthRepository(this._api, this._tokens);
+  ApiAuthRepository(
+    this._api,
+    this._tokens, {
+    ApiClient Function(String bearer)? clientWithToken,
+  }) : _clientWithToken = clientWithToken ?? _defaultClientWithToken;
 
   final ApiClient _api;
   final SessionTokenManager _tokens;
+
+  /// A client that sends one given token (the recovery link's) instead of
+  /// the stored session.
+  final ApiClient Function(String bearer) _clientWithToken;
+
+  static ApiClient _defaultClientWithToken(String bearer) => HttpApiClient(
+    baseUrl: ApiConfig.baseUrl,
+    tokens: FixedTokenProvider(bearer),
+  );
 
   /// Kept in memory only, between sign-up and "I've confirmed my email",
   /// so the app can sign in once the address is confirmed.
@@ -88,6 +104,86 @@ class ApiAuthRepository implements AuthRepository {
   @override
   Future<void> sendPasswordReset(String email) =>
       _api.post(ApiEndpoints.authForgotPassword, body: {'email': email.trim()});
+
+  /// Confirmation link with a session (implicit flow): keep it like a
+  /// sign-in, then load the account.
+  @override
+  Future<Session> signInWithLink(AuthLink link) async {
+    if (!link.hasSession) {
+      throw const AuthFailure('This link has no sign-in. Log in instead.');
+    }
+    _tokens.persist = true;
+    await _tokens.save(SessionTokens.fromSessionJson(link.sessionJson));
+    try {
+      final session = await _loadSession();
+      _pending = null;
+      return session;
+    } on UnauthorizedException {
+      await _tokens.clear();
+      throw const AuthFailure(
+        'This link has expired or was already used. Log in instead.',
+      );
+    }
+  }
+
+  /// `POST /api/v1/auth/reset-password`.
+  @override
+  Future<void> resetPassword({
+    required String newPassword,
+    String? tokenHash,
+    String? recoveryToken,
+  }) async {
+    if (tokenHash != null) {
+      await _api.post(
+        ApiEndpoints.authResetPassword,
+        body: {'new_password': newPassword, 'token_hash': tokenHash},
+      );
+    } else if (recoveryToken != null) {
+      await _clientWithToken(recoveryToken).post(
+        ApiEndpoints.authResetPassword,
+        body: {'new_password': newPassword},
+      );
+    } else {
+      throw const UnauthorizedException(
+        'This reset link is invalid or has expired.',
+        'invalid_token',
+      );
+    }
+  }
+
+  /// Checks [currentPassword] with `POST /auth/login` (which also renews
+  /// this device's session), then sets the new one with
+  /// `POST /auth/reset-password` authorised by that session. Only the
+  /// signed-in user's own password can change.
+  @override
+  Future<void> changePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final Map<String, Object?> session;
+    try {
+      session =
+          await _api.post(
+                ApiEndpoints.authLogin,
+                body: {'email': email.trim(), 'password': currentPassword},
+              )
+              as Map<String, Object?>;
+    } on ApiException catch (e) {
+      if (e is NetworkException ||
+          e is RequestTimeoutException ||
+          e is ServerException ||
+          e is RateLimitedException) {
+        rethrow;
+      }
+      throw const AuthFailure('Your current password is incorrect.');
+    }
+    await _tokens.save(SessionTokens.fromSessionJson(session));
+    await _api.post(
+      ApiEndpoints.authResetPassword,
+      body: {'new_password': newPassword},
+    );
+  }
 
   /// `POST /api/v1/auth/resend-verification`. Returns the backend's own
   /// message and, when it sends one, `remaining_attempts`. The backend

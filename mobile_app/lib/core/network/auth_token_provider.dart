@@ -121,6 +121,19 @@ class NoTokenProvider implements AuthTokenProvider {
   Future<bool> refresh() async => false;
 }
 
+/// One fixed token for a single request, e.g. the access token from a
+/// password-recovery link. Never refreshed, never stored.
+class FixedTokenProvider implements AuthTokenProvider {
+  const FixedTokenProvider(this._token);
+  final String _token;
+
+  @override
+  Future<String?> accessToken() async => _token;
+
+  @override
+  Future<bool> refresh() async => false;
+}
+
 /// Real token handling for the SharkHire API.
 class SessionTokenManager implements AuthTokenProvider {
   SessionTokenManager({

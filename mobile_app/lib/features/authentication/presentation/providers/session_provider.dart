@@ -5,6 +5,7 @@ import '../../../../core/network/session_expiry.dart';
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/models/domain_enums.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../domain/auth_link.dart';
 import '../../domain/session.dart';
 
 /// Session the app starts with. Signed out by default; tests and previews
@@ -49,6 +50,11 @@ class SessionController extends Notifier<Session> {
       password: password,
       role: role,
     );
+  }
+
+  /// Signs in with the session carried by an email confirmation link.
+  Future<void> signInWithLink(AuthLink link) async {
+    state = await _repo.signInWithLink(link);
   }
 
   /// Restores the session saved on this device (real API only). Called
