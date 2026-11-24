@@ -8,7 +8,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/date_formatters.dart';
 import '../../../../shared/widgets/app_surface.dart';
-import '../../../../shared/widgets/company_logo.dart';
 import '../../../../shared/widgets/fade_in_up.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/state_views.dart';
@@ -135,8 +134,6 @@ class ApplicationCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CompanyLogo(name: a.job.companyName, size: 40),
-              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
