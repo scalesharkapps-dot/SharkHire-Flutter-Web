@@ -74,6 +74,9 @@ class NotificationsScreen extends ConsumerWidget {
         actions: [
           if (unread > 0)
             TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+              ),
               onPressed: () =>
                   ref.read(notificationsProvider.notifier).markAllRead(),
               child: const Text('Mark all as read'),
@@ -139,11 +142,10 @@ class _GroupTitle extends StatelessWidget {
       left: AppSpacing.xs,
     ),
     child: Text(
-      text.toUpperCase(),
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: AppColors.textTertiary,
-        letterSpacing: 1.2,
-      ),
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
     ),
   );
 }
@@ -157,7 +159,7 @@ class _Tile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
-    final (icon, fg, bg) = NotificationsScreen.styleOf(n.kind);
+    final (icon, _, _) = NotificationsScreen.styleOf(n.kind);
     final age = DateFormatters.relativeAge(n.createdAt);
 
     return Padding(
@@ -189,17 +191,13 @@ class _Tile extends ConsumerWidget {
         },
         child: AppSurface(
           onTap: onTap,
-          color: n.isRead ? AppColors.surface : AppColors.mist,
-          borderColor: n.isRead ? AppColors.border : AppColors.oceanTintStrong,
           elevated: false,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-                child: Icon(icon, color: fg, size: 20),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Icon(icon, color: AppColors.textSecondary, size: 20),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
