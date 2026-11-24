@@ -8,6 +8,7 @@ import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_mode_provider.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/widgets/app_surface.dart';
 import '../../../../shared/widgets/appearance_picker.dart';
@@ -21,14 +22,21 @@ import '../providers/settings_provider.dart';
 
 /// Shared page frame for the settings screens.
 class _SettingsPage extends StatelessWidget {
-  const _SettingsPage({required this.title, required this.children});
+  const _SettingsPage({
+    required this.title,
+    required this.children,
+    this.bigTitle = false,
+  });
 
   final String title;
   final List<Widget> children;
 
+  /// Big bold page heading in the body instead of the app bar title.
+  final bool bigTitle;
+
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: AppBar(title: bigTitle ? null : Text(title)),
     body: Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 640),
@@ -40,6 +48,16 @@ class _SettingsPage extends StatelessWidget {
             AppSpacing.xxxl,
           ),
           children: [
+            if (bigTitle) ...[
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+            ],
             for (var i = 0; i < children.length; i++) ...[
               if (i > 0) const SizedBox(height: AppSpacing.xl),
               children[i],
@@ -63,10 +81,23 @@ class SettingsScreen extends ConsumerWidget {
 
     return _SettingsPage(
       title: 'Settings',
+      bigTitle: true,
       children: [
-        const AppearancePicker(),
+        MenuGroup(
+          title: 'Appearance',
+          normalCaseTitle: true,
+          items: [
+            MenuItem(
+              Icons.contrast_rounded,
+              'Theme',
+              value: appearanceLabel(ref.watch(themeModeProvider)),
+              onTap: () => showAppearanceSheet(context),
+            ),
+          ],
+        ),
         MenuGroup(
           title: 'Push notifications',
+          normalCaseTitle: true,
           items: [
             MenuItem(
               Icons.work_outline_rounded,
@@ -96,6 +127,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
         MenuGroup(
           title: 'Email',
+          normalCaseTitle: true,
           items: [
             MenuItem(
               Icons.mail_outline_rounded,
@@ -108,6 +140,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
         MenuGroup(
           title: 'Account',
+          normalCaseTitle: true,
           items: [
             MenuItem(
               Icons.person_outline_rounded,
@@ -167,9 +200,11 @@ class PrivacyScreen extends ConsumerWidget {
 
     return _SettingsPage(
       title: 'Privacy & security',
+      bigTitle: true,
       children: [
         const InlineBanner(
           tone: BannerTone.info,
+          showMark: false,
           title: 'Your CV is private',
           message:
               'It\'s stored in private storage and shared with an employer only when you apply '
@@ -177,6 +212,7 @@ class PrivacyScreen extends ConsumerWidget {
         ),
         MenuGroup(
           title: 'CV processing',
+          normalCaseTitle: true,
           items: [
             MenuItem(
               Icons.psychology_outlined,
@@ -192,6 +228,7 @@ class PrivacyScreen extends ConsumerWidget {
         ),
         MenuGroup(
           title: 'Your data',
+          normalCaseTitle: true,
           items: [
             MenuItem(
               Icons.download_outlined,

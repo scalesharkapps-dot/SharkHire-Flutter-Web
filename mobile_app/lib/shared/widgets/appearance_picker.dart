@@ -125,3 +125,71 @@ class _Option extends StatelessWidget {
     );
   }
 }
+
+/// Label of a theme choice: "System", "Light" or "Dark".
+String appearanceLabel(ThemeMode mode) => switch (mode) {
+  ThemeMode.system => 'System',
+  ThemeMode.light => 'Light',
+  ThemeMode.dark => 'Dark',
+};
+
+/// Bottom sheet to pick System, Light or Dark. Saved on this device.
+Future<void> showAppearanceSheet(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    backgroundColor: AppColors.surface,
+    builder: (_) => const _AppearanceSheet(),
+  );
+}
+
+class _AppearanceSheet extends ConsumerWidget {
+  const _AppearanceSheet();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final text = Theme.of(context).textTheme;
+    final mode = ref.watch(themeModeProvider);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screenHorizontal,
+          0,
+          AppSpacing.screenHorizontal,
+          AppSpacing.lg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Theme', style: text.headlineSmall),
+            const SizedBox(height: 4),
+            Text(
+              'System follows your device\'s light or dark setting.',
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            for (final (m, icon) in const [
+              (ThemeMode.system, Icons.brightness_auto_outlined),
+              (ThemeMode.light, Icons.light_mode_outlined),
+              (ThemeMode.dark, Icons.dark_mode_outlined),
+            ])
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(icon, color: AppColors.textSecondary),
+                title: Text(appearanceLabel(m), style: text.titleSmall),
+                selected: mode == m,
+                trailing: mode == m
+                    ? Icon(Icons.check_rounded, color: AppColors.ink)
+                    : null,
+                onTap: () {
+                  ref.read(themeModeProvider.notifier).set(m);
+                  Navigator.of(context).pop();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

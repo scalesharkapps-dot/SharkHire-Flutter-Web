@@ -15,7 +15,11 @@ class MenuItem {
     this.destructive = false,
     this.switchValue,
     this.onSwitch,
+    this.value,
   });
+
+  /// Plain current value shown before the chevron (e.g. "System").
+  final String? value;
 
   final IconData icon;
   final String label;
@@ -33,10 +37,18 @@ class MenuItem {
 
 /// Titled card of rows with hairline dividers (settings-style list).
 class MenuGroup extends StatelessWidget {
-  const MenuGroup({super.key, this.title, required this.items});
+  const MenuGroup({
+    super.key,
+    this.title,
+    required this.items,
+    this.normalCaseTitle = false,
+  });
 
   final String? title;
   final List<MenuItem> items;
+
+  /// Shows the group title as written instead of small capitals.
+  final bool normalCaseTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +63,13 @@ class MenuGroup extends StatelessWidget {
               bottom: AppSpacing.sm,
             ),
             child: Text(
-              title!.toUpperCase(),
-              style: text.labelSmall?.copyWith(
-                color: AppColors.textTertiary,
-                letterSpacing: 1.2,
-              ),
+              normalCaseTitle ? title! : title!.toUpperCase(),
+              style: normalCaseTitle
+                  ? text.labelMedium?.copyWith(color: AppColors.textSecondary)
+                  : text.labelSmall?.copyWith(
+                      color: AppColors.textTertiary,
+                      letterSpacing: 1.2,
+                    ),
             ),
           ),
         AppSurface(
@@ -102,6 +116,11 @@ class _MenuTile extends StatelessWidget {
       trailing = Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (item.value != null)
+            Text(
+              item.value!,
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
           if (item.trailing != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
