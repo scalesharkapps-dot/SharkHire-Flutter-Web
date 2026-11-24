@@ -177,9 +177,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
     final digits = [FilteringTextInputFormatter.digitsOnly];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_existing == null ? 'Create job' : 'Edit job'),
-      ),
+      appBar: AppBar(),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 640),
@@ -193,6 +191,14 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                 AppSpacing.xxl,
               ),
               children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    _existing == null ? 'Create job' : 'Edit job',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
                 if (_existing?.status == JobStatus.rejected &&
                     _existing?.rejectionReason != null) ...[
                   InlineBanner(
@@ -204,13 +210,14 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                 ],
                 AppTextField(
                   label: 'Job title',
+                  sentenceCaseLabel: true,
                   controller: _title,
-                  hint: 'e.g. Backend Developer',
+                  hint: 'Backend Developer',
                   textCapitalization: TextCapitalization.words,
                   validator: (v) => Validators.required(v, field: 'Job title'),
                 ),
                 gap(),
-                const FieldLabel('Required skills'),
+                const FieldLabel('Required skills', sentenceCase: true),
                 if (_skills.isNotEmpty) ...[
                   Wrap(
                     spacing: AppSpacing.sm,
@@ -240,7 +247,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                         controller: _skill,
                         onSubmitted: (_) => _addSkill(),
                         decoration: InputDecoration(
-                          hintText: 'Add a skill, e.g. Python',
+                          hintText: 'Add a skill',
                           errorText: _skillsError,
                         ),
                       ),
@@ -256,7 +263,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                   ],
                 ),
                 gap(AppSpacing.xl),
-                const FieldLabel('Experience'),
+                const FieldLabel('Experience', sentenceCase: true),
                 ChoiceChipGroup<ExperienceLevel>(
                   options: ExperienceLevel.values,
                   selected: {_experience},
@@ -267,21 +274,23 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                 gap(AppSpacing.xl),
                 AppTextField(
                   label: 'Education',
+                  sentenceCaseLabel: true,
                   optional: true,
                   controller: _education,
-                  hint: 'e.g. Bachelor\'s in Computer Science',
+                  hint: 'Bachelor\'s in Computer Science',
                   textCapitalization: TextCapitalization.sentences,
                 ),
                 gap(),
                 AppTextField(
                   label: 'Location',
+                  sentenceCaseLabel: true,
                   controller: _location,
                   hint: 'City, Country',
                   textCapitalization: TextCapitalization.words,
                   validator: (v) => Validators.required(v, field: 'Location'),
                 ),
                 gap(AppSpacing.xl),
-                const FieldLabel('Work mode'),
+                const FieldLabel('Work mode', sentenceCase: true),
                 ChoiceChipGroup<WorkMode>(
                   options: WorkMode.values,
                   selected: {_workMode},
@@ -290,7 +299,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                   onChanged: (s) => setState(() => _workMode = s.first),
                 ),
                 gap(AppSpacing.xl),
-                const FieldLabel('Employment type'),
+                const FieldLabel('Employment type', sentenceCase: true),
                 ChoiceChipGroup<EmploymentType>(
                   options: EmploymentType.values,
                   selected: {_type},
@@ -299,7 +308,11 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                   onChanged: (s) => setState(() => _type = s.first),
                 ),
                 gap(AppSpacing.xl),
-                const FieldLabel('Salary range per month', optional: true),
+                const FieldLabel(
+                  'Salary range per month',
+                  optional: true,
+                  sentenceCase: true,
+                ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -345,7 +358,11 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const FieldLabel('Deadline', optional: true),
+                          const FieldLabel(
+                            'Deadline',
+                            optional: true,
+                            sentenceCase: true,
+                          ),
                           OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               minimumSize: const Size.fromHeight(52),
@@ -367,6 +384,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                       width: 120,
                       child: AppTextField(
                         label: 'Vacancies',
+                        sentenceCaseLabel: true,
                         controller: _vacancies,
                         keyboardType: TextInputType.number,
                         inputFormatters: digits,
@@ -380,6 +398,7 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                 gap(),
                 AppTextField(
                   label: 'Job description',
+                  sentenceCaseLabel: true,
                   controller: _description,
                   hint: 'What the role involves and who you\'re looking for',
                   maxLines: 8,
@@ -394,9 +413,10 @@ class _JobFormScreenState extends ConsumerState<JobFormScreen> {
                 gap(),
                 AppTextField(
                   label: 'Application instructions',
+                  sentenceCaseLabel: true,
                   optional: true,
                   controller: _instructions,
-                  hint: 'e.g. Attach your CV and a short cover letter',
+                  hint: 'Attach your CV and a short cover letter',
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
                 ),
