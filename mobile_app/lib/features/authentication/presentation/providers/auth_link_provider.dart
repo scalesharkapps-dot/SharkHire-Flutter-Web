@@ -25,23 +25,20 @@ class AuthLinkController extends Notifier<AuthLink?> {
   /// Called from the router's redirect for every navigation. Returns the
   /// path to show the link's screen, or null when [location] isn't a link.
   String? capture(Uri location) {
-    Uri? source;
-    if (AuthLink.isAuthPath(location.path) &&
-        (location.hasQuery ||
-            location.fragment.isNotEmpty ||
-            (location.path != AuthLink.callbackPath &&
-                location.path != AuthLink.resetPasswordPath))) {
-      source = location;
-    } else if (!_checkedBrowserUrl && (kIsWeb || browserUrl != null)) {
+    // The clean in-app screens themselves are not links.
+    final isCleanScreen =
+        (location.path == AuthLink.callbackPath ||
+            location.path == AuthLink.resetPasswordPath) &&
+        !location.hasQuery &&
+        location.fragment.isEmpty;
+    var link = isCleanScreen ? null : AuthLink.fromUri(location);
+    if (link == null && !_checkedBrowserUrl && (kIsWeb || browserUrl != null)) {
       // Web: the app uses hash routing, so the link's path, query and
-      // fragment are only in the page URL, not in the route.
+      // fragment are only in the page URL, not in the route. It may also
+      // be the home page (Supabase's Site URL fallback).
       _checkedBrowserUrl = true;
-      final page = (browserUrl ?? () => Uri.base)();
-      if (AuthLink.isAuthPath(page.path)) source = page;
+      link = AuthLink.fromUri((browserUrl ?? () => Uri.base)());
     }
-    if (source == null) return null;
-
-    final link = AuthLink.fromUri(source);
     if (link == null) return null;
     // The same link delivered twice (e.g. resume + cold start) is handled
     // once; the screen keeps its own state.

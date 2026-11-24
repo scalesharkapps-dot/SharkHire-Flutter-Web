@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/routing/app_routes.dart';
@@ -14,7 +13,6 @@ import '../../../authentication/data/repositories/auth_repository.dart';
 import '../../../authentication/presentation/providers/session_provider.dart';
 import '../../../authentication/presentation/screens/auth_link_screens.dart';
 import '../../data/repositories/account_repository.dart';
-import 'settings_screens.dart';
 
 /// Shared frame: app bar, centred column, comfortable on phones and web.
 class _AccountPage extends StatelessWidget {
@@ -207,20 +205,22 @@ class DeleteAccountScreen extends ConsumerStatefulWidget {
 }
 
 class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
+  final _password = TextEditingController();
   final _typed = TextEditingController();
   bool _understood = false;
   bool _deleting = false;
   String? _error;
-  bool _unavailable = false;
 
   @override
   void dispose() {
+    _password.dispose();
     _typed.dispose();
     super.dispose();
   }
 
   bool get _canDelete =>
       _understood &&
+      _password.text.isNotEmpty &&
       _typed.text.trim().toUpperCase() == DeleteAccountScreen.confirmWord;
 
   Future<void> _delete() async {
@@ -229,49 +229,41 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     setState(() {
       _deleting = true;
       _error = null;
-      _unavailable = false;
     });
+    final AccountDeletionResult result;
     try {
-      await ref.read(accountRepositoryProvider).requestDeletion();
-    } on FeatureUnavailableException catch (e) {
-      // Kept signed in: nothing was deleted.
-      if (mounted) {
-        setState(() {
-          _error = e.message;
-          _unavailable = true;
-          _deleting = false;
-        });
-      }
+      result = await ref
+          .read(accountRepositoryProvider)
+          .requestDeletion(password: _password.text);
+    } on WrongPasswordException catch (e) {
+      _fail(e.message);
       return;
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = friendlyErrorMessage(e);
-          _deleting = false;
-        });
-      }
+      // Kept signed in: the server deleted nothing.
+      _fail(friendlyErrorMessage(e));
       return;
     }
-    // Deleted: clear tokens and everything kept for this user; the router
-    // then shows the welcome screen.
+    // Deleted on the server, which also ended every session: forget the
+    // tokens and everything kept for this user; the router then shows the
+    // welcome screen.
     if (mounted) {
-      AppFeedback.show(context, 'Your SharkHire account was deleted');
+      AppFeedback.show(
+        context,
+        result.activeStoreSubscription
+            ? 'Your SharkHire account was deleted. Cancel your Premium '
+                  'subscription in Google Play or the App Store.'
+            : 'Your SharkHire account was deleted',
+      );
     }
-    await ref.read(sessionProvider.notifier).signOut();
+    await ref.read(sessionProvider.notifier).signOutLocally();
   }
 
-  Future<void> _emailSupport() async {
-    final email = ref.read(sessionProvider).user?.email ?? '';
-    final uri = Uri(
-      scheme: 'mailto',
-      path: HelpScreen.supportEmail,
-      query:
-          'subject=${Uri.encodeComponent('Delete my SharkHire account')}'
-          '&body=${Uri.encodeComponent('Please delete the SharkHire account for $email.')}',
-    );
-    final ok = await launchUrl(uri).catchError((_) => false);
-    if (!ok && mounted) {
-      AppFeedback.show(context, 'Email ${HelpScreen.supportEmail}');
+  void _fail(String message) {
+    if (mounted) {
+      setState(() {
+        _error = message;
+        _deleting = false;
+      });
     }
   }
 
@@ -325,17 +317,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           if (_error != null) ...[
             InlineBanner(
               tone: BannerTone.error,
-              title: _unavailable ? 'Not deleted' : 'Couldn\'t delete',
+              title: 'Couldn\'t delete',
               message: _error!,
             ),
-            if (_unavailable) ...[
-              const SizedBox(height: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: _emailSupport,
-                icon: const Icon(Icons.mail_outline_rounded),
-                label: const Text('Email support'),
-              ),
-            ],
             const SizedBox(height: AppSpacing.lg),
           ],
           CheckboxListTile(
@@ -350,6 +334,13 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
+          PasswordField(
+            controller: _password,
+            label: 'Your password',
+            textInputAction: TextInputAction.next,
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSpacing.md),
           AppTextField(
             label: 'Type ${DeleteAccountScreen.confirmWord} to confirm',
             controller: _typed,

@@ -95,6 +95,19 @@ class SessionController extends Notifier<Session> {
     if (user != null) state = state.copyWith(user: update(user));
   }
 
+  /// Forgets the session on this device without asking the server, for
+  /// when the server has already ended it (account deleted, password
+  /// reset revoked every session).
+  Future<void> signOutLocally() async {
+    try {
+      // Real API only: mock mode keeps no tokens.
+      final tokens = ref.read(authTokenProvider);
+      if (tokens is SessionTokenManager) await tokens.clear();
+    } finally {
+      state = Session.signedOut;
+    }
+  }
+
   /// Always clears the local session, even if telling the server fails
   /// (offline, or the session already expired).
   Future<void> signOut() async {

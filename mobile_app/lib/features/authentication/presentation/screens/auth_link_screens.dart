@@ -135,8 +135,8 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
         return AuthScaffold(
           title: expired ? 'This link has expired' : 'This link didn\'t work',
           subtitle: expired
-              ? 'Confirmation links work once and expire after a while. '
-                    'Log in and we\'ll send you a new one.'
+              ? 'Links in SharkHire emails work once and expire after a '
+                    'while. Ask for a new one below.'
               : 'The link is incomplete or was already used. Log in to '
                     'check your account or get a new link.',
           showBack: false,
@@ -151,6 +151,15 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
                 signedIn ? AppRoutes.verifyEmail : AppRoutes.login,
               ),
             ),
+            if (!signedIn) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Center(
+                child: TextButton(
+                  onPressed: () => context.go(AppRoutes.forgotPassword),
+                  child: const Text('Reset my password instead'),
+                ),
+              ),
+            ],
           ],
         );
     }
@@ -216,6 +225,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             tokenHash: link.tokenHash,
             recoveryToken: link.tokenHash == null ? link.accessToken : null,
           );
+      // The backend revoked every session of the account (this device's
+      // too), so sign in again with the new password.
+      if (ref.read(sessionProvider).isSignedIn) {
+        await ref.read(sessionProvider.notifier).signOutLocally();
+      }
       if (mounted) setState(() => _done = true);
     } on UnauthorizedException {
       if (mounted) setState(() => _linkExpired = true);

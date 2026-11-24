@@ -2,22 +2,22 @@
 
 How SharkHire handles the links in Supabase emails (confirm email, reset
 password), and what has to be configured **outside the Flutter app** for them
-to work. Checked against the live API on 23 Nov 2026.
+to work. Checked against the live API on 24 Nov 2026.
 
 ## Why the links opened `localhost:3000`
 
-The backend tells Supabase where to send users after they click a link
-(`backend_job_search/app/services/supabase_auth.py`):
+The Flutter app never calls Supabase directly: there is no
+`resetPasswordForEmail()` and no `redirectTo` in the app. Every email is sent
+by the backend, which passes `redirect_to` = `AUTH_EMAIL_REDIRECT_URL` /
+`AUTH_PASSWORD_RESET_REDIRECT_URL` to Supabase. Supabase **silently ignores**
+a `redirect_to` that isn't in its Redirect URLs allow-list and uses the
+**Site URL** instead, which was `http://localhost:3000`.
 
-| Backend env var | Used by | Currently |
-|---|---|---|
-| `AUTH_EMAIL_REDIRECT_URL` | sign-up, resend verification | **not set** |
-| `AUTH_PASSWORD_RESET_REDIRECT_URL` | forgot password | **not set** |
-
-When they are empty Supabase falls back to the project's **Site URL**, which
-is still the default `http://localhost:3000`. The Flutter app can't change
-this. The backend developer must set the values below. No backend code
-changes are needed.
+On 24 Nov 2026 `GET /api/v1/health/auth` reports both values as configured.
+The backend docs give `sharkhire://auth/reset-password` as the example value.
+If that is what's set, the Supabase allow-list must contain it **exactly**.
+Otherwise the link falls back to the Site URL. Emails sent before a settings
+change keep their old link, so always test with a new email.
 
 ## 1. Values to set (backend developer, Render)
 
@@ -97,41 +97,43 @@ on Android and iOS.
 
 ## 5. Change password
 
-Settings → Change password (`/settings/password`). The live API has no
-change-password endpoint, so the app uses the existing endpoints:
+Settings → Change password (`/settings/password`) calls
+`POST /api/v1/auth/change-password` `{current_password, new_password}` with the
+user's session. A wrong current password (`403 invalid_password`) shows "Your
+current password is incorrect." and nothing changes. Reusing the old password
+shows "Choose a password different from your current one". If the backend
+returns a fresh `data.session`, the app stores it. "Forgot your current
+password?" sends the reset email.
 
-1. `POST /auth/login` with the current password, which proves it's the user
-   and renews this device's session. A wrong password gives "Your current
-   password is incorrect." and nothing changes.
-2. `POST /auth/reset-password` `{new_password}`, authorised by that session's
-   Bearer token. The backend updates the password of whoever owns the token
-   (Supabase `PUT /user`), so a user can only change their own password.
-
-"Forgot your current password?" sends the reset email.
-
-## 6. Delete account: backend endpoint still missing
+## 6. Delete account
 
 Privacy & security → Delete account (`/settings/delete-account`):
 
 * The screen lists what gets deleted.
-* The user ticks "I understand", types `DELETE`, and taps one final button.
+* The user ticks "I understand", enters their **password**, types `DELETE`,
+  and taps one final button.
 * A spinner shows while it runs, and a second tap is ignored.
-* Errors are shown in a banner.
-* On success it signs out: tokens are removed from secure storage, the
-  session and user data are reset, and the user lands on the welcome screen
-  with "Your SharkHire account was deleted".
+* The request is `POST /api/v1/auth/delete-account`
+  `{password, confirmation: "DELETE"}`.
+* A wrong password (`403 invalid_password`) shows "That password is
+  incorrect. Nothing was deleted." Other errors (`409`, `422`, `503`) show the
+  backend's message, and the user stays signed in.
+* On success the server has already ended every session. The app forgets the
+  tokens locally (no logout call), resets the session, and shows the welcome
+  screen with "Your SharkHire account was deleted". If
+  `active_store_subscription` is true, the message also says to cancel Premium
+  in Google Play or the App Store.
 
-**The live API has no account-deletion endpoint** (OpenAPI re-checked 23 Nov
-2026, and none on any backend branch). So `ApiAccountRepository.requestDeletion`
-says honestly that nothing was deleted, keeps the user signed in, and offers
-**Email support**.
+## 7. Password reset details
 
-**Backend developer, to finish this:** add an authenticated endpoint, for
-example `DELETE /api/v1/auth/me`. It should delete the profile, CVs (database
-rows and Storage files), saved jobs, applications and preferences, then the
-Supabase user (service-role `DELETE /admin/users/{id}`), and return the usual
-`{success, message}`. Then replace the body of `requestDeletion()` in
-`lib/features/settings/data/repositories/account_repository.dart` with
-`await _api.delete(<path>)`. The UI and sign-out are already in place and
-tested. Apple (5.1.1(v)) and Google Play both require in-app deletion before
-release.
+* The app sends the recovery link's `access_token` as the Bearer token, or
+  `token_hash` in the body. It uses a separate client that never sends the
+  device's own session, so a bad link can't sign anyone out.
+* On `200` the backend revokes **every** session of the account. The app
+  clears any session stored on the device and asks the user to log in.
+* `401` means the link is invalid, expired or already used: the app shows
+  "This reset link has expired" with "Send a new link". `422` shows the
+  backend's password-policy message.
+* Confirmation links with `token_hash` are exchanged with
+  `POST /api/v1/auth/verify-email`. Implicit links (`#access_token=`) are used
+  directly.

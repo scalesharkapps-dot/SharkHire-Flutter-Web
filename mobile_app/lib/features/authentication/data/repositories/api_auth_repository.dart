@@ -18,19 +18,22 @@ class ApiAuthRepository implements AuthRepository {
   ApiAuthRepository(
     this._api,
     this._tokens, {
-    ApiClient Function(String bearer)? clientWithToken,
+    ApiClient Function(String? bearer)? clientWithToken,
   }) : _clientWithToken = clientWithToken ?? _defaultClientWithToken;
 
   final ApiClient _api;
   final SessionTokenManager _tokens;
 
-  /// A client that sends one given token (the recovery link's) instead of
-  /// the stored session.
-  final ApiClient Function(String bearer) _clientWithToken;
+  /// A client that sends one given token (the recovery link's), or none,
+  /// instead of the stored session. Used for email-link requests so a 401
+  /// for a bad link never signs out whoever is using this device.
+  final ApiClient Function(String? bearer) _clientWithToken;
 
-  static ApiClient _defaultClientWithToken(String bearer) => HttpApiClient(
+  static ApiClient _defaultClientWithToken(String? bearer) => HttpApiClient(
     baseUrl: ApiConfig.baseUrl,
-    tokens: FixedTokenProvider(bearer),
+    tokens: bearer == null
+        ? const NoTokenProvider()
+        : FixedTokenProvider(bearer),
   );
 
   /// Kept in memory only, between sign-up and "I've confirmed my email",
@@ -105,28 +108,51 @@ class ApiAuthRepository implements AuthRepository {
   Future<void> sendPasswordReset(String email) =>
       _api.post(ApiEndpoints.authForgotPassword, body: {'email': email.trim()});
 
-  /// Confirmation link with a session (implicit flow): keep it like a
-  /// sign-in, then load the account.
+  /// Confirmation link: keep its session (implicit flow) like a sign-in, or
+  /// exchange its `token_hash` with `POST /auth/verify-email`, then load
+  /// the account.
   @override
   Future<Session> signInWithLink(AuthLink link) async {
-    if (!link.hasSession) {
+    const expired = AuthFailure(
+      'This link has expired or was already used. Log in instead.',
+    );
+    final Map<String, Object?> sessionJson;
+    if (link.hasSession) {
+      sessionJson = link.sessionJson;
+    } else if (link.canVerifyEmail) {
+      try {
+        sessionJson =
+            await _clientWithToken(null).post(
+                  ApiEndpoints.authVerifyEmail,
+                  body: {
+                    'token_hash': link.tokenHash,
+                    'type': link.type == 'signup' ? 'signup' : 'email',
+                  },
+                )
+                as Map<String, Object?>;
+      } on UnauthorizedException {
+        throw expired;
+      } on ValidationException {
+        throw expired;
+      }
+    } else {
       throw const AuthFailure('This link has no sign-in. Log in instead.');
     }
     _tokens.persist = true;
-    await _tokens.save(SessionTokens.fromSessionJson(link.sessionJson));
+    await _tokens.save(SessionTokens.fromSessionJson(sessionJson));
     try {
       final session = await _loadSession();
       _pending = null;
       return session;
     } on UnauthorizedException {
       await _tokens.clear();
-      throw const AuthFailure(
-        'This link has expired or was already used. Log in instead.',
-      );
+      throw expired;
     }
   }
 
-  /// `POST /api/v1/auth/reset-password`.
+  /// `POST /api/v1/auth/reset-password` with the recovery link's access
+  /// token (Bearer) or `token_hash`. The backend then revokes every session
+  /// of the account, so any session stored here is cleared too.
   @override
   Future<void> resetPassword({
     required String newPassword,
@@ -134,7 +160,7 @@ class ApiAuthRepository implements AuthRepository {
     String? recoveryToken,
   }) async {
     if (tokenHash != null) {
-      await _api.post(
+      await _clientWithToken(null).post(
         ApiEndpoints.authResetPassword,
         body: {'new_password': newPassword, 'token_hash': tokenHash},
       );
@@ -149,40 +175,46 @@ class ApiAuthRepository implements AuthRepository {
         'invalid_token',
       );
     }
+    _pending = null;
+    await _tokens.clear();
   }
 
-  /// Checks [currentPassword] with `POST /auth/login` (which also renews
-  /// this device's session), then sets the new one with
-  /// `POST /auth/reset-password` authorised by that session. Only the
-  /// signed-in user's own password can change.
+  /// `POST /api/v1/auth/change-password` (signed in). The backend checks the
+  /// current password for the token's owner only; a wrong one is `403
+  /// invalid_password`. When Supabase needs a fresh sign-in the backend
+  /// returns a new session, which replaces the stored one.
   @override
   Future<void> changePassword({
     required String email,
     required String currentPassword,
     required String newPassword,
   }) async {
-    final Map<String, Object?> session;
+    final Object? out;
     try {
-      session =
-          await _api.post(
-                ApiEndpoints.authLogin,
-                body: {'email': email.trim(), 'password': currentPassword},
-              )
-              as Map<String, Object?>;
-    } on ApiException catch (e) {
-      if (e is NetworkException ||
-          e is RequestTimeoutException ||
-          e is ServerException ||
-          e is RateLimitedException) {
-        rethrow;
+      out = await _api.post(
+        ApiEndpoints.authChangePassword,
+        body: {
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        },
+      );
+    } on ForbiddenException catch (e) {
+      if (e.code == 'invalid_password') {
+        throw const AuthFailure('Your current password is incorrect.');
       }
-      throw const AuthFailure('Your current password is incorrect.');
+      rethrow;
+    } on ValidationException catch (e) {
+      if (e.code == 'same_password' || e.code == 'PASSWORD_UNCHANGED') {
+        throw const AuthFailure(
+          'Choose a password different from your current one.',
+        );
+      }
+      rethrow;
     }
-    await _tokens.save(SessionTokens.fromSessionJson(session));
-    await _api.post(
-      ApiEndpoints.authResetPassword,
-      body: {'new_password': newPassword},
-    );
+    final session = out is Map ? out['session'] : null;
+    if (session is Map<String, Object?> && session['access_token'] != null) {
+      await _tokens.save(SessionTokens.fromSessionJson(session));
+    }
   }
 
   /// `POST /api/v1/auth/resend-verification`. Returns the backend's own

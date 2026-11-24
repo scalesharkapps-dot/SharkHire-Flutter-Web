@@ -1,37 +1,71 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_config.dart';
+import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
+import '../../../../core/network/http_api_client.dart';
+
+/// What the server reported after deleting an account.
+class AccountDeletionResult {
+  const AccountDeletionResult({this.activeStoreSubscription = false});
+
+  /// A Google Play / App Store subscription is still active: it is billed by
+  /// the store and must be cancelled there.
+  final bool activeStoreSubscription;
+}
+
+/// The password didn't match, so nothing was deleted.
+class WrongPasswordException implements Exception {
+  const WrongPasswordException();
+  String get message => 'That password is incorrect. Nothing was deleted.';
+
+  @override
+  String toString() => message;
+}
 
 /// Account-level requests the stores require: deleting the account from
 /// inside the app (Apple guideline 5.1.1(v), Google Play account deletion
 /// policy) and asking for a copy of your data.
 abstract interface class AccountRepository {
-  /// Starts account deletion on the server. The backend deletes the profile,
-  /// CVs, saved jobs and applications and the Supabase user.
-  Future<void> requestDeletion();
+  /// Permanently deletes the signed-in account: profile, CVs (files and
+  /// data), saved jobs, applications and the Supabase user. Needs the
+  /// current [password]. Throws [WrongPasswordException] when it's wrong.
+  Future<AccountDeletionResult> requestDeletion({required String password});
 
   /// Asks the server to email the user a copy of their data.
   Future<void> requestDataExport();
 }
 
-/// REAL – the deployed API (OpenAPI re-checked 23 Nov 2026) has **no**
-/// endpoint for account deletion or data export yet, so these report that
-/// honestly instead of pretending; nothing is deleted and the user stays
-/// signed in. INTEGRATION DEPENDENCY: when the backend adds the endpoint,
-/// call it in [requestDeletion] – the Delete account screen already clears
-/// the session and returns to the welcome screen on success.
-/// Store blocker: see MOBILE_RELEASE_CHECKLIST.md and AUTH_DEEP_LINKS.md.
+/// REAL – `POST /api/v1/auth/delete-account` with
+/// `{password, confirmation: "DELETE"}` (OpenAPI checked 24 Nov 2026).
+/// Data export still has no endpoint, so it says so honestly.
 class ApiAccountRepository implements AccountRepository {
-  const ApiAccountRepository();
+  const ApiAccountRepository(this._api);
+
+  final ApiClient _api;
+
+  static const confirmation = 'DELETE';
 
   @override
-  Future<void> requestDeletion() async =>
-      throw const FeatureUnavailableException(
-        "The SharkHire server can't delete accounts from the app yet, so "
-        'nothing was deleted. Email support and the team will delete your '
-        'account for you.',
+  Future<AccountDeletionResult> requestDeletion({
+    required String password,
+  }) async {
+    final Object? out;
+    try {
+      out = await _api.post(
+        ApiEndpoints.authDeleteAccount,
+        body: {'password': password, 'confirmation': confirmation},
       );
+    } on ForbiddenException catch (e) {
+      if (e.code == 'invalid_password') throw const WrongPasswordException();
+      rethrow;
+    }
+    return AccountDeletionResult(
+      activeStoreSubscription:
+          out is Map && out['active_store_subscription'] == true,
+    );
+  }
 
   @override
   Future<void> requestDataExport() async =>
@@ -46,8 +80,12 @@ class MockAccountRepository implements AccountRepository {
   const MockAccountRepository();
 
   @override
-  Future<void> requestDeletion() =>
-      Future<void>.delayed(const Duration(milliseconds: 600));
+  Future<AccountDeletionResult> requestDeletion({
+    required String password,
+  }) async {
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    return const AccountDeletionResult();
+  }
 
   @override
   Future<void> requestDataExport() =>
@@ -56,6 +94,6 @@ class MockAccountRepository implements AccountRepository {
 
 final accountRepositoryProvider = Provider<AccountRepository>(
   (ref) => ApiConfig.isConfigured
-      ? const ApiAccountRepository()
+      ? ApiAccountRepository(ref.watch(apiClientProvider))
       : const MockAccountRepository(),
 );

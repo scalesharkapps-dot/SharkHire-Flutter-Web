@@ -45,12 +45,14 @@ class _LinkSignIn extends MockAuthRepository {
 
 class _Account implements AccountRepository {
   _Account(this.onDelete);
-  final Future<void> Function() onDelete;
+  final Future<AccountDeletionResult> Function() onDelete;
   int calls = 0;
+  String? password;
 
   @override
-  Future<void> requestDeletion() {
+  Future<AccountDeletionResult> requestDeletion({required String password}) {
     calls++;
+    this.password = password;
     return onDelete();
   }
 
@@ -58,26 +60,36 @@ class _Account implements AccountRepository {
   Future<void> requestDataExport() async {}
 }
 
-/// Records requests; answers login with a session.
+/// Records requests; answers like the live API.
 class _RecordingApi implements ApiClient {
-  _RecordingApi({this.loginFails = false});
-  final bool loginFails;
+  _RecordingApi({this.wrongPassword = false, this.freshSession = false});
+  final bool wrongPassword;
+  final bool freshSession;
   final posts = <(String, Object?)>[];
 
   @override
   Future<Object?> post(String path, {Object? body}) async {
     posts.add((path, body));
-    if (path == ApiEndpoints.authLogin) {
-      if (loginFails) {
-        throw const UnauthorizedException(
-          'Invalid login credentials',
-          'invalid_credentials',
+    if (path == ApiEndpoints.authChangePassword ||
+        path == ApiEndpoints.authDeleteAccount) {
+      if (wrongPassword) {
+        throw const ForbiddenException(
+          'The current password is incorrect.',
+          'invalid_password',
         );
       }
+      if (path == ApiEndpoints.authDeleteAccount) {
+        return {'deleted': true, 'active_store_subscription': true};
+      }
       return {
-        'access_token': 'new-access',
-        'refresh_token': 'r',
-        'expires_in': 3600,
+        'password_changed': true,
+        'session': freshSession
+            ? {
+                'access_token': 'fresh',
+                'refresh_token': 'r',
+                'expires_in': 3600,
+              }
+            : null,
       };
     }
     return null;
@@ -194,6 +206,67 @@ void main() {
     });
   });
 
+  group('Links that land on the home page (Site URL fallback)', () {
+    test('recovery link on / is a recovery link', () {
+      final l = AuthLink.fromUri(
+        Uri.parse(
+          'https://sharkhire.vercel.app/#access_token=rec&expires_in=3600'
+          '&refresh_token=r&token_type=bearer&type=recovery',
+        ),
+      )!;
+      expect(l.kind, AuthLinkKind.recovery);
+      expect(l.canResetPassword, isTrue);
+    });
+
+    test('expired link on / is still recognised', () {
+      final l = AuthLink.fromUri(
+        Uri.parse(
+          'https://sharkhire.vercel.app/#error=access_denied'
+          '&error_code=otp_expired&error_description=Email+link+is+invalid',
+        ),
+      )!;
+      expect(l.isExpired, isTrue);
+    });
+
+    test('ordinary pages are not links', () {
+      for (final u in [
+        '/register?role=employer',
+        '/cv/upload?from=onboarding',
+        '/subscription?next=%2Fhome',
+        'https://sharkhire.vercel.app/',
+        'https://sharkhire.vercel.app/#/login',
+      ]) {
+        expect(AuthLink.fromUri(Uri.parse(u)), isNull, reason: u);
+      }
+    });
+
+    test('web: home-page recovery link opens the reset screen', () {
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      final ctl = c.read(authLinkProvider.notifier)
+        ..browserUrl = () => Uri.parse(
+          'https://sharkhire.vercel.app/#access_token=rec&type=recovery',
+        );
+      expect(
+        ctl.capture(Uri.parse('/access_token=rec&type=recovery')),
+        AppRoutes.resetPassword,
+      );
+      expect(ctl.take()?.accessToken, 'rec');
+    });
+
+    testWidgets('mobile: recovery link to / opens Set a new password', (
+      tester,
+    ) async {
+      usePhone(tester);
+      await launchApp(tester);
+      await openLink(
+        tester,
+        '/#access_token=rec&expires_in=3600&type=recovery',
+      );
+      expect(find.text('Set a new password'), findsOneWidget);
+    });
+  });
+
   group('Validators.newPassword', () {
     test('follows the backend policy', () {
       expect(Validators.newPassword('short1A'), 'Use at least 8 characters');
@@ -213,18 +286,33 @@ void main() {
     SessionTokenManager tokens() =>
         SessionTokenManager(store: MemoryTokenStore(), baseUrl: 'http://x');
 
-    test('reset with token hash sends it in the body', () async {
-      final api = _RecordingApi();
-      await ApiAuthRepository(
-        api,
-        tokens(),
-      ).resetPassword(newPassword: 'Password1', tokenHash: 'hash12345');
-      expect(api.posts.single.$1, ApiEndpoints.authResetPassword);
-      expect(api.posts.single.$2, {
-        'new_password': 'Password1',
-        'token_hash': 'hash12345',
-      });
-    });
+    test(
+      'reset with token hash: no session token, stored session cleared',
+      () async {
+        final main = _RecordingApi();
+        final public = _RecordingApi();
+        final t = tokens();
+        await t.save(const SessionTokens(accessToken: 'old'));
+        String? bearer = 'unset';
+        await ApiAuthRepository(
+          main,
+          t,
+          clientWithToken: (b) {
+            bearer = b;
+            return public;
+          },
+        ).resetPassword(newPassword: 'Password1', tokenHash: 'hash12345');
+        expect(bearer, isNull);
+        expect(main.posts, isEmpty);
+        expect(await t.current(), isNull);
+        final api = public;
+        expect(api.posts.single.$1, ApiEndpoints.authResetPassword);
+        expect(api.posts.single.$2, {
+          'new_password': 'Password1',
+          'token_hash': 'hash12345',
+        });
+      },
+    );
 
     test(
       'reset with the link token uses that token, not the session',
@@ -249,23 +337,82 @@ void main() {
       },
     );
 
-    test('change password checks the current one first', () async {
+    test('change password uses /auth/change-password', () async {
       final api = _RecordingApi();
       final t = tokens();
+      await t.save(const SessionTokens(accessToken: 'current'));
       await ApiAuthRepository(api, t).changePassword(
         email: 'a@b.co',
         currentPassword: 'Old1pass',
         newPassword: 'New1pass',
       );
-      expect(api.posts.map((p) => p.$1), [
-        ApiEndpoints.authLogin,
-        ApiEndpoints.authResetPassword,
-      ]);
-      expect((await t.current())?.accessToken, 'new-access');
+      expect(api.posts.single.$1, ApiEndpoints.authChangePassword);
+      expect(api.posts.single.$2, {
+        'current_password': 'Old1pass',
+        'new_password': 'New1pass',
+      });
+      expect((await t.current())?.accessToken, 'current');
+    });
+
+    test('a fresh session from change password is stored', () async {
+      final t = tokens();
+      await ApiAuthRepository(
+        _RecordingApi(freshSession: true),
+        t,
+      ).changePassword(
+        email: 'a@b.co',
+        currentPassword: 'Old1pass',
+        newPassword: 'New1pass',
+      );
+      expect((await t.current())?.accessToken, 'fresh');
+    });
+
+    test('verify-email link exchanges the token hash', () async {
+      final public = _RecordingApi();
+      final link = AuthLink.fromUri(
+        Uri.parse('/auth/callback?token_hash=abcdef123&type=signup'),
+      )!;
+      expect(link.canVerifyEmail, isTrue);
+      // The fake answers null, so loading the session fails after the call.
+      await expectLater(
+        ApiAuthRepository(
+          _RecordingApi(),
+          tokens(),
+          clientWithToken: (_) => public,
+        ).signInWithLink(link),
+        throwsA(anything),
+      );
+      expect(public.posts.single.$1, ApiEndpoints.authVerifyEmail);
+      expect(public.posts.single.$2, {
+        'token_hash': 'abcdef123',
+        'type': 'signup',
+      });
+    });
+
+    test('delete account sends the password and DELETE', () async {
+      final api = _RecordingApi();
+      final r = await ApiAccountRepository(
+        api,
+      ).requestDeletion(password: 'Secret1x');
+      expect(api.posts.single.$1, ApiEndpoints.authDeleteAccount);
+      expect(api.posts.single.$2, {
+        'password': 'Secret1x',
+        'confirmation': 'DELETE',
+      });
+      expect(r.activeStoreSubscription, isTrue);
+    });
+
+    test('delete account with a wrong password', () async {
+      await expectLater(
+        ApiAccountRepository(
+          _RecordingApi(wrongPassword: true),
+        ).requestDeletion(password: 'nope'),
+        throwsA(isA<WrongPasswordException>()),
+      );
     });
 
     test('wrong current password changes nothing', () async {
-      final api = _RecordingApi(loginFails: true);
+      final api = _RecordingApi(wrongPassword: true);
       await expectLater(
         ApiAuthRepository(api, tokens()).changePassword(
           email: 'a@b.co',
@@ -413,7 +560,8 @@ void main() {
 
     Future<void> confirm(WidgetTester tester) async {
       await tester.tap(find.byType(Checkbox));
-      await tester.enterText(find.byType(EditableText), 'delete');
+      await tester.enterText(find.byType(EditableText).at(0), 'Secret1x');
+      await tester.enterText(find.byType(EditableText).at(1), 'delete');
       await tester.pump();
       final button = find.widgetWithText(FilledButton, 'Delete my account');
       await tester.ensureVisible(button);
@@ -425,7 +573,10 @@ void main() {
       tester,
     ) async {
       final account = _Account(
-        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+        () => Future<AccountDeletionResult>.delayed(
+          const Duration(milliseconds: 300),
+          () => const AccountDeletionResult(),
+        ),
       );
       await open(tester, account);
       // Not confirmed yet: nothing happens.
@@ -440,21 +591,22 @@ void main() {
       await tester.tap(button, warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 400));
       expect(account.calls, 1);
+      expect(account.password, 'Secret1x');
       await pumpUntil(tester, () => isShown(find.byType(WelcomeScreen)));
       expect(find.text('Your SharkHire account was deleted'), findsOneWidget);
     });
 
-    testWidgets('server without deletion keeps the user signed in', (
-      tester,
-    ) async {
+    testWidgets('wrong password keeps the user signed in', (tester) async {
       final account = _Account(
-        () async => throw const FeatureUnavailableException('Not on server.'),
+        () async => throw const WrongPasswordException(),
       );
       await open(tester, account);
       await confirm(tester);
       await tester.pumpAndSettle();
-      expect(find.text('Not deleted'), findsOneWidget);
-      expect(find.text('Email support'), findsOneWidget);
+      expect(
+        find.text('That password is incorrect. Nothing was deleted.'),
+        findsOneWidget,
+      );
       expect(find.byType(DeleteAccountScreen), findsOneWidget);
     });
 

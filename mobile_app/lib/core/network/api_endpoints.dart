@@ -1,5 +1,5 @@
 /// REST endpoints of the deployed SharkHire API
-/// (`https://backend-job-search.onrender.com/docs`, OpenAPI checked 17 Nov 2026).
+/// (`https://backend-job-search.onrender.com/docs`, OpenAPI checked 24 Nov 2026).
 ///
 /// Only endpoints that exist in the live API are listed here. Paths are
 /// relative to [ApiConfig.baseUrl]; never hard-code a host.
@@ -18,9 +18,19 @@ abstract final class ApiEndpoints {
   static const String authResendVerification = '$_v1/auth/resend-verification';
   static const String authForgotPassword = '$_v1/auth/forgot-password';
 
-  /// Sets a new password. Authorised by the recovery link's access token,
-  /// its `token_hash`, or (Change password) the signed-in session.
+  /// Sets a new password from a recovery link (its access token as Bearer,
+  /// or its `token_hash`). Ordinary sign-in tokens are rejected; on success
+  /// every session of the account is revoked.
   static const String authResetPassword = '$_v1/auth/reset-password';
+
+  /// Confirms an email from a `token_hash` confirmation link; returns a session.
+  static const String authVerifyEmail = '$_v1/auth/verify-email';
+
+  /// Signed-in password change: `{current_password, new_password}`.
+  static const String authChangePassword = '$_v1/auth/change-password';
+
+  /// Permanent deletion: `{password, confirmation: "DELETE"}`.
+  static const String authDeleteAccount = '$_v1/auth/delete-account';
 
   // Profile
   static const String profileMe = '$_v1/profile/me';

@@ -27,6 +27,7 @@ class AuthLink {
     this.expiresIn,
     this.expiresAt,
     this.tokenHash,
+    this.type,
     this.error,
     this.errorCode,
     this.errorDescription,
@@ -55,19 +56,48 @@ class AuthLink {
   static String _trimSlash(String p) =>
       p.length > 1 && p.endsWith('/') ? p.substring(0, p.length - 1) : p;
 
+  /// Supabase `type` values of email links.
+  static const _emailLinkTypes = {
+    'recovery',
+    'signup',
+    'email',
+    'invite',
+    'magiclink',
+    'email_change',
+  };
+
+  /// Whether [p] is what Supabase appends after handling an email link, on
+  /// any page. When the backend's redirect isn't on Supabase's allow-list,
+  /// Supabase sends the user to the Site URL (the home page) instead of
+  /// `/auth/...`, so the link must be recognised there too.
+  static bool _isSupabaseResult(Map<String, String> p) {
+    final hasCredential =
+        p.containsKey('access_token') || p.containsKey('token_hash');
+    final isError =
+        p.containsKey('error_code') ||
+        (p.containsKey('error') && p.containsKey('error_description'));
+    final type = p['type']?.toLowerCase();
+    return isError ||
+        (hasCredential && (type == null || _emailLinkTypes.contains(type)));
+  }
+
   /// Reads a link, or returns null when [uri] isn't an auth link.
   static AuthLink? fromUri(Uri uri) {
     final path = _trimSlash(uri.path);
-    if (!isAuthPath(path)) return null;
     final p = <String, String>{...uri.queryParameters};
     final fragment = uri.fragment;
     if (fragment.contains('=')) {
       try {
-        p.addAll(Uri.splitQueryString(fragment));
+        p.addAll(
+          Uri.splitQueryString(
+            fragment.startsWith('/') ? fragment.substring(1) : fragment,
+          ),
+        );
       } on FormatException {
         // A malformed fragment carries nothing we can use.
       }
     }
+    if (!isAuthPath(path) && !_isSupabaseResult(p)) return null;
     final type = p['type']?.toLowerCase();
     final recovery =
         type == 'recovery' || path == resetPasswordPath || path == _schemeReset;
@@ -78,6 +108,7 @@ class AuthLink {
       expiresIn: int.tryParse(p['expires_in'] ?? ''),
       expiresAt: int.tryParse(p['expires_at'] ?? ''),
       tokenHash: _nonEmpty(p['token_hash']),
+      type: type,
       error: _nonEmpty(p['error']),
       errorCode: _nonEmpty(p['error_code']),
       errorDescription: _nonEmpty(p['error_description']),
@@ -93,6 +124,9 @@ class AuthLink {
   final int? expiresIn;
   final int? expiresAt;
   final String? tokenHash;
+
+  /// Supabase's `type` (`signup`, `email`, `recovery`, ...), lower case.
+  final String? type;
   final String? error;
   final String? errorCode;
   final String? errorDescription;
@@ -110,6 +144,10 @@ class AuthLink {
 
   /// The link carries a signed-in session (implicit flow).
   bool get hasSession => accessToken != null;
+
+  /// A confirmation link with a `token_hash` for `POST /auth/verify-email`.
+  bool get canVerifyEmail =>
+      !hasError && kind == AuthLinkKind.confirmEmail && tokenHash != null;
 
   /// Enough to set a new password: a recovery token or a token hash.
   bool get canResetPassword =>

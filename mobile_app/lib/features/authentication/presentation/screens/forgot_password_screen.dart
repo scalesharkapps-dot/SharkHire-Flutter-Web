@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/form_fields.dart';
@@ -42,11 +43,15 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           .read(authRepositoryProvider)
           .sendPasswordReset(_email.text.trim());
       if (mounted) setState(() => _sent = true);
+    } on RateLimitedException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } on ValidationException catch (e) {
+      if (mounted) setState(() => _error = e.message);
     } catch (_) {
       if (mounted) {
         setState(
           () => _error =
-              'We couldn\'t send the email. Check your connection and try again.',
+              'We couldn\'t send the email right now. Try again in a few minutes.',
         );
       }
     } finally {
