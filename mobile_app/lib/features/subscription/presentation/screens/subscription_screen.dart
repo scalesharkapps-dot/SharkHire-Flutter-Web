@@ -70,6 +70,9 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
 
   bool get _busy => _buying || _restoring || _checking;
 
+  ButtonStyle get _linkStyle =>
+      TextButton.styleFrom(foregroundColor: AppColors.textSecondary);
+
   Future<void> _subscribe(BillingPackage package) async {
     setState(() {
       _buying = true;
@@ -177,7 +180,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               backgroundColor: AppColors.navy,
               foregroundColor: AppColors.white,
               systemOverlayStyle: SystemUiOverlayStyle.light,
-              title: const Text('SharkHire subscription'),
+              title: const Text('SharkHire Premium'),
               titleTextStyle: text.titleMedium?.copyWith(
                 color: AppColors.white,
               ),
@@ -187,6 +190,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 status: status,
                 package: package,
                 pricesLoading: packages.isLoading,
+                date: _date,
               ),
             ),
             SliverPadding(
@@ -198,15 +202,17 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               ),
               sliver: SliverList.list(
                 children: [
-                  _StatusBanner(
-                    status: status,
-                    date: _date,
-                    onRetry: _busy
-                        ? null
-                        : () =>
-                              ref.read(subscriptionProvider.notifier).refresh(),
-                    onManage: () => _manage(status.managementUrl),
-                  ),
+                  if (status.state != AccessState.trialActive)
+                    _StatusBanner(
+                      status: status,
+                      date: _date,
+                      onRetry: _busy
+                          ? null
+                          : () => ref
+                                .read(subscriptionProvider.notifier)
+                                .refresh(),
+                      onManage: () => _manage(status.managementUrl),
+                    ),
                   if (_feedback != null) ...[
                     const SizedBox(height: AppSpacing.md),
                     Semantics(
@@ -243,39 +249,55 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     ),
                   ],
                   const SizedBox(height: AppSpacing.xl),
-                  for (final (icon, title, body) in _features)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.oceanTint,
-                              shape: BoxShape.circle,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppRadius.xlAll,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < _features.length; i++) ...[
+                          if (i > 0) const Divider(height: 1),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.lg,
+                              vertical: 14,
                             ),
-                            child: Icon(icon, color: AppColors.ocean, size: 20),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
                               children: [
-                                Text(title, style: text.titleSmall),
-                                Text(body, style: text.bodySmall),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _features[i].$2,
+                                        style: text.titleSmall,
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _features[i].$3,
+                                        style: text.bodyMedium?.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   const SizedBox(height: AppSpacing.sm),
                   Wrap(
-                    alignment: WrapAlignment.center,
                     children: [
                       TextButton(
+                        style: _linkStyle,
                         onPressed: _busy ? null : _restore,
                         child: Text(
                           _restoring ? 'Restoring…' : 'Restore purchases',
@@ -286,10 +308,12 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                               AccessState.subscriptionCancelledButActive ||
                           status.state == AccessState.billingIssue)
                         TextButton(
+                          style: _linkStyle,
                           onPressed: () => _manage(status.managementUrl),
                           child: const Text('Manage subscription'),
                         ),
                       TextButton(
+                        style: _linkStyle,
                         onPressed: () =>
                             context.push(AppRoutes.subscriptionHistory),
                         child: const Text('Billing history'),
@@ -357,22 +381,27 @@ class _Hero extends StatelessWidget {
     required this.status,
     required this.package,
     required this.pricesLoading,
+    required this.date,
   });
 
   final SubscriptionStatus status;
   final BillingPackage? package;
   final bool pricesLoading;
+  final String Function(DateTime) date;
+
+  static const _muted = Color(0xFF9AA8B6);
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final days = status.trialDaysLeft();
-    final badge = switch (status.state) {
+    final trial = status.state == AccessState.trialActive;
+    final kicker = switch (status.state) {
       AccessState.loading => 'Checking your access…',
       AccessState.trialActive =>
         days == null
             ? 'Free trial active'
-            : '$days ${days == 1 ? 'day' : 'days'} left in your free trial',
+            : 'Free trial · $days ${days == 1 ? 'day' : 'days'} left',
       AccessState.subscriptionActive => 'Subscription active',
       AccessState.subscriptionCancelledButActive => 'Cancelled · still active',
       AccessState.billingIssue => 'Payment problem',
@@ -383,75 +412,142 @@ class _Hero extends StatelessWidget {
     final title = status.hasAccess
         ? 'You have full access'
         : 'Keep finding your next job';
-    return Container(
-      decoration: const BoxDecoration(
+    final trialEnd = status.trialEndsAt;
+    final note = trial && trialEnd != null
+        ? 'Your trial ends on ${date(trialEnd)}. Cancel any time in the store.'
+        : 'Every new account starts with a '
+              '${AppConstants.freeTrialDays}-day free trial.';
+    final totalDays = AppConstants.freeTrialDays;
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(28)),
+      child: Container(
         color: AppColors.navy,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xxl,
-        AppSpacing.sm,
-        AppSpacing.xxl,
-        AppSpacing.xxxl,
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: const BoxDecoration(
-              color: AppColors.teal,
-              borderRadius: AppRadius.pillAll,
+        child: Stack(
+          children: [
+            // Faint rings, an echo of the Your roles wheel.
+            const Positioned(
+              right: -60,
+              top: -40,
+              child: _Ring(size: 220, alpha: 0.16),
             ),
-            child: Text(
-              badge,
-              style: text.labelMedium?.copyWith(color: AppColors.navy),
+            const Positioned(
+              right: -20,
+              top: 0,
+              child: _Ring(size: 140, alpha: 0.10),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: text.displaySmall?.copyWith(color: AppColors.white),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          if (package != null)
-            Text.rich(
-              TextSpan(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xxl,
+                AppSpacing.sm,
+                AppSpacing.xxl,
+                AppSpacing.xxl + 6,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextSpan(
-                    text: package!.priceString,
-                    style: text.headlineLarge?.copyWith(color: AppColors.cyan),
+                  Row(
+                    children: [
+                      if (trial && days != null) ...[
+                        for (var i = 0; i < totalDays; i++) ...[
+                          if (i > 0) const SizedBox(width: 4),
+                          Container(
+                            width: 22,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: i < days
+                                  ? AppColors.teal
+                                  : AppColors.navySoft,
+                              borderRadius: AppRadius.pillAll,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 10),
+                      ],
+                      Flexible(
+                        child: Text(
+                          kicker,
+                          style: text.labelMedium?.copyWith(
+                            color: _muted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  TextSpan(
-                    text: ' / month',
-                    style: text.titleMedium?.copyWith(
-                      color: AppColors.textOnDarkMuted,
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    title,
+                    style: text.displaySmall?.copyWith(
+                      color: AppColors.white,
+                      fontSize: 38,
+                      height: 1.05,
+                      letterSpacing: -0.6,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.lg + 2),
+                  if (package != null)
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: package!.priceString,
+                            style: text.displaySmall?.copyWith(
+                              color: AppColors.white,
+                              fontSize: 46,
+                              height: 1,
+                              letterSpacing: -1,
+                            ),
+                          ),
+                          TextSpan(
+                            text: trial
+                                ? '  / month after the trial'
+                                : '  / month',
+                            style: text.titleSmall?.copyWith(
+                              color: _muted,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Text(
+                      pricesLoading
+                          ? 'Loading price…'
+                          : 'One monthly plan. Your local price is shown by '
+                                'the store.',
+                      style: text.bodyMedium?.copyWith(color: _muted),
+                    ),
+                  const SizedBox(height: 6),
+                  Text(note, style: text.bodyMedium?.copyWith(color: _muted)),
                 ],
               ),
-            )
-          else
-            Text(
-              pricesLoading
-                  ? 'Loading price…'
-                  : 'One monthly plan. Your local price is shown by the store.',
-              textAlign: TextAlign.center,
-              style: text.bodyMedium?.copyWith(
-                color: AppColors.textOnDarkMuted,
-              ),
             ),
-          const SizedBox(height: 4),
-          Text(
-            'Every new account starts with a '
-            '${AppConstants.freeTrialDays}-day free trial.',
-            textAlign: TextAlign.center,
-            style: text.bodySmall?.copyWith(color: AppColors.textOnDarkMuted),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+}
+
+class _Ring extends StatelessWidget {
+  const _Ring({required this.size, required this.alpha});
+
+  final double size;
+  final double alpha;
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.teal.withValues(alpha: alpha)),
+      ),
+    ),
+  );
 }
 
 class _StatusBanner extends StatelessWidget {
