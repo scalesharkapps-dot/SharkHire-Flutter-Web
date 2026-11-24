@@ -263,52 +263,68 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  Wrap(
-                    children: [
-                      TextButton(
-                        onPressed: _busy ? null : _restore,
-                        child: Text(
-                          _restoring ? 'Restoring…' : 'Restore purchases',
+                  TextButtonTheme(
+                    data: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          children: [
+                            TextButton(
+                              onPressed: _busy ? null : _restore,
+                              child: Text(
+                                _restoring ? 'Restoring…' : 'Restore purchases',
+                              ),
+                            ),
+                            if (status.state ==
+                                    AccessState.subscriptionActive ||
+                                status.state ==
+                                    AccessState
+                                        .subscriptionCancelledButActive ||
+                                status.state == AccessState.billingIssue)
+                              TextButton(
+                                onPressed: () => _manage(status.managementUrl),
+                                child: const Text('Manage subscription'),
+                              ),
+                            TextButton(
+                              onPressed: () =>
+                                  context.push(AppRoutes.subscriptionHistory),
+                              child: const Text('Billing history'),
+                            ),
+                          ],
                         ),
-                      ),
-                      if (status.state == AccessState.subscriptionActive ||
-                          status.state ==
-                              AccessState.subscriptionCancelledButActive ||
-                          status.state == AccessState.billingIssue)
-                        TextButton(
-                          onPressed: () => _manage(status.managementUrl),
-                          child: const Text('Manage subscription'),
-                        ),
-                      TextButton(
-                        onPressed: () =>
-                            context.push(AppRoutes.subscriptionHistory),
-                        child: const Text('Billing history'),
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    children: [
-                      TextButton(
-                        onPressed: () =>
-                            showLegalSheet(context, LegalDocument.terms),
-                        child: const Text('Terms of Use'),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                            showLegalSheet(context, LegalDocument.privacy),
-                        child: const Text('Privacy Policy'),
-                      ),
-                      if (blocked) ...[
-                        TextButton(
-                          onPressed: () => context.push(AppRoutes.help),
-                          child: const Text('Help'),
-                        ),
-                        TextButton(
-                          onPressed: () => confirmSignOut(context, ref),
-                          child: const Text('Log out'),
+                        Wrap(
+                          children: [
+                            TextButton(
+                              onPressed: () =>
+                                  showLegalSheet(context, LegalDocument.terms),
+                              child: const Text('Terms of Use'),
+                            ),
+                            TextButton(
+                              onPressed: () => showLegalSheet(
+                                context,
+                                LegalDocument.privacy,
+                              ),
+                              child: const Text('Privacy Policy'),
+                            ),
+                            if (blocked) ...[
+                              TextButton(
+                                onPressed: () => context.push(AppRoutes.help),
+                                child: const Text('Help'),
+                              ),
+                              TextButton(
+                                onPressed: () => confirmSignOut(context, ref),
+                                child: const Text('Log out'),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
-                    ],
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
