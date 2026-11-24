@@ -50,38 +50,68 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final history = ref.watch(subscriptionHistoryProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Billing history')),
-      body: history.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => e is FeatureUnavailableException
-            ? EmptyStateView(
-                icon: Icons.receipt_long_outlined,
-                title: 'Not available yet',
-                message: e.message,
-              )
-            : ErrorStateView(
-                message: friendlyErrorMessage(e),
-                onRetry: () => ref.invalidate(subscriptionHistoryProvider),
-              ),
-        data: (items) => items.isEmpty
-            ? const EmptyStateView(
-                icon: Icons.receipt_long_outlined,
-                title: 'No billing history',
-                message: 'Your trial and payments will appear here.',
-              )
-            : ListView.separated(
-                padding: const EdgeInsets.all(AppSpacing.screenHorizontal),
-                itemCount: items.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (_, i) => _Entry(
-                  entry: items[i],
-                  label: eventLabel(items[i].event),
-                  date: _date,
-                  text: text,
-                ),
-              ),
+      appBar: AppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screenHorizontal,
+              0,
+              AppSpacing.screenHorizontal,
+              AppSpacing.sm,
+            ),
+            child: Semantics(
+              header: true,
+              child: Text('Billing history', style: text.headlineLarge),
+            ),
+          ),
+          Expanded(child: _body(context, ref, history, text)),
+        ],
       ),
+    );
+  }
+
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<SubscriptionHistoryEntry>> history,
+    TextTheme text,
+  ) {
+    return history.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => e is FeatureUnavailableException
+          ? EmptyStateView(
+              icon: Icons.receipt_long_outlined,
+              title: 'Not available yet',
+              message: e.message,
+            )
+          : ErrorStateView(
+              message: friendlyErrorMessage(e),
+              onRetry: () => ref.invalidate(subscriptionHistoryProvider),
+            ),
+      data: (items) => items.isEmpty
+          ? const EmptyStateView(
+              icon: Icons.receipt_long_outlined,
+              title: 'No billing history',
+              message: 'Your trial and payments will appear here.',
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screenHorizontal,
+                AppSpacing.lg,
+                AppSpacing.screenHorizontal,
+                AppSpacing.screenHorizontal,
+              ),
+              itemCount: items.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (_, i) => _Entry(
+                entry: items[i],
+                label: eventLabel(items[i].event),
+                date: _date,
+                text: text,
+              ),
+            ),
     );
   }
 }
@@ -108,6 +138,7 @@ class _Entry extends StatelessWidget {
       if (entry.store == 'app_store') 'App Store',
     ].join(' · ');
     return AppSurface(
+      elevated: false,
       child: Row(
         children: [
           Expanded(
@@ -115,13 +146,15 @@ class _Entry extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label, style: text.titleSmall),
-                if (details.isNotEmpty)
+                if (details.isNotEmpty) ...[
+                  const SizedBox(height: 4),
                   Text(
                     details,
-                    style: text.bodySmall?.copyWith(
+                    style: text.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
+                ],
               ],
             ),
           ),
