@@ -105,8 +105,8 @@ class AdminCategoriesScreen extends ConsumerWidget {
                     for (final s in c.skills)
                       InfoPill(
                         label: s,
-                        background: AppColors.oceanTint,
-                        foreground: AppColors.oceanDeep,
+                        background: AppColors.surfaceMuted,
+                        foreground: AppColors.ink,
                       ),
                     ActionChip(
                       avatar: const Icon(Icons.add_rounded, size: 16),

@@ -71,7 +71,7 @@ class AdminApiMonitoringScreen extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(child: Text(l.endpoint, style: text.titleSmall)),
-                    StatusChip(
+                    StatusText(
                       label: l.ok
                           ? '${l.statusCode} OK'
                           : (l.statusCode == 429
@@ -261,7 +261,7 @@ class _AdminAuditLogsScreenState extends ConsumerState<AdminAuditLogsScreen> {
                   padding: EdgeInsets.only(top: 2),
                   child: Icon(
                     Icons.history_rounded,
-                    color: AppColors.ocean,
+                    color: AppColors.textSecondary,
                     size: 20,
                   ),
                 ),

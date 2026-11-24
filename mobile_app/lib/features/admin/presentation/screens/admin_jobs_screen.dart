@@ -31,6 +31,7 @@ class _AdminJobsScreenState extends ConsumerState<AdminJobsScreen> {
     final shown = jobs.where((j) => j.status == _tab).toList();
 
     return AdminPage(
+      bigTitle: false,
       title: 'Job approvals',
       showBack: false,
       intro:

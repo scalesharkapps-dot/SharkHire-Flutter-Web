@@ -14,7 +14,11 @@ class AdminPage extends StatelessWidget {
     this.actions,
     this.showBack = true,
     this.floatingActionButton,
+    this.bigTitle = true,
   });
+
+  /// Big bold heading in the page body instead of the app bar title.
+  final bool bigTitle;
 
   final String title;
   final String? intro;
@@ -28,7 +32,7 @@ class AdminPage extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: bigTitle ? null : Text(title),
         automaticallyImplyLeading: showBack,
         actions: actions,
       ),
@@ -44,6 +48,13 @@ class AdminPage extends StatelessWidget {
               96,
             ),
             children: [
+              if (bigTitle) ...[
+                Semantics(
+                  header: true,
+                  child: Text(title, style: text.headlineLarge),
+                ),
+                SizedBox(height: intro != null ? AppSpacing.sm : AppSpacing.lg),
+              ],
               if (intro != null) ...[
                 Text(
                   intro!,
@@ -121,7 +132,7 @@ class StatTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: 20, color: AppColors.ocean),
+              Icon(icon, size: 20, color: AppColors.textSecondary),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -377,11 +388,10 @@ class GroupLabel extends StatelessWidget {
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(top: AppSpacing.md, left: AppSpacing.xs),
     child: Text(
-      text.toUpperCase(),
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: AppColors.textTertiary,
-        letterSpacing: 1.2,
-      ),
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(color: AppColors.textSecondary),
     ),
   );
 }
