@@ -308,11 +308,15 @@ class InlineBanner extends StatelessWidget {
     required this.message,
     this.tone = BannerTone.info,
     this.title,
+    this.showMark = true,
   });
 
   final String message;
   final String? title;
   final BannerTone tone;
+
+  /// Shows the small tinted status tile; off for quiet notes.
+  final bool showMark;
 
   @override
   Widget build(BuildContext context) {
@@ -360,20 +364,25 @@ class InlineBanner extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: BoxDecoration(
-                color: tint,
-                borderRadius: AppRadius.smAll,
+            if (showMark) ...[
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: AppRadius.smAll,
+                ),
+                child: Icon(icon, size: 16, color: mark),
               ),
-              child: Icon(icon, size: 16, color: mark),
-            ),
-            const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.md),
+            ] else
+              const SizedBox(width: AppSpacing.xs),
             Expanded(
               child: Padding(
                 // Centres a one-line message on the 28px mark.
-                padding: EdgeInsets.only(top: hasTitle ? 2 : 4),
+                padding: EdgeInsets.only(
+                  top: !showMark ? 0 : (hasTitle ? 2 : 4),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

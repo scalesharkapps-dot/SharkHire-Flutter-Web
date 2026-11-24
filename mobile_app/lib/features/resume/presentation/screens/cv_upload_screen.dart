@@ -129,10 +129,9 @@ class _CvUploadScreenState extends ConsumerState<CvUploadScreen> {
               children: [
                 if (widget.fromOnboarding) ...[
                   Text(
-                    'STEP 2 OF 2',
-                    style: text.labelSmall?.copyWith(
-                      color: AppColors.ocean,
-                      letterSpacing: 1.2,
+                    'Step 2 of 2',
+                    style: text.labelMedium?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -170,6 +169,7 @@ class _CvUploadScreenState extends ConsumerState<CvUploadScreen> {
                 const SizedBox(height: AppSpacing.xxl),
                 const InlineBanner(
                   tone: BannerTone.info,
+                  showMark: false,
                   title: 'Your CV stays private',
                   message:
                       'It\'s stored securely and only shared with an employer when you apply to their job.',
@@ -213,7 +213,7 @@ class _DropZone extends StatelessWidget {
         ? AppColors.error
         : ok
         ? AppColors.success
-        : AppColors.ocean;
+        : AppColors.textSecondary;
 
     return Semantics(
       button: true,
@@ -233,11 +233,12 @@ class _DropZone extends StatelessWidget {
           decoration: BoxDecoration(
             color: error != null
                 ? AppColors.errorTint
-                : (ok ? AppColors.successTint : AppColors.mist),
+                : (ok ? AppColors.successTint : AppColors.surface),
             borderRadius: AppRadius.xlAll,
             border: Border.all(
-              color: borderColor.withValues(alpha: 0.6),
-              width: 1.4,
+              color: error != null || ok
+                  ? borderColor.withValues(alpha: 0.6)
+                  : AppColors.borderStrong,
             ),
           ),
           child: Column(
