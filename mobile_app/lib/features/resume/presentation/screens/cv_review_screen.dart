@@ -184,6 +184,7 @@ class _CvReviewScreenState extends ConsumerState<CvReviewScreen> {
           const SizedBox(height: AppSpacing.lg),
           const InlineBanner(
             tone: BannerTone.warning,
+            showMark: false,
             title: 'Automatic reading can miss details',
             message:
                 'Please correct anything that\'s wrong before we use it to match jobs.',
@@ -229,11 +230,11 @@ class _CvReviewScreenState extends ConsumerState<CvReviewScreen> {
                       InputChip(
                         label: Text(s),
                         labelStyle: text.labelMedium?.copyWith(
-                          color: AppColors.oceanDeep,
+                          color: AppColors.ink,
                         ),
-                        backgroundColor: AppColors.oceanTint,
+                        backgroundColor: AppColors.surfaceMuted,
                         side: BorderSide.none,
-                        deleteIconColor: AppColors.oceanDeep,
+                        deleteIconColor: AppColors.textSecondary,
                         deleteButtonTooltipMessage: 'Remove $s',
                         onDeleted: () => setState(
                           () => _draft = d.copyWith(
@@ -258,12 +259,14 @@ class _CvReviewScreenState extends ConsumerState<CvReviewScreen> {
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
-                    OutlinedButton(
+                    TextButton.icon(
                       onPressed: _addSkill,
-                      style: OutlinedButton.styleFrom(
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.textSecondary,
                         minimumSize: const Size(0, 52),
                       ),
-                      child: const Text('Add'),
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Add'),
                     ),
                   ],
                 ),
@@ -424,11 +427,8 @@ class _Fact extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label.toUpperCase(),
-          style: text.labelSmall?.copyWith(
-            color: AppColors.textTertiary,
-            letterSpacing: 0.8,
-          ),
+          label,
+          style: text.labelMedium?.copyWith(color: AppColors.textTertiary),
         ),
         const SizedBox(height: 4),
         Text(
@@ -494,7 +494,7 @@ class _Bullet extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.ocean),
+        Icon(icon, size: 18, color: AppColors.textSecondary),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
