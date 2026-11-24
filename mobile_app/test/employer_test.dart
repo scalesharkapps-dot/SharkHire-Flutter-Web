@@ -43,7 +43,7 @@ void main() {
       'Mobile Product Designer',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Add a skill, e.g. Python'),
+      find.widgetWithText(TextField, 'Add a skill'),
       'Figma',
     );
     await tapText(tester, 'Add');

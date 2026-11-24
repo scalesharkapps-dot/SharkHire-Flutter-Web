@@ -58,7 +58,7 @@ void main() {
 
       await _tapButton(tester, 'Continue');
       // Step 2: CV upload, which can be skipped.
-      await pumpUntil(tester, () => isShown(find.text('STEP 2 OF 2')));
+      await pumpUntil(tester, () => isShown(find.text('Step 2 of 2')));
       await _tapButton(tester, 'Skip for now');
       await pumpUntil(tester, () => isShown(find.byType(NavigationBar)));
       await tester.pump(const Duration(seconds: 1));

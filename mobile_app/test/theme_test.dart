@@ -65,7 +65,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(SettingsScreen), findsOneWidget);
 
-    await tester.tap(find.bySemanticsLabel('Dark appearance'));
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dark').last);
     await tester.pumpAndSettle();
     expect(AppColors.isDark, isTrue);
     expect(store.saved, ThemeMode.dark);
@@ -79,7 +81,9 @@ void main() {
     );
     expect(scaffold.backgroundColor ?? AppColors.canvas, AppColors.canvas);
 
-    await tester.tap(find.bySemanticsLabel('Light appearance'));
+    await tester.tap(find.text('Theme'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Light').last);
     await tester.pumpAndSettle();
     expect(AppColors.isDark, isFalse);
     expect(store.saved, ThemeMode.light);

@@ -39,7 +39,7 @@ Future<void> tapText(WidgetTester tester, String label) async {
 Future<void> launchAdmin(WidgetTester tester) async {
   usePhone(tester);
   await launchApp(tester, session: adminSession);
-  await pumpUntil(tester, () => isShown(find.text('Hello, Sana')));
+  await pumpUntil(tester, () => isShown(find.text('Overview')));
   await tester.pumpAndSettle();
 }
 
@@ -90,7 +90,7 @@ void main() {
     );
     await tester.ensureVisible(login);
     await tester.tap(login);
-    await pumpUntil(tester, () => isShown(find.text('Hello, Sana')));
+    await pumpUntil(tester, () => isShown(find.text('Overview')));
     expect(find.text('More'), findsOneWidget);
     expect(find.text('Explore'), findsNothing);
   });

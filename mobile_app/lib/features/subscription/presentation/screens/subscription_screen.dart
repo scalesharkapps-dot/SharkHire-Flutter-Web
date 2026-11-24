@@ -213,26 +213,6 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                                 .refresh(),
                       onManage: () => _manage(status.managementUrl),
                     ),
-                  if (_feedback != null) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Semantics(
-                      liveRegion: true,
-                      child: InlineBanner(
-                        tone: _feedback!.isError
-                            ? BannerTone.error
-                            : BannerTone.info,
-                        message: _feedback!.message!,
-                      ),
-                    ),
-                    if (_feedback!.message == confirmingPurchaseMessage)
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: _busy ? null : _checkAgain,
-                          child: Text(_checking ? 'Checking…' : 'Check again'),
-                        ),
-                      ),
-                  ],
                   if (!billing.isAvailable &&
                       !status.hasAccess &&
                       !status.serviceUnavailable) ...[
@@ -294,6 +274,26 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   const SizedBox(height: AppSpacing.sm),
+                  if (_feedback != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    Semantics(
+                      liveRegion: true,
+                      child: InlineBanner(
+                        tone: _feedback!.isError
+                            ? BannerTone.error
+                            : BannerTone.info,
+                        message: _feedback!.message!,
+                      ),
+                    ),
+                    if (_feedback!.message == confirmingPurchaseMessage)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: _busy ? null : _checkAgain,
+                          child: Text(_checking ? 'Checking…' : 'Check again'),
+                        ),
+                      ),
+                  ],
                   Wrap(
                     children: [
                       TextButton(
@@ -501,8 +501,8 @@ class _Hero extends StatelessWidget {
                           ),
                           TextSpan(
                             text: trial
-                                ? '  / month after the trial'
-                                : '  / month',
+                                ? ' / month after the trial'
+                                : ' / month',
                             style: text.titleSmall?.copyWith(
                               color: _muted,
                               fontWeight: FontWeight.w500,
