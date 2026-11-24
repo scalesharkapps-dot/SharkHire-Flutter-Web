@@ -99,6 +99,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
               ],
               AppTextField(
                 label: 'Email',
+                sentenceCaseLabel: true,
                 controller: _email,
                 hint: 'name@example.com',
                 keyboardType: TextInputType.emailAddress,

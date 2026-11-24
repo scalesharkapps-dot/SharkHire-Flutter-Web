@@ -140,10 +140,7 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
               : 'The link is incomplete or was already used. Log in to '
                     'check your account or get a new link.',
           showBack: false,
-          leading: StateIllustration(
-            icon: Icons.link_off_rounded,
-            tone: AppColors.error,
-          ),
+          showBrandMark: false,
           children: [
             LoadingButton(
               label: signedIn ? 'Get a new link' : 'Log in',
@@ -317,6 +314,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 PasswordField(
                   controller: _password,
                   label: 'New password',
+                  sentenceCaseLabel: true,
                   validator: Validators.newPassword,
                   textInputAction: TextInputAction.next,
                   autofillHints: const [AutofillHints.newPassword],
@@ -325,6 +323,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                 PasswordField(
                   controller: _confirm,
                   label: 'Confirm new password',
+                  sentenceCaseLabel: true,
                   validator: Validators.matches(() => _password.text),
                   autofillHints: const [AutofillHints.newPassword],
                   onSubmitted: (_) => _submit(),

@@ -78,6 +78,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     return AuthScaffold(
       title: 'Create your account',
       subtitle: 'It takes a minute. You can upload your CV right after.',
+      showBrandMark: false,
       footer: AuthFooterLink(
         prompt: 'Already have an account?',
         action: 'Log in',
@@ -94,7 +95,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   InlineBanner(message: _error!, tone: BannerTone.error),
                   const SizedBox(height: AppSpacing.lg),
                 ],
-                const FieldLabel('I am a'),
+                const FieldLabel('I am a', sentenceCase: true),
                 Row(
                   children: [
                     Expanded(
@@ -121,6 +122,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: AppSpacing.xl),
                 AppTextField(
                   label: 'Full name',
+                  sentenceCaseLabel: true,
                   controller: _name,
                   hint: 'Your name',
                   prefixIcon: Icons.badge_outlined,
@@ -131,6 +133,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
                   label: _role == AppRole.employer ? 'Work email' : 'Email',
+                  sentenceCaseLabel: true,
                   controller: _email,
                   hint: 'name@example.com',
                   keyboardType: TextInputType.emailAddress,
@@ -141,6 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: AppSpacing.lg),
                 PasswordField(
                   controller: _password,
+                  sentenceCaseLabel: true,
                   validator: Validators.password,
                   autofillHints: const [AutofillHints.newPassword],
                   onChanged: (_) => setState(() {}),
