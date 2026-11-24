@@ -88,7 +88,7 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                   AppSpacing.xxxl,
                 ),
                 children: [
-                  Text('Company', style: text.headlineMedium),
+                  Text('Company', style: text.headlineLarge),
                   const SizedBox(height: AppSpacing.lg),
                   Row(
                     children: [
@@ -102,6 +102,7 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                             TextButton.icon(
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
+                                foregroundColor: AppColors.textSecondary,
                               ),
                               onPressed: () => AppFeedback.show(
                                 context,
@@ -140,6 +141,7 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                   const SizedBox(height: AppSpacing.xl),
                   AppTextField(
                     label: 'Company name',
+                    sentenceCaseLabel: true,
                     controller: _name,
                     textCapitalization: TextCapitalization.words,
                     validator: (v) =>
@@ -148,41 +150,37 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                   gap(),
                   AppTextField(
                     label: 'Website',
+                    sentenceCaseLabel: true,
                     controller: _website,
                     optional: true,
                     keyboardType: TextInputType.url,
                     hint: 'https://',
                   ),
                   gap(),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AppTextField(
-                          label: 'Industry',
-                          controller: _industry,
-                          optional: true,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: AppTextField(
-                          label: 'Size',
-                          controller: _size,
-                          optional: true,
-                        ),
-                      ),
-                    ],
+                  AppTextField(
+                    label: 'Industry',
+                    sentenceCaseLabel: true,
+                    controller: _industry,
+                    optional: true,
+                  ),
+                  gap(),
+                  AppTextField(
+                    label: 'Size',
+                    sentenceCaseLabel: true,
+                    controller: _size,
+                    optional: true,
                   ),
                   gap(),
                   AppTextField(
                     label: 'Headquarters',
+                    sentenceCaseLabel: true,
                     controller: _hq,
                     optional: true,
                   ),
                   gap(),
                   AppTextField(
                     label: 'About the company',
+                    sentenceCaseLabel: true,
                     controller: _about,
                     maxLines: 6,
                     minLines: 4,
@@ -199,6 +197,7 @@ class _EmployerCompanyScreenState extends ConsumerState<EmployerCompanyScreen> {
                   const SizedBox(height: AppSpacing.xxl),
                   MenuGroup(
                     title: 'Alerts',
+                    normalCaseTitle: true,
                     items: [
                       MenuItem(
                         Icons.person_add_alt_outlined,
