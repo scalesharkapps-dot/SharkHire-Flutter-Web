@@ -74,23 +74,13 @@ class JobAlertsScreen extends ConsumerWidget {
                         child: AppSurface(
                           child: Row(
                             children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: a.isActive
-                                      ? AppColors.oceanTint
-                                      : AppColors.surfaceMuted,
-                                  borderRadius: AppRadius.lgAll,
-                                ),
-                                child: Icon(
-                                  a.isActive
-                                      ? Icons.notifications_active_outlined
-                                      : Icons.notifications_off_outlined,
-                                  color: a.isActive
-                                      ? AppColors.ocean
-                                      : AppColors.textTertiary,
-                                ),
+                              Icon(
+                                a.isActive
+                                    ? Icons.notifications_none_rounded
+                                    : Icons.notifications_off_outlined,
+                                color: a.isActive
+                                    ? AppColors.textSecondary
+                                    : AppColors.textTertiary,
                               ),
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
