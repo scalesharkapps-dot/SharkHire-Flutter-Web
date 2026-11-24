@@ -7,7 +7,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/date_formatters.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/models/job_summary.dart';
@@ -309,60 +308,46 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final tier = MatchTier.of(score);
-    return Container(
+    return AppSurface(
+      elevated: false,
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: tier.tint,
-        borderRadius: AppRadius.xlAll,
-      ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              shape: BoxShape.circle,
-            ),
-            padding: const EdgeInsets.all(4),
-            child: MatchScoreRing(score: score, size: 60),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  tier.label,
-                  style: text.titleMedium?.copyWith(color: tier.color),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                for (final r in reasons)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Icon(
-                            r.startsWith('Some')
-                                ? Icons.remove_circle_outline_rounded
-                                : Icons.check_rounded,
-                            size: 16,
-                            color: r.startsWith('Some')
-                                ? AppColors.warning
-                                : tier.color,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(child: Text(r, style: text.bodyMedium)),
-                      ],
+          FitScoreHeader(score: score),
+          if (reasons.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            for (final r in reasons)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Icon(
+                        r.startsWith('Some')
+                            ? Icons.remove_rounded
+                            : Icons.check_rounded,
+                        size: 16,
+                        color: r.startsWith('Some')
+                            ? AppColors.warning
+                            : AppColors.textSecondary,
+                      ),
                     ),
-                  ),
-              ],
-            ),
-          ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        r,
+                        style: text.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ],
       ),
     );
@@ -536,35 +521,12 @@ class _JobBand extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final s = details.summary;
-    Widget fact(String label, String value, {bool first = false}) => Expanded(
-      child: Container(
-        padding: EdgeInsets.only(left: first ? 0 : AppSpacing.md),
-        decoration: BoxDecoration(
-          border: first
-              ? null
-              : Border(left: BorderSide(color: AppColors.bandLine)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: text.bodySmall?.copyWith(color: AppColors.bandMuted),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: text.titleSmall?.copyWith(
-                color: AppColors.bandInk,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    final meta = [
+      s.location,
+      s.workMode.label,
+      s.employmentType.label,
+      ?s.salaryLabel,
+    ].join(' · ');
 
     return Container(
       color: AppColors.band,
@@ -579,20 +541,18 @@ class _JobBand extends StatelessWidget {
         children: [
           Row(
             children: [
-              CompanyLogo(name: s.companyName, size: 44),
+              CompanyLogo(name: s.companyName, size: 40),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s.companyName.toUpperCase(),
+                      s.companyName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: text.labelSmall?.copyWith(
-                        color: AppColors.teal,
-                        letterSpacing: 1.3,
-                        fontWeight: FontWeight.w700,
+                      style: text.titleSmall?.copyWith(
+                        color: AppColors.bandInk,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -601,9 +561,9 @@ class _JobBand extends StatelessWidget {
                         if (s.companyRating != null)
                           '${s.companyRating!.toStringAsFixed(1)} rating',
                         s.isInternal
-                            ? 'Apply in-app · Verified employer'
+                            ? 'Verified employer'
                             : 'External · ${details.publisher ?? 'Job board'}',
-                      ].join('  ·  '),
+                      ].join(' · '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: text.bodySmall?.copyWith(
@@ -615,76 +575,18 @@ class _JobBand extends StatelessWidget {
               ),
             ],
           ),
-          if (s.matchScore != null) ...[
-            const SizedBox(height: AppSpacing.xl),
-            Semantics(
-              label: '${s.matchScore} percent fit with your CV',
-              excludeSemantics: true,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${s.matchScore}',
-                    style: TextStyle(
-                      fontFamily: AppFonts.display,
-                      fontSize: 92,
-                      height: 0.86,
-                      letterSpacing: -3,
-                      color: AppColors.teal,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '%',
-                    style: TextStyle(
-                      fontFamily: AppFonts.display,
-                      fontSize: 24,
-                      color: AppColors.teal,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'FIT WITH YOUR CV',
-              style: text.labelSmall?.copyWith(
-                color: AppColors.bandMuted,
-                letterSpacing: 2,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
           Semantics(
             header: true,
-            label: s.title,
-            excludeSemantics: true,
             child: Text(
-              s.title.toUpperCase(),
-              style: text.headlineMedium?.copyWith(
-                color: AppColors.bandInk,
-                fontSize: 30,
-                height: 1,
-                letterSpacing: -0.6,
-              ),
+              s.title,
+              style: text.headlineLarge?.copyWith(color: AppColors.bandInk),
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Container(
-            padding: const EdgeInsets.only(top: AppSpacing.md),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.bandLine)),
-            ),
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  fact('Location', s.location, first: true),
-                  fact('Mode', s.workMode.label),
-                  fact('Type', s.employmentType.label),
-                ],
-              ),
-            ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            meta,
+            style: text.bodyMedium?.copyWith(color: AppColors.bandMuted),
           ),
         ],
       ),

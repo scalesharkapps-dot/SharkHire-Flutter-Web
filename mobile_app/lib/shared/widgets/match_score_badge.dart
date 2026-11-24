@@ -216,3 +216,86 @@ class MatchScorePill extends StatelessWidget {
     );
   }
 }
+
+/// Ten small ticks showing a fit score (92 → nine lit ticks).
+class FitTicks extends StatelessWidget {
+  const FitTicks({super.key, required this.score});
+
+  final int score;
+
+  @override
+  Widget build(BuildContext context) {
+    final lit = (score.clamp(0, 100) / 10).round();
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < 10; i++) ...[
+            if (i > 0) const SizedBox(width: 3),
+            Container(
+              width: 6,
+              height: 12,
+              decoration: BoxDecoration(
+                color: i < lit ? AppColors.teal : AppColors.surfaceMuted,
+                borderRadius: const BorderRadius.all(Radius.circular(2)),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Big "92%" fit number with the tier line and ticks: the fit card header
+/// used on Job details and the employer's Candidate screen.
+class FitScoreHeader extends StatelessWidget {
+  const FitScoreHeader({super.key, required this.score, this.caption});
+
+  final int score;
+
+  /// Line under the number; defaults to "Strong fit with your CV".
+  final String? caption;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final word = MatchTier.of(score).label.split(' ').first;
+    final line = caption ?? '$word fit with your CV';
+    return Semantics(
+      label: '$score percent fit. $line',
+      excludeSemantics: true,
+      child: Row(
+        children: [
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: '${score.clamp(0, 100)}'),
+                const TextSpan(text: '%', style: TextStyle(fontSize: 22)),
+              ],
+            ),
+            style: TextStyle(
+              fontFamily: AppFonts.display,
+              fontSize: 40,
+              height: 1,
+              letterSpacing: -1,
+              color: AppColors.isDark ? AppColors.teal : AppColors.ocean,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(line, style: text.titleSmall),
+                const SizedBox(height: 6),
+                FitTicks(score: score),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
