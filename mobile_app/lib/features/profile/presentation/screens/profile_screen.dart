@@ -253,16 +253,17 @@ class _ProfileBand extends StatelessWidget {
                 width: 66,
                 height: 66,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: AppColors.teal,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                decoration: BoxDecoration(
+                  color: AppColors.bandSoft,
+                  shape: BoxShape.circle,
                 ),
                 child: Text(
                   user.initials,
                   style: TextStyle(
-                    fontFamily: AppFonts.display,
+                    fontFamily: AppFonts.label,
+                    fontWeight: FontWeight.w600,
                     fontSize: 22,
-                    color: AppColors.isDark ? AppColors.onInk : AppColors.navy,
+                    color: AppColors.bandInk,
                   ),
                 ),
               ),
