@@ -171,7 +171,7 @@ class _CompanyLine extends StatelessWidget {
   }
 }
 
-/// Compact source badge: "IN-APP" (apply on SharkHire) or "EXTERNAL".
+/// Quiet source label: "In-app" (apply on SharkHire) or "External".
 class _SourceBadge extends StatelessWidget {
   const _SourceBadge({required this.internal});
 
@@ -182,22 +182,13 @@ class _SourceBadge extends StatelessWidget {
     return Semantics(
       label: internal ? 'Apply in-app' : 'External job',
       excludeSemantics: true,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-        decoration: BoxDecoration(
-          color: internal ? AppColors.successTint : Colors.transparent,
-          borderRadius: AppRadius.smAll,
-          border: internal ? null : Border.all(color: AppColors.borderStrong),
-        ),
-        child: Text(
-          internal ? 'IN-APP' : 'EXTERNAL',
-          style: TextStyle(
-            fontFamily: AppFonts.label,
-            fontWeight: FontWeight.w700,
-            fontSize: 10,
-            letterSpacing: 0.8,
-            color: internal ? AppColors.success : AppColors.textSecondary,
-          ),
+      child: Text(
+        internal ? 'In-app' : 'External',
+        style: TextStyle(
+          fontFamily: AppFonts.label,
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
+          color: AppColors.textTertiary,
         ),
       ),
     );

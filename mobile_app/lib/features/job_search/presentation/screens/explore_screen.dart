@@ -76,10 +76,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         Expanded(
                           child: Text(
                             'Explore jobs',
-                            style: text.headlineMedium,
+                            style: text.headlineLarge,
                           ),
                         ),
                         TextButton.icon(
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                          ),
                           onPressed: () => context.push(AppRoutes.roles),
                           icon: const Icon(Icons.blur_circular_rounded),
                           label: const Text('By role'),
@@ -130,8 +133,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       labelStyle: text.labelMedium?.copyWith(
                         color: selected ? AppColors.onInk : AppColors.ink,
                       ),
+                      backgroundColor: AppColors.surfaceMuted,
                       side: BorderSide(
-                        color: selected ? AppColors.ink : AppColors.border,
+                        color: selected ? AppColors.ink : Colors.transparent,
                       ),
                     );
                   },
@@ -164,9 +168,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               ) ??
                               'Searching…',
                           key: ValueKey(results.value?.length),
-                          style: text.labelMedium?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                          style: text.titleMedium,
                         ),
                       ),
                     ),
@@ -282,11 +284,17 @@ class _SortMenu extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.swap_vert_rounded, size: 18, color: AppColors.ocean),
+              Icon(
+                Icons.swap_vert_rounded,
+                size: 18,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: 4),
               Text(
                 value.label,
-                style: text.labelMedium?.copyWith(color: AppColors.ocean),
+                style: text.labelMedium?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             ],
           ),
