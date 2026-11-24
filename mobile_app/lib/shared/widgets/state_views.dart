@@ -64,6 +64,7 @@ class EmptyStateView extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.compact = false,
+    this.plain = false,
   });
 
   final IconData icon;
@@ -75,9 +76,46 @@ class EmptyStateView extends StatelessWidget {
   /// Compact mode for use inside scroll views (no vertical centering).
   final bool compact;
 
+  /// Quiet, left-aligned version without the illustration.
+  final bool plain;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    if (plain) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screenHorizontal,
+          AppSpacing.xl,
+          AppSpacing.screenHorizontal,
+          AppSpacing.xxl,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: text.titleMedium),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              message,
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              FilledButton(
+                onPressed: onAction,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.tonal,
+                  foregroundColor: AppColors.ink,
+                  minimumSize: const Size(0, 44),
+                ),
+                child: Text(actionLabel!),
+              ),
+            ],
+          ],
+        ),
+      );
+    }
     final content = Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xxxl,

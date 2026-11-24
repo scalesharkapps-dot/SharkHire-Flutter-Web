@@ -36,7 +36,7 @@ class SavedJobsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Saved jobs', style: text.headlineMedium),
+                    Text('Saved jobs', style: text.headlineLarge),
                     const SizedBox(height: 2),
                     Text(
                       count == 0
@@ -64,6 +64,7 @@ class SavedJobsScreen extends ConsumerWidget {
                 AppSpacing.xxxl,
               ),
               empty: EmptyStateView(
+                plain: true,
                 icon: Icons.bookmark_border_rounded,
                 title: 'No saved jobs yet',
                 message:
