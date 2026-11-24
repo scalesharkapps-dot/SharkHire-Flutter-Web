@@ -149,7 +149,7 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
                 InlineBanner(message: _error!, tone: BannerTone.error),
                 const SizedBox(height: AppSpacing.lg),
               ],
-              const FieldLabel('CV'),
+              const FieldLabel('CV', sentenceCase: true),
               if (cv == null)
                 AppSurface(
                   elevated: false,
@@ -210,8 +210,9 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
               AppTextField(
                 label: 'Cover letter',
                 optional: true,
+                sentenceCaseLabel: true,
                 controller: _cover,
-                hint: 'Write a short note to the employer…',
+                hint: 'Write a short note to the employer',
                 maxLines: 8,
                 minLines: 6,
                 maxLength: 2000,
@@ -268,22 +269,12 @@ class _ApplicationSentScreenState extends ConsumerState<ApplicationSentScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 480),
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.screenHorizontal,
+            ),
             children: [
-              const SizedBox(height: AppSpacing.xxl),
-              Center(
-                child: StateIllustration(
-                  icon: Icons.check_rounded,
-                  tone: AppColors.success,
-                  tint: AppColors.successTint,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Application sent',
-                style: text.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text('Application sent', style: text.headlineLarge),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 job == null
@@ -291,7 +282,6 @@ class _ApplicationSentScreenState extends ConsumerState<ApplicationSentScreen> {
                     : '${job.companyName} will review your application for ${job.title}. '
                           'We\'ll let you know when the status changes.',
                 style: text.bodyLarge?.copyWith(color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.xxl),
               CheckboxListTile(
@@ -330,6 +320,9 @@ class _ApplicationSentScreenState extends ConsumerState<ApplicationSentScreen> {
             SizedBox(
               width: double.infinity,
               child: TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
+                ),
                 onPressed: () => context.go(AppRoutes.explore),
                 child: const Text('Keep exploring jobs'),
               ),
