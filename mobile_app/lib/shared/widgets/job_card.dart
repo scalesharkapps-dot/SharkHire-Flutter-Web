@@ -20,6 +20,7 @@ class JobCard extends StatelessWidget {
     required this.isSaved,
     required this.onToggleSave,
     this.onTap,
+    this.quiet = false,
   });
 
   final JobSummary job;
@@ -27,8 +28,13 @@ class JobCard extends StatelessWidget {
   final VoidCallback onToggleSave;
   final VoidCallback? onTap;
 
+  /// Home's quieter layout: title, company and city, salary, then the fit
+  /// score with its tick bar and the source as plain text.
+  final bool quiet;
+
   @override
   Widget build(BuildContext context) {
+    if (quiet) return _buildQuiet(context);
     final text = Theme.of(context).textTheme;
     final score = job.matchScore;
 
@@ -122,6 +128,98 @@ class JobCard extends StatelessWidget {
                   ],
                 ),
               ),
+      ),
+    );
+  }
+}
+
+extension on JobCard {
+  Widget _buildQuiet(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final score = job.matchScore;
+    final secondary = text.bodyMedium?.copyWith(
+      color: AppColors.textSecondary,
+      fontSize: 14,
+      height: 1.3,
+    );
+    final source = job.isInternal ? 'In-app' : 'External';
+    return AppSurface(
+      onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.lg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(
+                    job.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              _BookmarkButton(isSaved: isSaved, onPressed: onToggleSave),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${job.companyName} · ${job.location}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: secondary,
+                ),
+                if (job.salaryLabel != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    job.salaryLabel!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: secondary,
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  children: [
+                    if (score != null) FitScoreInline(score: score),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Semantics(
+                        label: job.isInternal ? 'Apply in-app' : 'External job',
+                        excludeSemantics: true,
+                        child: Text(
+                          source,
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: text.bodySmall?.copyWith(
+                            color: AppColors.textTertiary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

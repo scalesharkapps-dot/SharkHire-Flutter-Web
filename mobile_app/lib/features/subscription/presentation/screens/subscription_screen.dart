@@ -9,6 +9,7 @@ import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/feedback.dart';
+import '../../../../shared/widgets/app_surface.dart';
 import '../../../../shared/widgets/bottom_action_bar.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/legal_sheet.dart';
@@ -39,25 +40,15 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
 
   static const _features = [
     (
-      Icons.fact_check_outlined,
       'CV-based job recommendations',
-      'Every job ranked by how well it fits your CV.',
+      'Every job ranked by how well it fits your CV',
     ),
     (
-      Icons.public_rounded,
       'Pakistan and international job leads',
-      'Local roles and remote jobs worldwide.',
+      'Local roles and remote jobs worldwide',
     ),
-    (
-      Icons.tune_rounded,
-      'Advanced search and filters',
-      'Filter by salary, work mode, type and more.',
-    ),
-    (
-      Icons.travel_explore_rounded,
-      'Premium job discovery',
-      'See new matches first, with daily alerts.',
-    ),
+    ('Advanced search and filters', 'Salary, work mode, type and more'),
+    ('Premium job discovery', 'New matches first, with daily alerts'),
   ];
 
   @override
@@ -167,32 +158,30 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final blocked = widget.next != null && !status.hasAccess;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: AppColors.isDark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
             SliverAppBar(
               pinned: true,
               automaticallyImplyLeading: !blocked,
-              backgroundColor: AppColors.navy,
-              foregroundColor: AppColors.white,
-              systemOverlayStyle: SystemUiOverlayStyle.light,
-              title: const Text('SharkHire subscription'),
-              titleTextStyle: text.titleMedium?.copyWith(
-                color: AppColors.white,
-              ),
+              title: const Text('SharkHire Premium'),
+              titleTextStyle: text.titleMedium,
             ),
             SliverToBoxAdapter(
               child: _Hero(
                 status: status,
                 package: package,
                 pricesLoading: packages.isLoading,
+                date: _date,
               ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.screenHorizontal,
-                AppSpacing.xxl,
+                AppSpacing.xl,
                 AppSpacing.screenHorizontal,
                 AppSpacing.xxl,
               ),
@@ -242,38 +231,39 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                           'Check your connection and try again.',
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.xl),
-                  for (final (icon, title, body) in _features)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.oceanTint,
-                              shape: BoxShape.circle,
+                  const SizedBox(height: AppSpacing.md),
+                  AppSurface(
+                    padding: EdgeInsets.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (var i = 0; i < _features.length; i++) ...[
+                          if (i > 0) const Divider(height: 1),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.lg,
+                              vertical: AppSpacing.md,
                             ),
-                            child: Icon(icon, color: AppColors.ocean, size: 20),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(title, style: text.titleSmall),
-                                Text(body, style: text.bodySmall),
+                                Text(_features[i].$1, style: text.titleSmall),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _features[i].$2,
+                                  style: text.bodySmall?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ],
-                      ),
+                      ],
                     ),
-                  const SizedBox(height: AppSpacing.sm),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   Wrap(
-                    alignment: WrapAlignment.center,
                     children: [
                       TextButton(
                         onPressed: _busy ? null : _restore,
@@ -297,7 +287,6 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     ],
                   ),
                   Wrap(
-                    alignment: WrapAlignment.center,
                     children: [
                       TextButton(
                         onPressed: () =>
@@ -328,7 +317,6 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     'month at the price shown unless you cancel at least 24 '
                     'hours before the end of the current period. Manage or '
                     'cancel any time in your store account settings.',
-                    textAlign: TextAlign.center,
                     style: text.bodySmall?.copyWith(
                       color: AppColors.textTertiary,
                     ),
@@ -352,27 +340,39 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   }
 }
 
+/// Status line, title and price, left-aligned on the page background.
 class _Hero extends StatelessWidget {
   const _Hero({
     required this.status,
     required this.package,
     required this.pricesLoading,
+    required this.date,
   });
 
   final SubscriptionStatus status;
   final BillingPackage? package;
   final bool pricesLoading;
+  final String Function(DateTime) date;
+
+  /// "Free trial · 3 days left, ends 27 Nov 2026".
+  static String _trialLine(int? days, String? ends) {
+    var line = 'Free trial';
+    if (days != null) line += ' · $days ${days == 1 ? 'day' : 'days'} left';
+    if (ends != null) line += days != null ? ', ends $ends' : ' · ends $ends';
+    return line;
+  }
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final days = status.trialDaysLeft();
-    final badge = switch (status.state) {
+    final trialEnd = status.trialEndsAt;
+    final line = switch (status.state) {
       AccessState.loading => 'Checking your access…',
-      AccessState.trialActive =>
-        days == null
-            ? 'Free trial active'
-            : '$days ${days == 1 ? 'day' : 'days'} left in your free trial',
+      AccessState.trialActive => _trialLine(
+        days,
+        trialEnd == null ? null : date(trialEnd),
+      ),
       AccessState.subscriptionActive => 'Subscription active',
       AccessState.subscriptionCancelledButActive => 'Cancelled · still active',
       AccessState.billingIssue => 'Payment problem',
@@ -383,49 +383,39 @@ class _Hero extends StatelessWidget {
     final title = status.hasAccess
         ? 'You have full access'
         : 'Keep finding your next job';
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.navy,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
+    final trial = status.state == AccessState.trialActive;
+    return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xxl,
-        AppSpacing.sm,
-        AppSpacing.xxl,
-        AppSpacing.xxxl,
+        AppSpacing.screenHorizontal,
+        AppSpacing.lg,
+        AppSpacing.screenHorizontal,
+        0,
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-            decoration: const BoxDecoration(
-              color: AppColors.teal,
-              borderRadius: AppRadius.pillAll,
-            ),
-            child: Text(
-              badge,
-              style: text.labelMedium?.copyWith(color: AppColors.navy),
-            ),
+          Text(
+            line,
+            style: text.labelMedium?.copyWith(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             title,
-            textAlign: TextAlign.center,
-            style: text.displaySmall?.copyWith(color: AppColors.white),
+            style: text.headlineLarge?.copyWith(color: AppColors.ink),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.md),
           if (package != null)
             Text.rich(
               TextSpan(
                 children: [
                   TextSpan(
                     text: package!.priceString,
-                    style: text.headlineLarge?.copyWith(color: AppColors.cyan),
+                    style: text.headlineMedium?.copyWith(color: AppColors.ink),
                   ),
                   TextSpan(
-                    text: ' / month',
-                    style: text.titleMedium?.copyWith(
-                      color: AppColors.textOnDarkMuted,
+                    text: trial ? ' / month after the trial' : ' / month',
+                    style: text.bodyLarge?.copyWith(
+                      color: AppColors.textSecondary,
                     ),
                   ),
                 ],
@@ -436,18 +426,16 @@ class _Hero extends StatelessWidget {
               pricesLoading
                   ? 'Loading price…'
                   : 'One monthly plan. Your local price is shown by the store.',
-              textAlign: TextAlign.center,
-              style: text.bodyMedium?.copyWith(
-                color: AppColors.textOnDarkMuted,
-              ),
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
-          const SizedBox(height: 4),
-          Text(
-            'Every new account starts with a '
-            '${AppConstants.freeTrialDays}-day free trial.',
-            textAlign: TextAlign.center,
-            style: text.bodySmall?.copyWith(color: AppColors.textOnDarkMuted),
-          ),
+          if (!status.hasAccess) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Every new account starts with a '
+              '${AppConstants.freeTrialDays}-day free trial.',
+              style: text.bodySmall?.copyWith(color: AppColors.textTertiary),
+            ),
+          ],
         ],
       ),
     );
@@ -469,7 +457,6 @@ class _StatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final trialEnd = status.trialEndsAt;
     final periodEnd = status.currentPeriodEndsAt;
     final banner = switch (status.state) {
       AccessState.loading => const Padding(
@@ -481,14 +468,8 @@ class _StatusBanner extends StatelessWidget {
           ),
         ),
       ),
-      AccessState.trialActive => InlineBanner(
-        tone: BannerTone.success,
-        title: 'Free trial active',
-        message: trialEnd == null
-            ? 'Subscribe before your trial ends to keep full access.'
-            : 'Your trial ends on ${date(trialEnd)}. Subscribe before then '
-                  'to keep full access.',
-      ),
+      // The hero's status line already shows the trial and its end date.
+      AccessState.trialActive => const SizedBox.shrink(),
       AccessState.subscriptionActive => InlineBanner(
         tone: BannerTone.success,
         title: 'Subscription active',

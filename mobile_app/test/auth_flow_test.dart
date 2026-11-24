@@ -63,8 +63,9 @@ void main() {
       await pumpUntil(tester, () => isShown(find.byType(NavigationBar)));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
-      expect(find.text('Recommended for you'), findsOneWidget);
-      expect(find.textContaining('Sara'), findsWidgets);
+      expect(find.text('Recommended'), findsOneWidget);
+      // Home's title names the page, not the user.
+      expect(find.text('Your matches'), findsOneWidget);
     },
   );
 

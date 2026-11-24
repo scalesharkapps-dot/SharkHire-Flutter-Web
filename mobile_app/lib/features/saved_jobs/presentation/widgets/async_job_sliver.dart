@@ -21,6 +21,7 @@ class AsyncJobSliver extends StatelessWidget {
     this.skeletonCount = 2,
     this.fillRemaining = false,
     this.padding = AppSpacing.screenPadding,
+    this.quietCards = false,
   });
 
   final AsyncValue<List<JobSummary>> value;
@@ -33,6 +34,9 @@ class AsyncJobSliver extends StatelessWidget {
   /// Centre empty/error states in the remaining viewport (full-page lists).
   final bool fillRemaining;
   final EdgeInsetsGeometry padding;
+
+  /// Home's quieter job cards.
+  final bool quietCards;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +72,7 @@ class AsyncJobSliver extends StatelessWidget {
                 itemBuilder: (context, i) => FadeInUp(
                   key: ValueKey(jobs[i].id),
                   delay: Duration(milliseconds: 60 * i.clamp(0, 6)),
-                  child: SavedAwareJobCard(job: jobs[i]),
+                  child: SavedAwareJobCard(job: jobs[i], quiet: quietCards),
                 ),
               ),
             ),

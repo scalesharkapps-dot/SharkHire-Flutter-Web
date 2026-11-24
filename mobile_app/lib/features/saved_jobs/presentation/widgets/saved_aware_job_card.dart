@@ -12,9 +12,12 @@ import '../providers/saved_jobs_provider.dart';
 /// [JobCard] wired to the saved-jobs state, with save/undo feedback.
 /// Use this anywhere a job appears so bookmarking behaves identically.
 class SavedAwareJobCard extends ConsumerWidget {
-  const SavedAwareJobCard({super.key, required this.job});
+  const SavedAwareJobCard({super.key, required this.job, this.quiet = false});
 
   final JobSummary job;
+
+  /// Home's quieter card layout ([JobCard.quiet]).
+  final bool quiet;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +28,7 @@ class SavedAwareJobCard extends ConsumerWidget {
 
     return JobCard(
       job: job,
+      quiet: quiet,
       isSaved: isSaved,
       onTap: () => context.push(AppRoutes.jobDetails(job.id)),
       onToggleSave: () {

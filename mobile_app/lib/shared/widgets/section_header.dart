@@ -11,12 +11,16 @@ class SectionHeader extends StatelessWidget {
     this.subtitle,
     this.actionLabel,
     this.onAction,
+    this.quietAction = false,
   });
 
   final String title;
   final String? subtitle;
   final String? actionLabel;
   final VoidCallback? onAction;
+
+  /// Shows the action in the secondary text color instead of the accent.
+  final bool quietAction;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +46,7 @@ class SectionHeader extends StatelessWidget {
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
               minimumSize: const Size(0, 36),
+              foregroundColor: quietAction ? AppColors.textSecondary : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -51,7 +56,9 @@ class SectionHeader extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
-                  color: AppColors.ocean,
+                  color: quietAction
+                      ? AppColors.textSecondary
+                      : AppColors.ocean,
                 ),
               ],
             ),
