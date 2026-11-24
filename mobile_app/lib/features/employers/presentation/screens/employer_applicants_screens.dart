@@ -184,39 +184,55 @@ class _CandidateDetailsScreenState
               AppSpacing.xxl,
             ),
             children: [
-              Center(child: PersonAvatar(initials: a.initials, size: 72)),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                a.name,
-                textAlign: TextAlign.center,
-                style: text.headlineSmall,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PersonAvatar(initials: a.initials, size: 56, grey: true),
+                  const SizedBox(width: AppSpacing.lg),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(a.name, style: text.headlineSmall),
+                        if (a.headline != null)
+                          Text(
+                            a.headline!,
+                            style: text.bodyMedium?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Applied for ${a.jobTitle}',
+                          style: text.bodySmall?.copyWith(
+                            color: AppColors.textTertiary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        StatusText.application(a.status),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              if (a.headline != null)
-                Text(
-                  a.headline!,
-                  textAlign: TextAlign.center,
-                  style: text.bodyMedium,
-                ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Applied for ${a.jobTitle}',
-                textAlign: TextAlign.center,
-                style: text.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Center(child: StatusChip.application(a.status)),
               const SizedBox(height: AppSpacing.xl),
               if (a.matchScore != null)
                 AppSurface(
                   elevated: false,
-                  child: Row(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MatchScoreRing(score: a.matchScore!, size: 52),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Text(
-                          '${MatchTier.of(a.matchScore!).label} for this job, based on skills, experience and location.',
-                          style: text.bodyMedium,
+                      FitScoreHeader(
+                        score: a.matchScore!,
+                        caption:
+                            '${MatchTier.of(a.matchScore!).label} for this job',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        'Based on skills, experience and location.',
+                        style: text.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -230,8 +246,8 @@ class _CandidateDetailsScreenState
                   for (final s in a.skills)
                     InfoPill(
                       label: s,
-                      background: AppColors.oceanTint,
-                      foreground: AppColors.oceanDeep,
+                      background: AppColors.surfaceMuted,
+                      foreground: AppColors.ink,
                     ),
                 ],
               ),

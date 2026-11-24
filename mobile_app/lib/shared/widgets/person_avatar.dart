@@ -4,10 +4,18 @@ import '../../core/theme/app_colors.dart';
 
 /// Initials in a brand-tinted circle (people, candidates, admins).
 class PersonAvatar extends StatelessWidget {
-  const PersonAvatar({super.key, required this.initials, this.size = 44});
+  const PersonAvatar({
+    super.key,
+    required this.initials,
+    this.size = 44,
+    this.grey = false,
+  });
 
   final String initials;
   final double size;
+
+  /// Neutral grey circle instead of the brand tint.
+  final bool grey;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +25,9 @@ class PersonAvatar extends StatelessWidget {
       (AppColors.cyanTint, AppColors.ocean),
       (AppColors.surfaceMuted, AppColors.slate),
     ];
-    final (bg, fg) = palette[seed % palette.length];
+    final (bg, fg) = grey
+        ? (AppColors.surfaceMuted, AppColors.textSecondary)
+        : palette[seed % palette.length];
     return Container(
       width: size,
       height: size,
