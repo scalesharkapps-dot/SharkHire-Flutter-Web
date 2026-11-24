@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/models/app_user.dart';
 import '../../../../shared/widgets/app_surface.dart';
+import '../../../../shared/widgets/cv_doc_icon.dart';
 import '../../../../shared/widgets/fade_in_up.dart';
 import '../../../../shared/widgets/menu_group.dart';
 import '../../../saved_jobs/presentation/providers/saved_jobs_provider.dart';
@@ -397,20 +398,7 @@ class _CvCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: cv == null
-                      ? AppColors.oceanTint
-                      : AppColors.successTint,
-                  borderRadius: AppRadius.lgAll,
-                ),
-                child: Icon(
-                  cv == null ? Icons.description_outlined : Icons.task_rounded,
-                  color: cv == null ? AppColors.ocean : AppColors.success,
-                ),
-              ),
+              const CvDocIcon(),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
