@@ -40,6 +40,7 @@ class SectionHeader extends StatelessWidget {
           TextButton(
             onPressed: onAction,
             style: TextButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
               minimumSize: const Size(0, 36),
             ),
@@ -51,7 +52,7 @@ class SectionHeader extends StatelessWidget {
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18,
-                  color: AppColors.ocean,
+                  color: AppColors.textTertiary,
                 ),
               ],
             ),

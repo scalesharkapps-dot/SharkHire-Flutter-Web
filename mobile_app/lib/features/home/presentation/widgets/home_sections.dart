@@ -29,17 +29,12 @@ class CvPromptCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColors.oceanTint,
-                  borderRadius: AppRadius.mdAll,
-                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
                 child: Icon(
                   Icons.description_outlined,
                   size: 20,
-                  color: AppColors.ocean,
+                  color: AppColors.textSecondary,
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -92,6 +87,8 @@ class CvPromptCard extends StatelessWidget {
               FilledButton(
                 onPressed: onUpload,
                 style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.tonal,
+                  foregroundColor: AppColors.ink,
                   minimumSize: const Size(0, 44),
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.lg,
@@ -154,7 +151,7 @@ class CategoryStrip extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(iconFor(c), color: AppColors.ocean, size: 24),
+                  Icon(iconFor(c), color: AppColors.textSecondary, size: 22),
                   Text(
                     c,
                     maxLines: 1,
@@ -189,8 +186,6 @@ class JobAlertCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     return AppSurface(
       onTap: onTap,
-      color: AppColors.mist,
-      borderColor: AppColors.oceanTintStrong,
       elevated: false,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
@@ -198,7 +193,10 @@ class JobAlertCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.notifications_active_outlined, color: AppColors.ocean),
+          Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.textSecondary,
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(

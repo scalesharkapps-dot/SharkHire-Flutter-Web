@@ -72,10 +72,8 @@ class HomeHeader extends StatelessWidget {
                     children: [
                       Text(
                         _dateLabel(DateTime.now()),
-                        style: text.labelSmall?.copyWith(
-                          color: AppColors.teal,
-                          letterSpacing: 1.4,
-                          fontWeight: FontWeight.w700,
+                        style: text.labelMedium?.copyWith(
+                          color: AppColors.bandMuted,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -158,27 +156,27 @@ class HomeHeader extends StatelessWidget {
 
   static String _dateLabel(DateTime d) {
     const days = [
-      'MONDAY',
-      'TUESDAY',
-      'WEDNESDAY',
-      'THURSDAY',
-      'FRIDAY',
-      'SATURDAY',
-      'SUNDAY',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
     ];
     const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${days[d.weekday - 1]}, ${d.day} ${months[d.month - 1]}';
   }
@@ -303,21 +301,20 @@ class _Avatar extends StatelessWidget {
     return Tooltip(
       message: 'Profile',
       child: Material(
-        color: AppColors.teal,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.lgAll),
+        color: AppColors.bandSoft,
+        shape: const CircleBorder(),
         child: InkWell(
           onTap: onTap,
-          customBorder: const RoundedRectangleBorder(
-            borderRadius: AppRadius.lgAll,
-          ),
+          customBorder: const CircleBorder(),
           child: SizedBox.square(
             dimension: 48,
             child: Center(
               child: Text(
                 initials,
                 style: TextStyle(
-                  fontFamily: AppFonts.display,
-                  color: AppColors.isDark ? AppColors.onInk : AppColors.navy,
+                  fontFamily: AppFonts.label,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.bandInk,
                   fontSize: 15,
                 ),
               ),
