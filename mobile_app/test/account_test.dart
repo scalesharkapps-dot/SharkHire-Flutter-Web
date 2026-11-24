@@ -84,10 +84,7 @@ void main() {
     await openProfileItem(tester, 'Subscription');
 
     // Status and price come from the (demo) backend and store.
-    await pumpUntil(
-      tester,
-      () => isShown(find.textContaining('Free trial · ')),
-    );
+    await pumpUntil(tester, () => isShown(find.text('Free trial active')));
     await pumpUntil(
       tester,
       () => isShown(

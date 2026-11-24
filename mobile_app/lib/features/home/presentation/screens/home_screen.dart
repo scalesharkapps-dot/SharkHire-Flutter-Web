@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/app_routes.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../job_search/data/mock_jobs.dart';
 import '../../../../shared/models/job_summary.dart';
@@ -48,9 +47,8 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: AppColors.isDark
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
+      // Light status bar over the navy header band.
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         body: RefreshIndicator(
           onRefresh: refresh,
@@ -100,9 +98,9 @@ class HomeScreen extends ConsumerWidget {
 
               _sectionHeader(
                 SectionHeader(
-                  title: 'Recommended',
+                  title: 'Recommended for you',
+                  subtitle: 'Ranked by how well they fit your CV',
                   actionLabel: 'See all',
-                  quietAction: true,
                   onAction: () => context.go(AppRoutes.explore),
                 ),
               ),
@@ -110,7 +108,6 @@ class HomeScreen extends ConsumerWidget {
                 value: recommended,
                 onRetry: refresh,
                 empty: _noMatches,
-                quietCards: true,
               ),
 
               _sectionHeader(const SectionHeader(title: 'Browse by category')),
@@ -141,7 +138,6 @@ class HomeScreen extends ConsumerWidget {
                 SectionHeader(
                   title: 'Recently posted',
                   actionLabel: 'See all',
-                  quietAction: true,
                   onAction: () {
                     ref
                         .read(exploreControllerProvider.notifier)
@@ -155,7 +151,6 @@ class HomeScreen extends ConsumerWidget {
                 onRetry: refresh,
                 skeletonCount: 1,
                 empty: _noMatches,
-                quietCards: true,
               ),
 
               const SliverToBoxAdapter(

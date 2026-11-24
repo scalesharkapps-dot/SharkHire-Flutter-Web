@@ -11,8 +11,8 @@ import '../../../../shared/widgets/bold_kit.dart';
 import '../../../profile/presentation/providers/current_user_provider.dart';
 import '../providers/explore_providers.dart';
 
-/// "Your roles" (Bold concept): job titles ranked by your best CV fit;
-/// pick one, then open Explore filtered to it.
+/// "Your roles" (Bold concept): spin a wheel of job titles, each with its
+/// best CV fit, then open Explore filtered to the chosen role.
 class RolesScreen extends ConsumerStatefulWidget {
   const RolesScreen({super.key});
 
@@ -59,9 +59,23 @@ class RolesScreen extends ConsumerStatefulWidget {
 }
 
 class _RolesScreenState extends ConsumerState<RolesScreen> {
-  /// Starts a little down the list, like the mockup.
+  late final FixedExtentScrollController _wheel;
+
+  /// Opens in the middle of the wheel so roles show above and below.
   static const _start = 2;
   int _selected = _start;
+
+  @override
+  void initState() {
+    super.initState();
+    _wheel = FixedExtentScrollController(initialItem: _start);
+  }
+
+  @override
+  void dispose() {
+    _wheel.dispose();
+    super.dispose();
+  }
 
   List<String> _roles(List<String> loaded) {
     final seen = <String>{};
@@ -85,8 +99,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   Widget build(BuildContext context) {
     final jobs = ref.watch(allJobsProvider).value ?? const [];
     final roles = _roles([for (final j in jobs) j.title]);
-    final selectedIndex = _selected.clamp(0, roles.length - 1);
-    final selected = roles[selectedIndex];
+    final selected = roles[_selected.clamp(0, roles.length - 1)];
     final prefs = ref.watch(jobPreferencesProvider);
     final chips = <String>[
       if (prefs.includePakistan) 'Pakistan',
@@ -108,9 +121,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xs,
-                  AppSpacing.xs,
-                  AppSpacing.xs,
+                  AppSpacing.md,
+                  AppSpacing.sm,
+                  AppSpacing.xl,
                   0,
                 ),
                 child: Row(
@@ -122,14 +135,28 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                           : context.go(AppRoutes.explore),
                       icon: const Icon(
                         Icons.arrow_back_rounded,
-                        color: Bold.muted,
+                        color: Bold.ink,
                       ),
                     ),
-                    const Spacer(),
-                    IconButton(
+                    const SizedBox(width: AppSpacing.xs),
+                    const Expanded(
+                      child: Text(
+                        'PICK YOUR NEXT ROLE',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: AppFonts.label,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          letterSpacing: 2,
+                          color: Bold.muted,
+                        ),
+                      ),
+                    ),
+                    _RoundButton(
+                      icon: Icons.search_rounded,
                       tooltip: 'Search jobs',
-                      onPressed: () => context.go(AppRoutes.explore),
-                      icon: const Icon(Icons.search_rounded, color: Bold.muted),
+                      onTap: () => context.go(AppRoutes.explore),
                     ),
                   ],
                 ),
@@ -147,42 +174,55 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                   spans: [('Your\nroles', false), ('.', true)],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.xl,
-                  AppSpacing.sm,
-                  AppSpacing.xl,
-                  0,
-                ),
-                child: Text(
-                  'Ranked by your best fit in each role',
-                  style: TextStyle(
-                    fontFamily: AppFonts.body,
-                    fontSize: 15,
-                    color: Bold.muted,
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.sm),
               Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.lg,
-                  ),
-                  itemCount: roles.length,
-                  itemBuilder: (context, i) => _RoleRow(
-                    label: roles[i],
-                    score: stats[roles[i]]?.best,
-                    active: i == selectedIndex,
-                    onTap: () {
-                      if (i == selectedIndex) {
-                        _open(roles[i]);
-                      } else {
+                child: Stack(
+                  children: [
+                    // Solid accent band behind the selected role.
+                    Center(
+                      child: Container(
+                        height: _itemExtent,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: Bold.accent,
+                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                        ),
+                      ),
+                    ),
+                    ListWheelScrollView.useDelegate(
+                      controller: _wheel,
+                      itemExtent: _itemExtent,
+                      diameterRatio: 2.4,
+                      perspective: 0.003,
+                      overAndUnderCenterOpacity: 0.55,
+                      physics: const FixedExtentScrollPhysics(),
+                      onSelectedItemChanged: (i) {
                         HapticFeedback.selectionClick();
                         setState(() => _selected = i);
-                      }
-                    },
-                  ),
+                      },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        childCount: roles.length,
+                        builder: (context, i) => _RoleItem(
+                          label: roles[i],
+                          score: stats[roles[i]]?.best,
+                          active: i == _selected,
+                          onTap: () {
+                            if (i == _selected) {
+                              _open(roles[i]);
+                            } else {
+                              _wheel.animateToItem(
+                                i,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
@@ -193,28 +233,37 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                   AppSpacing.lg,
                 ),
                 child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  padding: const EdgeInsets.all(AppSpacing.lg + 2),
                   decoration: BoxDecoration(
                     color: Bold.raised,
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderRadius: const BorderRadius.all(Radius.circular(26)),
                     border: Border.all(color: Bold.raisedLine),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Selected · matched to your CV',
+                      const Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: 'SELECTED · '),
+                            TextSpan(
+                              text: 'MATCHED TO YOUR CV',
+                              style: TextStyle(color: Bold.accent),
+                            ),
+                          ],
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: AppFonts.label,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                          color: Bold.muted,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          letterSpacing: 1.8,
+                          color: Bold.faint,
                         ),
                       ),
                       if (chips.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.md),
                         Wrap(
                           spacing: 6,
                           runSpacing: 6,
@@ -228,6 +277,7 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         label: count > 0
                             ? 'Show $count ${count == 1 ? 'job' : 'jobs'}'
                             : 'Show these jobs',
+                        accent: true,
                         trailingArrow: true,
                         onPressed: () => _open(selected),
                       ),
@@ -246,6 +296,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
 /// How many loaded jobs match a role, and the best CV fit among them.
 typedef _RoleStats = ({int count, int? best});
 
+const double _itemExtent = 60;
+
 Map<String, _RoleStats> _stats(List<String> roles, List<JobSummary> jobs) {
   final out = <String, _RoleStats>{};
   for (final role in roles) {
@@ -263,10 +315,8 @@ Map<String, _RoleStats> _stats(List<String> roles, List<JobSummary> jobs) {
   return out;
 }
 
-/// One role in the list: name on the left, best fit on the right. The
-/// selected row is a raised surface with a thin teal outline.
-class _RoleRow extends StatelessWidget {
-  const _RoleRow({
+class _RoleItem extends StatelessWidget {
+  const _RoleItem({
     required this.label,
     required this.score,
     required this.active,
@@ -287,59 +337,95 @@ class _RoleRow extends StatelessWidget {
       selected: active,
       label: '$label$fit',
       excludeSemantics: true,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Material(
-          color: active ? Bold.chip : Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            side: active
-                ? BorderSide(color: Bold.accent.withValues(alpha: 0.45))
-                : BorderSide.none,
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
-            child: SizedBox(
-              height: 56,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: AppFonts.label,
-                          fontWeight: active
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          fontSize: active ? 17 : 16,
-                          color: active ? Bold.ink : Bold.muted,
-                        ),
-                      ),
-                    ),
-                    if (score != null) ...[
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        '$score',
-                        style: TextStyle(
-                          fontFamily: AppFonts.display,
-                          fontSize: 16,
-                          color: active ? Bold.accent : Bold.faint,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ],
-                  ],
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg + 16),
+          child: Row(
+            children: [
+              Expanded(
+                // Stays readable: wraps to two lines, never shrinks.
+                child: Text(
+                  active ? label.toUpperCase() : label,
+                  maxLines: active ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: active ? AppFonts.display : AppFonts.label,
+                    fontWeight: active ? FontWeight.w400 : FontWeight.w600,
+                    fontSize: active ? 19 : 17,
+                    height: 1.05,
+                    letterSpacing: active ? 0.2 : 0,
+                    color: active ? Bold.onLight : Bold.ink,
+                  ),
                 ),
               ),
-            ),
+              if (score != null) ...[
+                const SizedBox(width: AppSpacing.sm),
+                if (active)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: Bold.onLight,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    child: Text(
+                      '$score% fit',
+                      style: const TextStyle(
+                        fontFamily: AppFonts.label,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 13,
+                        color: Bold.accent,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    '$score%',
+                    style: const TextStyle(
+                      fontFamily: AppFonts.label,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Bold.muted,
+                    ),
+                  ),
+              ],
+            ],
           ),
         ),
       ),
     );
   }
+}
+
+class _RoundButton extends StatelessWidget {
+  const _RoundButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Material(
+      color: Bold.raised,
+      shape: const CircleBorder(side: BorderSide(color: Bold.raisedLine)),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: SizedBox.square(
+          dimension: 48,
+          child: Icon(icon, size: 20, color: Bold.ink),
+        ),
+      ),
+    ),
+  );
 }

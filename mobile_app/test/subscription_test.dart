@@ -577,7 +577,7 @@ void main() {
         ),
         billing: _FakeBilling(),
       );
-      expect(find.textContaining('2 days left'), findsOneWidget);
+      expect(find.text('2 days left in your free trial'), findsOneWidget);
     });
 
     testWidgets('paywall fits a small phone', (tester) async {

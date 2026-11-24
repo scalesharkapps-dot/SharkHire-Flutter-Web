@@ -21,41 +21,85 @@ class CvPromptCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final percent = (profileCompletion * 100).round();
 
-    // Quiet: one line icon in the text color, no tinted tile, no progress
-    // bar; the job cards below carry the page.
     return AppSurface(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.description_outlined,
-                size: 18,
-                color: AppColors.textSecondary,
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.oceanTint,
+                  borderRadius: AppRadius.mdAll,
+                ),
+                child: Icon(
+                  Icons.description_outlined,
+                  size: 20,
+                  color: AppColors.ocean,
+                ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text(
-                  'Upload your CV for sharper matches',
-                  style: text.titleSmall,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Upload your CV for sharper matches',
+                      style: text.titleSmall,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'We read your skills and experience to rank every job for you. PDF or DOCX.',
+                      style: text.bodySmall,
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'PDF or DOCX. Profile $percent% complete',
-            style: text.bodySmall?.copyWith(color: AppColors.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          OutlinedButton(
-            onPressed: onUpload,
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(44),
-            ),
-            child: const Text('Upload CV'),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Profile $percent% complete',
+                      style: text.labelMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: AppRadius.pillAll,
+                      child: TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0, end: profileCompletion),
+                        duration: const Duration(milliseconds: 900),
+                        curve: Curves.easeOutCubic,
+                        builder: (_, v, _) =>
+                            LinearProgressIndicator(value: v, minHeight: 4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.lg),
+              FilledButton(
+                onPressed: onUpload,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                ),
+                child: const Text('Upload CV'),
+              ),
+            ],
           ),
         ],
       ),
