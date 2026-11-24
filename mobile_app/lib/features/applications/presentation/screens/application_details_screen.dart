@@ -9,7 +9,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/models/job_summary.dart';
 import '../../../../shared/widgets/app_surface.dart';
-import '../../../../shared/widgets/company_logo.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/state_views.dart';
 import '../../../../shared/widgets/status_chip.dart';
@@ -129,8 +128,6 @@ class _ApplicationDetailsScreenState
                 onTap: () => context.push(AppRoutes.jobDetails(a.job.id)),
                 child: Row(
                   children: [
-                    CompanyLogo(name: a.job.companyName, size: 48),
-                    const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +168,7 @@ class _ApplicationDetailsScreenState
                         Icon(
                           Icons.description_outlined,
                           size: 20,
-                          color: AppColors.ocean,
+                          color: AppColors.textSecondary,
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
@@ -221,97 +218,156 @@ class _ApplicationDetailsScreenState
   }
 }
 
-/// Horizontal stepper: Submitted → Under review → Shortlisted → Interview → Accepted.
+/// Segmented tracker: Submitted → Review → Shortlist → Interview → Accepted.
 class _Progress extends StatelessWidget {
   const _Progress({required this.application});
 
   final JobApplication application;
 
+  static const _short = [
+    'Submitted',
+    'Review',
+    'Shortlist',
+    'Interview',
+    'Accepted',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final reached = application.history.map((h) => h.status).toSet();
     final ended =
         application.status == ApplicationStatus.rejected ||
         application.status == ApplicationStatus.withdrawn;
+    final reached = application.history.map((h) => h.status).toSet();
+    final index = applicationFlow.indexOf(application.status);
+    // When the application ended, the last step it reached stays marked.
+    final last = index >= 0
+        ? index
+        : [
+            for (var i = 0; i < applicationFlow.length; i++)
+              if (reached.contains(applicationFlow[i])) i,
+          ].fold<int>(-1, (a, b) => b > a ? b : a);
+    final done = AppColors.isDark ? const Color(0xFF5A6B7C) : AppColors.navy;
+    final empty = AppColors.isDark ? const Color(0xFF1E2833) : AppColors.tonal;
+    final now = AppColors.isDark ? AppColors.teal : const Color(0xFF0B8496);
+    final note = application.history.last.note;
+    final next = index >= 0 && index < applicationFlow.length - 1
+        ? applicationFlow[index + 1].label
+        : null;
+
+    Color segment(int i) => ended
+        ? (i <= last ? done : empty)
+        : i < last
+        ? done
+        : i == last
+        ? now
+        : empty;
 
     return AppSurface(
       elevated: false,
+      padding: const EdgeInsets.all(AppSpacing.lg + 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Expanded(
+                child: Text(
+                  ended
+                      ? (application.status == ApplicationStatus.rejected
+                            ? 'Not successful'
+                            : 'Withdrawn')
+                      : application.status.label,
+                  style: text.titleMedium,
+                ),
+              ),
+              if (!ended && index >= 0)
+                Text(
+                  'Step ${index + 1} of ${applicationFlow.length}',
+                  style: text.labelMedium?.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
             children: [
               for (var i = 0; i < applicationFlow.length; i++) ...[
-                _Dot(
-                  done: reached.contains(applicationFlow[i]),
-                  current: applicationFlow[i] == application.status,
-                ),
-                if (i < applicationFlow.length - 1)
-                  Expanded(
-                    child: Container(
-                      height: 3,
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      decoration: BoxDecoration(
-                        color: reached.contains(applicationFlow[i + 1])
-                            ? AppColors.success
-                            : AppColors.border,
-                        borderRadius: AppRadius.pillAll,
-                      ),
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: segment(i),
+                      borderRadius: AppRadius.pillAll,
                     ),
                   ),
+                ),
               ],
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            ended
-                ? (application.status == ApplicationStatus.rejected
-                      ? 'This application wasn\'t successful.'
-                      : 'You withdrew this application.')
-                : 'Step ${applicationFlow.indexOf(application.status) + 1} of ${applicationFlow.length}: '
-                      '${application.status.label}',
-            style: text.titleSmall,
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              for (var i = 0; i < applicationFlow.length; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    i < _short.length ? _short[i] : applicationFlow[i].label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.labelSmall?.copyWith(
+                      fontSize: 11,
+                      fontWeight: !ended && i == last
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: !ended && i == last
+                          ? now
+                          : i <= last
+                          ? AppColors.textSecondary
+                          : AppColors.textTertiary,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 2),
-          Text(
-            'Submitted › Under review › Shortlisted › Interview › Accepted',
-            style: text.bodySmall,
-          ),
+          if (ended || note != null || next != null) ...[
+            const SizedBox(height: 14),
+            const Divider(height: 1),
+            const SizedBox(height: 12),
+            Text.rich(
+              TextSpan(
+                children: ended
+                    ? [
+                        TextSpan(
+                          text: application.status == ApplicationStatus.rejected
+                              ? 'This application wasn\'t successful.'
+                              : 'You withdrew this application.',
+                        ),
+                      ]
+                    : [
+                        const TextSpan(text: 'Next: '),
+                        TextSpan(
+                          text: note ?? next,
+                          style: TextStyle(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+              ),
+              style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
+          ],
         ],
       ),
     );
   }
-}
-
-class _Dot extends StatelessWidget {
-  const _Dot({required this.done, required this.current});
-
-  final bool done;
-  final bool current;
-
-  @override
-  Widget build(BuildContext context) => AnimatedContainer(
-    duration: const Duration(milliseconds: 250),
-    width: current ? 18 : 14,
-    height: current ? 18 : 14,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      color: done ? AppColors.success : AppColors.surface,
-      border: Border.all(
-        color: done ? AppColors.success : AppColors.borderStrong,
-        width: 2,
-      ),
-      boxShadow: current
-          ? [
-              BoxShadow(
-                color: AppColors.success.withValues(alpha: 0.3),
-                blurRadius: 8,
-              ),
-            ]
-          : null,
-    ),
-  );
 }
 
 class _Timeline extends StatelessWidget {
