@@ -160,11 +160,12 @@ class EmployerOverviewScreen extends ConsumerWidget {
               _padded(const SectionHeader(title: 'Needs attention')),
               SliverPadding(
                 padding: AppSpacing.screenPadding,
-                sliver: SliverList.separated(
-                  itemCount: attention.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, i) => _AttentionRow(job: attention[i]),
+                sliver: SliverToBoxAdapter(
+                  child: _RowGroup(
+                    children: [
+                      for (final j in attention) _AttentionRow(job: j),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -193,13 +194,14 @@ class EmployerOverviewScreen extends ConsumerWidget {
                   AppSpacing.screenHorizontal,
                   AppSpacing.xxxl,
                 ),
-                sliver: SliverList.separated(
-                  itemCount: recent.take(4).length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, i) => FadeInUp(
-                    delay: Duration(milliseconds: 50 * i),
-                    child: ApplicantRow(applicant: recent[i]),
+                sliver: SliverToBoxAdapter(
+                  child: FadeInUp(
+                    child: _RowGroup(
+                      children: [
+                        for (final a in recent.take(4))
+                          _RecentRow(applicant: a),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -269,6 +271,79 @@ class _Stat extends StatelessWidget {
   }
 }
 
+/// One card of plain rows with hairline dividers.
+class _RowGroup extends StatelessWidget {
+  const _RowGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => AppSurface(
+    elevated: false,
+    padding: EdgeInsets.zero,
+    child: Column(
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) const Divider(height: 1, indent: AppSpacing.lg),
+          children[i],
+        ],
+      ],
+    ),
+  );
+}
+
+class _PlainRow extends StatelessWidget {
+  const _PlainRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.subtitleColor,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  final Color? subtitleColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          12,
+          AppSpacing.sm,
+          12,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: text.titleSmall),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: text.bodySmall?.copyWith(
+                      color: subtitleColor ?? AppColors.textSecondary,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _AttentionRow extends StatelessWidget {
   const _AttentionRow({required this.job});
 
@@ -276,40 +351,31 @@ class _AttentionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
     final rejected = job.status == JobStatus.rejected;
-    return AppSurface(
+    return _PlainRow(
+      title: job.title,
+      subtitle: rejected
+          ? (job.rejectionReason ?? 'Rejected by admin')
+          : 'Waiting for admin approval',
+      subtitleColor: rejected ? AppColors.error : null,
       onTap: () => context.push(AppRoutes.employerEditJob(job.id)),
-      elevated: false,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        children: [
-          Icon(
-            rejected
-                ? Icons.error_outline_rounded
-                : Icons.hourglass_top_rounded,
-            color: rejected ? AppColors.error : AppColors.warning,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(job.title, style: text.titleSmall),
-                Text(
-                  rejected
-                      ? (job.rejectionReason ?? 'Rejected by admin')
-                      : 'Waiting for admin approval',
-                  style: text.bodySmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
-        ],
-      ),
+    );
+  }
+}
+
+class _RecentRow extends StatelessWidget {
+  const _RecentRow({required this.applicant});
+
+  final Applicant applicant;
+
+  @override
+  Widget build(BuildContext context) {
+    final a = applicant;
+    final age = DateFormatters.relativeAge(a.appliedAt);
+    return _PlainRow(
+      title: a.name,
+      subtitle: '${a.jobTitle} · ${age == 'Just now' ? age : '$age ago'}',
+      onTap: () => context.push(AppRoutes.employerCandidate(a.id)),
     );
   }
 }
