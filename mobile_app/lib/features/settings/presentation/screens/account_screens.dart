@@ -23,7 +23,7 @@ class _AccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(title)),
+    appBar: AppBar(),
     body: SafeArea(
       top: false,
       child: Center(
@@ -32,11 +32,24 @@ class _AccountPage extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.screenHorizontal,
-              AppSpacing.md,
+              0,
               AppSpacing.screenHorizontal,
               AppSpacing.xxxl,
             ),
-            child: child,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                child,
+              ],
+            ),
           ),
         ),
       ),
@@ -148,6 +161,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordField(
                 controller: _current,
                 label: 'Current password',
+                sentenceCaseLabel: true,
                 validator: (v) =>
                     (v ?? '').isEmpty ? 'Enter your current password' : null,
                 textInputAction: TextInputAction.next,
@@ -156,6 +170,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordField(
                 controller: _new,
                 label: 'New password',
+                sentenceCaseLabel: true,
                 validator: _validateNew,
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.newPassword],
@@ -164,6 +179,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               PasswordField(
                 controller: _confirm,
                 label: 'Confirm new password',
+                sentenceCaseLabel: true,
                 validator: Validators.matches(() => _new.text),
                 autofillHints: const [AutofillHints.newPassword],
                 onSubmitted: (_) => _submit(),
@@ -337,12 +353,14 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           PasswordField(
             controller: _password,
             label: 'Your password',
+            sentenceCaseLabel: true,
             textInputAction: TextInputAction.next,
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
             label: 'Type ${DeleteAccountScreen.confirmWord} to confirm',
+            sentenceCaseLabel: true,
             controller: _typed,
             hint: DeleteAccountScreen.confirmWord,
             textInputAction: TextInputAction.done,
@@ -362,6 +380,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           const SizedBox(height: AppSpacing.sm),
           Center(
             child: TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.textSecondary,
+              ),
               onPressed: _deleting ? null : () => context.pop(),
               child: const Text('Keep my account'),
             ),
