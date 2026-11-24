@@ -91,10 +91,7 @@ class _JobPreferencesScreenState extends ConsumerState<JobPreferencesScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: !widget.isOnboarding,
-        title: widget.isOnboarding ? null : const Text('Job preferences'),
-      ),
+      appBar: AppBar(automaticallyImplyLeading: !widget.isOnboarding),
       body: SafeArea(
         top: false,
         child: Center(
@@ -108,6 +105,13 @@ class _JobPreferencesScreenState extends ConsumerState<JobPreferencesScreen> {
                 AppSpacing.xxl,
               ),
               children: [
+                if (!widget.isOnboarding) ...[
+                  Semantics(
+                    header: true,
+                    child: Text('Job preferences', style: text.headlineLarge),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 if (widget.isOnboarding) ...[
                   Text(
                     'STEP 1 OF 2',
