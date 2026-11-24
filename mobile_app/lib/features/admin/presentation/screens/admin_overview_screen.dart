@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/routing/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_surface.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/section_header.dart';
@@ -55,25 +56,52 @@ class AdminOverviewScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ADMIN',
-                      style: text.labelSmall?.copyWith(
-                        color: AppColors.ocean,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Hello, ${user.firstName}',
-                      style: text.headlineMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      pending.isEmpty
-                          ? 'No jobs are waiting for approval.'
-                          : '${pending.length} ${pending.length == 1 ? 'job needs' : 'jobs need'} your approval.',
-                      style: text.bodyMedium?.copyWith(
+                      'Admin · ${user.firstName}',
+                      style: text.labelMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    Semantics(
+                      header: true,
+                      child: Text('Overview', style: text.headlineLarge),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      pending.isEmpty
+                          ? 'No jobs are waiting for approval'
+                          : '${pending.length} ${pending.length == 1 ? 'job needs' : 'jobs need'} your approval',
+                      style: text.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Wrap(
+                      spacing: 28,
+                      runSpacing: AppSpacing.md,
+                      children: [
+                        _CompactStat(
+                          value: '${users.length}',
+                          label: 'Users',
+                          onTap: () => context.go(AppRoutes.adminUsers),
+                        ),
+                        _CompactStat(
+                          value: '${companies.length}',
+                          label: unverified == 0
+                              ? 'Employers'
+                              : 'Employers · $unverified to verify',
+                          onTap: () => context.push(AppRoutes.adminEmployers),
+                        ),
+                        _CompactStat(
+                          value: '${jobs.length}',
+                          label: 'Jobs · ${pending.length} pending',
+                          onTap: () => context.go(AppRoutes.adminJobs),
+                        ),
+                        _CompactStat(
+                          value: '${applications.length}',
+                          label: 'Applications',
+                          onTap: () =>
+                              context.push(AppRoutes.adminApplications),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -88,37 +116,6 @@ class AdminOverviewScreen extends ConsumerWidget {
               ),
               sliver: SliverList.list(
                 children: [
-                  StatGrid(
-                    tiles: [
-                      StatTile(
-                        label: 'Users',
-                        value: '${users.length}',
-                        icon: Icons.people_outline_rounded,
-                        onTap: () => context.go(AppRoutes.adminUsers),
-                      ),
-                      StatTile(
-                        label: unverified == 0
-                            ? 'Employers'
-                            : 'Employers · $unverified to verify',
-                        value: '${companies.length}',
-                        icon: Icons.apartment_outlined,
-                        onTap: () => context.push(AppRoutes.adminEmployers),
-                      ),
-                      StatTile(
-                        label: 'Jobs · ${pending.length} pending',
-                        value: '${jobs.length}',
-                        icon: Icons.work_outline_rounded,
-                        onTap: () => context.go(AppRoutes.adminJobs),
-                      ),
-                      StatTile(
-                        label: 'Applications',
-                        value: '${applications.length}',
-                        icon: Icons.send_outlined,
-                        onTap: () => context.push(AppRoutes.adminApplications),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
                   SectionHeader(
                     title: 'Pending approvals',
                     actionLabel: 'See all',
@@ -220,6 +217,52 @@ class AdminOverviewScreen extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CompactStat extends StatelessWidget {
+  const _CompactStat({
+    required this.value,
+    required this.label,
+    required this.onTap,
+  });
+
+  final String value;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: '$value $label',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadius.smAll,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: text.headlineSmall?.copyWith(
+                  fontFamily: AppFonts.display,
+                  height: 1.1,
+                ),
+              ),
+              Text(
+                label,
+                style: text.bodySmall?.copyWith(color: AppColors.textSecondary),
+              ),
+            ],
+          ),
         ),
       ),
     );
