@@ -141,14 +141,13 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     const SizedBox(width: AppSpacing.xs),
                     const Expanded(
                       child: Text(
-                        'PICK YOUR NEXT ROLE',
+                        'Pick your next role',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: AppFonts.label,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 11,
-                          letterSpacing: 2,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                           color: Bold.muted,
                         ),
                       ),
@@ -178,16 +177,19 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
               Expanded(
                 child: Stack(
                   children: [
-                    // Solid accent band behind the selected role.
+                    // Thin accent outline around the selected role.
                     Center(
                       child: Container(
                         height: _itemExtent,
                         margin: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.lg,
                         ),
-                        decoration: const BoxDecoration(
-                          color: Bold.accent,
-                          borderRadius: BorderRadius.all(Radius.circular(18)),
+                        decoration: BoxDecoration(
+                          color: Bold.accent.withValues(alpha: 0.08),
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(18),
+                          ),
+                          border: Border.all(color: Bold.accent, width: 1.5),
                         ),
                       ),
                     ),
@@ -245,9 +247,9 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                       const Text.rich(
                         TextSpan(
                           children: [
-                            TextSpan(text: 'SELECTED · '),
+                            TextSpan(text: 'Selected · '),
                             TextSpan(
-                              text: 'MATCHED TO YOUR CV',
+                              text: 'matched to your CV',
                               style: TextStyle(color: Bold.accent),
                             ),
                           ],
@@ -256,9 +258,8 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontFamily: AppFonts.label,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 10,
-                          letterSpacing: 1.8,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                           color: Bold.faint,
                         ),
                       ),
@@ -277,7 +278,6 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                         label: count > 0
                             ? 'Show $count ${count == 1 ? 'job' : 'jobs'}'
                             : 'Show these jobs',
-                        accent: true,
                         trailingArrow: true,
                         onPressed: () => _open(selected),
                       ),
@@ -356,7 +356,7 @@ class _RoleItem extends StatelessWidget {
                     fontSize: active ? 19 : 17,
                     height: 1.05,
                     letterSpacing: active ? 0.2 : 0,
-                    color: active ? Bold.onLight : Bold.ink,
+                    color: Bold.ink,
                   ),
                 ),
               ),
@@ -369,7 +369,7 @@ class _RoleItem extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: const BoxDecoration(
-                      color: Bold.onLight,
+                      color: Bold.accent,
                       borderRadius: BorderRadius.all(Radius.circular(12)),
                     ),
                     child: Text(
@@ -378,7 +378,7 @@ class _RoleItem extends StatelessWidget {
                         fontFamily: AppFonts.label,
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
-                        color: Bold.accent,
+                        color: Bold.onLight,
                       ),
                     ),
                   )
