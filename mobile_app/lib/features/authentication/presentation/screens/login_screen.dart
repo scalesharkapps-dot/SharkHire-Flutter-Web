@@ -97,7 +97,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return AuthScaffold(
-      title: 'Welcome back',
+      title: 'Log in to SharkHire',
+      showBrandMark: false,
       subtitle: 'Log in to see your matches and applications.',
       footer: AuthFooterLink(
         prompt: 'New to SharkHire?',
@@ -117,6 +118,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ],
                 AppTextField(
                   label: 'Email',
+                  sentenceCaseLabel: true,
                   controller: _email,
                   hint: 'name@example.com',
                   keyboardType: TextInputType.emailAddress,
@@ -127,6 +129,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppSpacing.lg),
                 PasswordField(
                   controller: _password,
+                  sentenceCaseLabel: true,
                   validator: (v) =>
                       (v == null || v.isEmpty) ? 'Enter your password' : null,
                   onSubmitted: (_) => _submit(),
@@ -171,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ],
                 if (AppConfig.useMockData) ...[
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.xl),
                   _DemoAccounts(onPick: _fillDemo),
                 ],
               ],
@@ -268,49 +271,38 @@ class _DemoAccounts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: AppColors.mist,
-        borderRadius: AppRadius.lgAll,
-        border: Border.all(color: AppColors.oceanTintStrong),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Demo accounts', style: text.titleSmall),
-          const SizedBox(height: 2),
-          Text(
-            'Preview build only. Tap to fill the form.',
-            style: text.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              ActionChip(
-                avatar: const Icon(Icons.person_outline_rounded, size: 18),
-                label: const Text('Job seeker'),
-                onPressed: () => onPick(MockAuthRepository.demoSeekerEmail),
-              ),
-              ActionChip(
-                avatar: const Icon(Icons.business_center_outlined, size: 18),
-                label: const Text('Employer'),
-                onPressed: () => onPick(MockAuthRepository.demoEmployerEmail),
-              ),
-              ActionChip(
-                avatar: const Icon(
-                  Icons.admin_panel_settings_outlined,
-                  size: 18,
-                ),
-                label: const Text('Admin'),
-                onPressed: () => onPick(MockAuthRepository.demoAdminEmail),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Demo accounts', style: text.titleSmall),
+        const SizedBox(height: 2),
+        Text(
+          'Preview build only. Tap to fill the form.',
+          style: text.bodySmall,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            ActionChip(
+              avatar: const Icon(Icons.person_outline_rounded, size: 18),
+              label: const Text('Job seeker'),
+              onPressed: () => onPick(MockAuthRepository.demoSeekerEmail),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.business_center_outlined, size: 18),
+              label: const Text('Employer'),
+              onPressed: () => onPick(MockAuthRepository.demoEmployerEmail),
+            ),
+            ActionChip(
+              avatar: const Icon(Icons.admin_panel_settings_outlined, size: 18),
+              label: const Text('Admin'),
+              onPressed: () => onPick(MockAuthRepository.demoAdminEmail),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

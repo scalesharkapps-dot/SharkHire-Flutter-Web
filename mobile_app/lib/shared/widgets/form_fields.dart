@@ -6,26 +6,37 @@ import '../../core/theme/app_spacing.dart';
 
 /// Small uppercase label shown above inputs (as in the guide mockups).
 class FieldLabel extends StatelessWidget {
-  const FieldLabel(this.text, {super.key, this.optional = false});
+  const FieldLabel(
+    this.text, {
+    super.key,
+    this.optional = false,
+    this.sentenceCase = false,
+  });
 
   final String text;
   final bool optional;
 
+  /// Shows the label as written ("Email") instead of uppercase.
+  final bool sentenceCase;
+
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelSmall?.copyWith(
-      color: AppColors.textSecondary,
-      letterSpacing: 0.8,
-    );
+    final theme = Theme.of(context).textTheme;
+    final style = sentenceCase
+        ? theme.labelMedium?.copyWith(color: AppColors.textSecondary)
+        : theme.labelSmall?.copyWith(
+            color: AppColors.textSecondary,
+            letterSpacing: 0.8,
+          );
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, left: 2),
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: text.toUpperCase()),
+            TextSpan(text: sentenceCase ? text : text.toUpperCase()),
             if (optional)
               TextSpan(
-                text: '  OPTIONAL',
+                text: sentenceCase ? '  optional' : '  OPTIONAL',
                 style: style?.copyWith(color: AppColors.textTertiary),
               ),
           ],
@@ -60,9 +71,13 @@ class AppTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.none,
     this.inputFormatters,
     this.initialValue,
+    this.sentenceCaseLabel = false,
   });
 
   final String label;
+
+  /// Label as written ("Email") instead of uppercase.
+  final bool sentenceCaseLabel;
   final TextEditingController? controller;
   final String? hint;
   final FormFieldValidator<String>? validator;
@@ -89,7 +104,7 @@ class AppTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        FieldLabel(label, optional: optional),
+        FieldLabel(label, optional: optional, sentenceCase: sentenceCaseLabel),
         TextFormField(
           controller: controller,
           initialValue: initialValue,
@@ -130,10 +145,14 @@ class PasswordField extends StatefulWidget {
     this.onChanged,
     this.textInputAction = TextInputAction.done,
     this.autofillHints = const [AutofillHints.password],
+    this.sentenceCaseLabel = false,
   });
 
   final TextEditingController controller;
   final String label;
+
+  /// Label as written ("Password") instead of uppercase.
+  final bool sentenceCaseLabel;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onSubmitted;
   final ValueChanged<String>? onChanged;
@@ -151,6 +170,7 @@ class _PasswordFieldState extends State<PasswordField> {
   Widget build(BuildContext context) {
     return AppTextField(
       label: widget.label,
+      sentenceCaseLabel: widget.sentenceCaseLabel,
       controller: widget.controller,
       validator: widget.validator,
       obscureText: _hidden,

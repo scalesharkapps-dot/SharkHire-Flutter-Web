@@ -17,6 +17,7 @@ class AuthScaffold extends StatelessWidget {
     this.footer,
     this.showBack = true,
     this.leading,
+    this.showBrandMark = true,
   });
 
   final String title;
@@ -27,6 +28,9 @@ class AuthScaffold extends StatelessWidget {
 
   /// Replaces the brand mark (e.g. a state illustration).
   final Widget? leading;
+
+  /// Shows the brand mark above the title when there is no [leading].
+  final bool showBrandMark;
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +57,10 @@ class AuthScaffold extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      leading ?? const SharkMark(size: 44, framed: true),
-                      const SizedBox(height: AppSpacing.xl),
+                      if (leading != null || showBrandMark) ...[
+                        leading ?? const SharkMark(size: 44, framed: true),
+                        const SizedBox(height: AppSpacing.xl),
+                      ],
                       Text(title, style: text.headlineLarge),
                       if (subtitle != null) ...[
                         const SizedBox(height: AppSpacing.sm),
