@@ -98,3 +98,56 @@ class StatusChip extends StatelessWidget {
     );
   }
 }
+
+/// Quiet status: a small dot and the label in the status colour, no fill.
+/// In-progress statuses (pending, under review) get a hollow ring.
+class StatusText extends StatelessWidget {
+  const StatusText({super.key, required this.label, required this.tone});
+
+  StatusText.application(ApplicationStatus s, {super.key})
+    : label = s.label,
+      tone = toneOfApplication(s);
+
+  StatusText.job(JobStatus s, {super.key})
+    : label = s.label,
+      tone = toneOfJob(s);
+
+  final String label;
+  final StatusTone tone;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = tone == StatusTone.info ? AppColors.ocean : tone.fg;
+    final hollow = tone == StatusTone.progress;
+    return Semantics(
+      label: 'Status: $label',
+      excludeSemantics: true,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: hollow ? Colors.transparent : color,
+              border: hollow ? Border.all(color: color, width: 1.5) : null,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

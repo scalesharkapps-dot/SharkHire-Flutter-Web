@@ -59,7 +59,7 @@ class _EmployerJobsScreenState extends ConsumerState<EmployerJobsScreen> {
             96,
           ),
           children: [
-            Text('Manage jobs', style: text.headlineMedium),
+            Text('Manage jobs', style: text.headlineLarge),
             const SizedBox(height: 2),
             Text(
               'New and edited jobs are reviewed by SharkHire before they go live.',
@@ -188,7 +188,10 @@ class _JobCard extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              StatusChip.job(job.status),
+              Padding(
+                padding: const EdgeInsets.only(top: 3),
+                child: StatusText.job(job.status),
+              ),
             ],
           ),
           if (job.status == JobStatus.rejected &&
@@ -227,6 +230,9 @@ class _JobCard extends ConsumerWidget {
                     child: const Text('Close'),
                   ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                  ),
                   onPressed: () =>
                       context.push(AppRoutes.employerEditJob(job.id)),
                   child: Text(
@@ -254,9 +260,12 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Icon(icon, size: 16, color: AppColors.textTertiary),
-      const SizedBox(width: 4),
-      Text(label, style: Theme.of(context).textTheme.bodySmall),
+      Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(color: AppColors.textTertiary),
+      ),
     ],
   );
 }
