@@ -39,7 +39,7 @@ class AdminEmployersScreen extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    CompanyLogo(name: c.name, size: 40),
+                    CompanyLogo(name: c.name, size: 40, grey: true),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: Column(
@@ -55,7 +55,7 @@ class AdminEmployersScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    StatusChip(
+                    StatusText(
                       label: c.verification.label,
                       tone: _verificationTone(c.verification),
                     ),
@@ -64,7 +64,9 @@ class AdminEmployersScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   '${c.jobCount} jobs · joined ${formatDate(c.joinedAt)}',
-                  style: text.bodySmall,
+                  style: text.bodySmall?.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                 ),
                 if (c.verification == Verification.pending) ...[
                   const SizedBox(height: AppSpacing.md),
@@ -175,7 +177,7 @@ class _AdminApplicationsScreenState
                       ],
                     ),
                   ),
-                  StatusChip.application(a.status),
+                  StatusText.application(a.status),
                 ],
               ),
             ),
@@ -210,7 +212,7 @@ class AdminExternalJobsScreen extends ConsumerWidget {
                     StatusChip(
                       label: l.isStale ? 'Expired' : 'Fresh',
                       tone: l.isStale
-                          ? StatusTone.neutral
+                          ? StatusTone.negative
                           : StatusTone.positive,
                     ),
                   ],

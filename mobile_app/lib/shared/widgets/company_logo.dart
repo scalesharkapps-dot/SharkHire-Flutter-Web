@@ -12,11 +12,15 @@ class CompanyLogo extends StatelessWidget {
     required this.name,
     this.size = 44,
     this.imageUrl,
+    this.grey = false,
   });
 
   final String name;
   final double size;
   final String? imageUrl;
+
+  /// Neutral grey tile instead of the brand tints.
+  final bool grey;
 
   static List<(Color, Color)> get _palettes => [
     (AppColors.oceanTint, AppColors.oceanDeep),
@@ -28,7 +32,9 @@ class CompanyLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seed = name.codeUnits.fold<int>(0, (sum, c) => sum + c);
-    final (bg, fg) = _palettes[seed % _palettes.length];
+    final (bg, fg) = grey
+        ? (AppColors.surfaceMuted, AppColors.textSecondary)
+        : _palettes[seed % _palettes.length];
     final radius = BorderRadius.circular(size * 0.28);
 
     return Container(
