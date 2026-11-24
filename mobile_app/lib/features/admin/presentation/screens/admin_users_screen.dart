@@ -67,7 +67,18 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
             message: 'Try a different name or email.',
           )
         else
-          for (final u in users) _UserCard(user: u),
+          AppSurface(
+            padding: EdgeInsets.zero,
+            elevated: false,
+            child: Column(
+              children: [
+                for (var i = 0; i < users.length; i++) ...[
+                  if (i > 0) const Divider(height: 1, indent: 68),
+                  _UserCard(user: users[i]),
+                ],
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -88,16 +99,11 @@ class _UserCard extends ConsumerWidget {
         .take(2)
         .map((p) => p[0])
         .join();
-    return AppSurface(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.xs,
-        AppSpacing.md,
-      ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 14, AppSpacing.xs, 14),
       child: Row(
         children: [
-          PersonAvatar(initials: initials, size: 40),
+          PersonAvatar(initials: initials, size: 40, grey: true),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -106,17 +112,25 @@ class _UserCard extends ConsumerWidget {
                 Text(u.name, style: text.titleSmall),
                 Text(
                   u.email,
-                  style: text.bodySmall,
+                  style: text.bodySmall?.copyWith(
+                    color: AppColors.textTertiary,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Wrap(
-                  spacing: 6,
+                  spacing: 10,
                   runSpacing: 4,
                   children: [
-                    StatusChip(label: u.role.label, tone: StatusTone.info),
-                    StatusChip(
+                    Text(
+                      u.role.label,
+                      style: text.labelMedium?.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    StatusText(
                       label: u.status.label,
                       tone: switch (u.status) {
                         AccountStatus.active => StatusTone.positive,
