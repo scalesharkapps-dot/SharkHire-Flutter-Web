@@ -52,9 +52,9 @@ class Skeleton extends StatelessWidget {
   final double radius;
 
   static Color get _from =>
-      AppColors.isDark ? const Color(0xFF1A2836) : const Color(0xFFE6EDF3);
+      AppColors.isDark ? const Color(0xFF19212A) : const Color(0xFFE6EDF3);
   static Color get _to =>
-      AppColors.isDark ? const Color(0xFF223345) : const Color(0xFFF2F6F9);
+      AppColors.isDark ? const Color(0xFF232C36) : const Color(0xFFF2F6F9);
 
   @override
   Widget build(BuildContext context) {

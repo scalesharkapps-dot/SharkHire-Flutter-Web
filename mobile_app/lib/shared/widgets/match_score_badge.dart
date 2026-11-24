@@ -135,7 +135,7 @@ class _RingPainter extends CustomPainter {
 }
 
 /// Signal "FIT" block: the match score as a solid navy column on the left
-/// edge of a job card ("92 / % FIT").
+/// edge of a job card ("92%" over "FIT").
 class FitScoreBlock extends StatelessWidget {
   const FitScoreBlock({super.key, required this.score, this.width = 76});
 
@@ -154,8 +154,13 @@ class FitScoreBlock extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              '${score.clamp(0, 100)}',
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: '${score.clamp(0, 100)}'),
+                  const TextSpan(text: '%', style: TextStyle(fontSize: 15)),
+                ],
+              ),
               style: TextStyle(
                 fontFamily: AppFonts.display,
                 fontSize: 26,
@@ -166,7 +171,7 @@ class FitScoreBlock extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '% FIT',
+              'FIT',
               style: TextStyle(
                 fontFamily: AppFonts.label,
                 fontWeight: FontWeight.w700,

@@ -87,30 +87,30 @@ abstract final class AppColors {
   static Color get cyanTint =>
       _pick(const Color(0xFFE3F6FD), const Color(0xFF10313F));
 
-  // ── Surfaces ────────────────────────────────────────────────────────────
+  // ── Surfaces (dark: neutral ink, unslop review) ────────────────────────────────────────────────────────────
   /// Cards, sheets, bars and inputs.
-  static Color get surface => _pick(white, const Color(0xFF111F2D));
+  static Color get surface => _pick(white, const Color(0xFF11171E));
 
   /// App canvas behind cards.
   static Color get canvas =>
-      _pick(const Color(0xFFF2F5F8), const Color(0xFF0A1520));
+      _pick(const Color(0xFFF2F5F8), const Color(0xFF0B0F14));
 
   /// Tinted brand panels (website page background).
   static Color get mist =>
-      _pick(const Color(0xFFF0FAFF), const Color(0xFF102233));
+      _pick(const Color(0xFFF0FAFF), const Color(0xFF10161D));
 
   static Color get surfaceSubtle =>
-      _pick(const Color(0xFFF7F9FB), const Color(0xFF0E1B28));
+      _pick(const Color(0xFFF7F9FB), const Color(0xFF0E1319));
 
   /// Quiet filled areas (neutral chips, placeholders, read rows).
   static Color get surfaceMuted =>
-      _pick(const Color(0xFFEEF2F6), const Color(0xFF172839));
+      _pick(const Color(0xFFEEF2F6), const Color(0xFF171F28));
 
   // ── Lines ───────────────────────────────────────────────────────────────
   static Color get border =>
-      _pick(const Color(0xFFE0E7EE), const Color(0xFF20334A));
+      _pick(const Color(0xFFE0E7EE), const Color(0xFF222930));
   static Color get borderStrong =>
-      _pick(const Color(0xFFC9D5E0), const Color(0xFF2C445C));
+      _pick(const Color(0xFFC9D5E0), const Color(0xFF303842));
 
   // ── Semantic (status only, never decoration) ────────────────────────────
   static Color get success =>
@@ -141,7 +141,7 @@ abstract final class AppColors {
 
   /// Soft filled background of secondary buttons (no outline).
   static Color get tonal =>
-      _pick(const Color(0xFFE3E9EF), const Color(0xFF1A2B3D));
+      _pick(const Color(0xFFE3E9EF), const Color(0xFF1A222B));
 
   /// The "92 % FIT" block on job cards.
   static Color get fit => _pick(navy, const Color(0xFF18314A));
@@ -150,7 +150,7 @@ abstract final class AppColors {
       _pick(const Color(0xFF18ACC3), const Color(0xFF4BB8C6));
 
   /// Bottom navigation bar.
-  static Color get nav => _pick(navy, const Color(0xFF0C1A28));
+  static Color get nav => _pick(navy, const Color(0xFF0E1319));
   static Color get navInk =>
       _pick(const Color(0xFFAFC0D0), const Color(0xFF8597AA));
   static Color get navOn => _pick(white, const Color(0xFFEAF0F6));

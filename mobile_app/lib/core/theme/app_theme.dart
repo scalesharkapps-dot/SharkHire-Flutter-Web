@@ -41,7 +41,7 @@ abstract final class AppTheme {
     surfaceContainer: AppColors.canvas,
     surfaceContainerHigh: AppColors.surfaceMuted,
     surfaceContainerHighest: dark
-        ? const Color(0xFF223244)
+        ? const Color(0xFF242C35)
         : const Color(0xFFE5ECF2),
     outline: AppColors.borderStrong,
     outlineVariant: AppColors.border,
