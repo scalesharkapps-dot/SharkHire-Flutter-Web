@@ -45,6 +45,18 @@ enum ExploreFilter {
   };
 }
 
+/// Cities offered under the Pakistan filter. Matched against the job's
+/// location text (e.g. "Lahore, Pakistan").
+const pakistanCities = [
+  'Karachi',
+  'Lahore',
+  'Islamabad',
+  'Rawalpindi',
+  'Faisalabad',
+  'Peshawar',
+  'Multan',
+];
+
 enum ExploreSort {
   relevance('Relevance'),
   newest('Newest');
@@ -59,20 +71,30 @@ class ExploreState {
     this.query = '',
     this.filters = const {},
     this.sort = ExploreSort.relevance,
+    this.city,
   });
 
   final String query;
   final Set<ExploreFilter> filters;
   final ExploreSort sort;
 
+  /// City inside Pakistan; only applies while the Pakistan filter is on.
+  final String? city;
+
+  /// Chips plus the city, for the badge on the filter button.
+  int get activeFilterCount => filters.length + (city == null ? 0 : 1);
+
   ExploreState copyWith({
     String? query,
     Set<ExploreFilter>? filters,
     ExploreSort? sort,
+    String? city,
+    bool clearCity = false,
   }) => ExploreState(
     query: query ?? this.query,
     filters: filters ?? this.filters,
     sort: sort ?? this.sort,
+    city: clearCity ? null : (city ?? this.city),
   );
 }
 
@@ -85,12 +107,19 @@ class ExploreController extends Notifier<ExploreState> {
   void toggle(ExploreFilter f) {
     final next = {...state.filters};
     next.contains(f) ? next.remove(f) : next.add(f);
-    state = state.copyWith(filters: next);
+    state = state.copyWith(
+      filters: next,
+      clearCity: !next.contains(ExploreFilter.pakistan),
+    );
   }
+
+  /// Picks a city in Pakistan, or all cities when [city] is null.
+  void setCity(String? city) =>
+      state = state.copyWith(city: city, clearCity: city == null);
 
   void setSort(ExploreSort s) => state = state.copyWith(sort: s);
 
-  void clearFilters() => state = state.copyWith(filters: {});
+  void clearFilters() => state = state.copyWith(filters: {}, clearCity: true);
 
   void reset() => state = const ExploreState();
 }
@@ -123,6 +152,9 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
       ExploreFilter.internship,
     };
     const regions = {ExploreFilter.pakistan, ExploreFilter.international};
+    final city = s.filters.contains(ExploreFilter.pakistan)
+        ? s.city?.toLowerCase()
+        : null;
 
     final result = jobs.where((j) {
       final text =
@@ -135,6 +167,9 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
       return text &&
           group(j, types) &&
           group(j, regions) &&
+          (city == null ||
+              (!j.isInternational &&
+                  j.location.toLowerCase().contains(city))) &&
           group(j, {ExploreFilter.remote}) &&
           group(j, {ExploreFilter.applyInApp});
     }).toList();

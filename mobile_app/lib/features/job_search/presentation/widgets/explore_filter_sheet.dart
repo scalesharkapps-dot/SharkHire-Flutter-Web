@@ -64,7 +64,7 @@ class ExploreFilterSheet extends ConsumerWidget {
             children: [
               Expanded(child: Text('Filters', style: text.headlineSmall)),
               TextButton(
-                onPressed: state.filters.isEmpty
+                onPressed: state.activeFilterCount == 0
                     ? null
                     : controller.clearFilters,
                 child: const Text('Reset'),
@@ -98,6 +98,25 @@ class ExploreFilterSheet extends ConsumerWidget {
                   ),
               ],
             ),
+            if (title == 'Region' &&
+                state.filters.contains(ExploreFilter.pakistan)) ...[
+              const SizedBox(height: AppSpacing.xl),
+              Text('City', style: text.titleSmall),
+              const SizedBox(height: AppSpacing.sm),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  chip(
+                    'All cities',
+                    state.city == null,
+                    () => controller.setCity(null),
+                  ),
+                  for (final c in pakistanCities)
+                    chip(c, state.city == c, () => controller.setCity(c)),
+                ],
+              ),
+            ],
           ],
           const SizedBox(height: AppSpacing.xxl),
           SizedBox(

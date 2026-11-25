@@ -40,6 +40,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final state = ref.watch(exploreControllerProvider);
     final controller = ref.read(exploreControllerProvider.notifier);
     final results = ref.watch(exploreResultsProvider);
+    final cityLabel = state.filters.contains(ExploreFilter.pakistan)
+        ? state.city
+        : null;
     final text = Theme.of(context).textTheme;
 
     // A new search or filter starts again from the first page.
@@ -100,7 +103,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     AppSearchBar(
                       controller: _search,
                       onChanged: controller.setQuery,
-                      activeFilterCount: state.filters.length,
+                      activeFilterCount: state.activeFilterCount,
                       onFilterTap: () => ExploreFilterSheet.show(context),
                     ),
                   ],
@@ -143,6 +146,62 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
             ),
 
+            // Cities, while the Pakistan filter is on
+            if (state.filters.contains(ExploreFilter.pakistan))
+              SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.screenHorizontal,
+                      ),
+                      child: Text(
+                        'City in Pakistan',
+                        style: text.labelMedium?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 60,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.screenHorizontal,
+                          AppSpacing.sm,
+                          AppSpacing.screenHorizontal,
+                          AppSpacing.md,
+                        ),
+                        itemCount: pakistanCities.length + 1,
+                        separatorBuilder: (_, _) =>
+                            const SizedBox(width: AppSpacing.sm),
+                        itemBuilder: (context, i) {
+                          final city = i == 0 ? null : pakistanCities[i - 1];
+                          final selected = state.city == city;
+                          return ChoiceChip(
+                            label: Text(city ?? 'All cities'),
+                            selected: selected,
+                            showCheckmark: false,
+                            onSelected: (_) => controller.setCity(city),
+                            labelStyle: text.labelMedium?.copyWith(
+                              color: selected ? AppColors.onInk : AppColors.ink,
+                            ),
+                            backgroundColor: AppColors.surfaceMuted,
+                            selectedColor: AppColors.ink,
+                            side: BorderSide(
+                              color: selected
+                                  ? AppColors.ink
+                                  : Colors.transparent,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
             // Result count + sort
             SliverToBoxAdapter(
               child: Padding(
@@ -164,7 +223,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         child: Text(
                           results.whenOrNull(
                                 data: (j) =>
-                                    '${j.length} ${j.length == 1 ? 'job' : 'jobs'} found',
+                                    '${j.length} ${j.length == 1 ? 'job' : 'jobs'} '
+                                    '${cityLabel == null ? 'found' : 'in $cityLabel'}',
                               ) ??
                               'Searching…',
                           key: ValueKey(results.value?.length),
