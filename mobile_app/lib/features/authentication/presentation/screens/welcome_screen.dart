@@ -107,6 +107,29 @@ class WelcomeScreen extends StatelessWidget {
                             ),
                             const Spacer(),
                             const SizedBox(height: AppSpacing.xxl),
+                            Text.rich(
+                              TextSpan(
+                                children: [
+                                  const TextSpan(text: 'Jobs from '),
+                                  TextSpan(
+                                    text:
+                                        'LinkedIn, Indeed, Glassdoor, '
+                                        'ZipRecruiter, Monster, CareerBuilder',
+                                    style: text.bodySmall?.copyWith(
+                                      color: Bold.ink,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' & more'),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                              style: text.bodySmall?.copyWith(
+                                color: Bold.muted,
+                                height: 1.45,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
                             Row(
                               children: [
                                 Expanded(
