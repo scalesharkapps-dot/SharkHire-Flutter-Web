@@ -94,6 +94,8 @@ void main() {
     await pumpUntil(tester, () => isShown(find.text('Flutter')));
 
     // Remove a skill, then confirm.
+    await tester.ensureVisible(find.byTooltip('Remove SQL'));
+    await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Remove SQL'));
     await tester.pumpAndSettle();
     expect(find.text('SQL'), findsNothing);
