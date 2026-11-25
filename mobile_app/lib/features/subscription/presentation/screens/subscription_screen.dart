@@ -16,6 +16,7 @@ import '../../../authentication/presentation/widgets/sign_out_sheet.dart';
 import '../../data/billing_service.dart';
 import '../../domain/subscription_status.dart';
 import '../providers/subscription_providers.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Paywall and subscription overview (guide §3.8): status from the backend,
 /// the store's localized price, subscribe, restore, manage and history.
@@ -570,12 +571,7 @@ class _StatusBanner extends StatelessWidget {
     final banner = switch (status.state) {
       AccessState.loading => const Padding(
         padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-        child: Center(
-          child: SizedBox.square(
-            dimension: 24,
-            child: CircularProgressIndicator(strokeWidth: 2.5),
-          ),
-        ),
+        child: SharkLoader(),
       ),
       AccessState.trialActive => InlineBanner(
         tone: BannerTone.success,

@@ -16,6 +16,7 @@ import '../../../resume/data/models/resume_models.dart';
 import '../../../resume/presentation/providers/cv_provider.dart';
 import '../../data/models/job_details.dart';
 import '../../data/repositories/job_details_repository.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Internal apply form (guide §3.5 internal flow, mockup 4.3):
 /// choose CV, optional cover letter, submit.
@@ -28,8 +29,7 @@ class ApplyScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final details = ref.watch(jobDetailsProvider(jobId));
     return details.when(
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: SharkLoader()),
       error: (_, _) => Scaffold(
         appBar: AppBar(),
         body: ErrorStateView(

@@ -42,7 +42,10 @@ void main() {
 
     await scrollTo(tester, find.text('Senior Flutter Developer'));
     await tapText(tester, 'Senior Flutter Developer');
-    await pumpUntil(tester, () => isShown(find.text('Strong fit with your CV')));
+    await pumpUntil(
+      tester,
+      () => isShown(find.text('Strong fit with your CV')),
+    );
     expect(find.text('Apply now'), findsOneWidget);
     expect(find.textContaining('Your Flutter and Dart skills'), findsOneWidget);
 

@@ -98,7 +98,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('SQL'), findsNothing);
 
-    await tapLabel(tester, 'Confirm and find jobs');
+    await tapLabel(tester, 'Confirm and see my matches');
     await pumpUntil(
       tester,
       () => isShown(find.text('Senior Flutter Developer')),

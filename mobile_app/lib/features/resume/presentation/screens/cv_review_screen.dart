@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/feedback.dart';
 import '../../../../shared/widgets/app_surface.dart';
+import '../../../../shared/widgets/brand_logo.dart';
 import '../../../../shared/widgets/bottom_action_bar.dart';
 import '../../../../shared/widgets/form_fields.dart';
 import '../../../../shared/widgets/skeleton.dart';
@@ -177,6 +178,35 @@ class _CvReviewScreenState extends ConsumerState<CvReviewScreen> {
           AppSpacing.xxl,
         ),
         children: [
+          Row(
+            children: [
+              const SharkMark(size: 40, framed: true),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        'Your CV is ready',
+                        style: text.headlineSmall,
+                      ),
+                    ),
+                    Text(
+                      '${d.skills.length} ${d.skills.length == 1 ? 'skill' : 'skills'}'
+                      ' · ${d.experience.length} ${d.experience.length == 1 ? 'role' : 'roles'}'
+                      ' · ${d.education.length} education found',
+                      style: text.bodySmall?.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
           Text(
             'Check what we found in your CV. Tap any item to correct it.',
             style: text.bodyLarge?.copyWith(color: AppColors.textSecondary),
@@ -360,7 +390,7 @@ class _CvReviewScreenState extends ConsumerState<CvReviewScreen> {
           ? null
           : BottomActionBar(
               child: LoadingButton(
-                label: 'Confirm and find jobs',
+                label: 'Confirm and see my matches',
                 icon: Icons.check_rounded,
                 loading: _saving,
                 onPressed: _confirm,

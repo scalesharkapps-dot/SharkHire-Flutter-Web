@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
+import 'shark_loader.dart';
 
 /// Small uppercase label shown above inputs (as in the guide mockups).
 class FieldLabel extends StatelessWidget {
@@ -213,13 +214,12 @@ class LoadingButton extends StatelessWidget {
     final child = AnimatedSwitcher(
       duration: AppDurations.fast,
       child: loading
-          ? SizedBox.square(
-              key: ValueKey('spinner'),
-              dimension: 22,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.4,
-                color: AppColors.onInk,
-              ),
+          ? SharkSwim(
+              key: const ValueKey('spinner'),
+              width: 56,
+              finSize: 12,
+              color: AppColors.onInk,
+              trackColor: AppColors.onInk.withValues(alpha: 0.28),
             )
           : Row(
               key: const ValueKey('label'),

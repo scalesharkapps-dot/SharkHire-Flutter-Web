@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/brand_logo.dart';
 import '../../../authentication/presentation/providers/session_provider.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Branded launch screen: the shark mark rises in, the wordmark follows,
 /// then the app continues to Home.
@@ -122,6 +123,12 @@ class _SplashScreenState extends State<SplashScreen>
                         style: text.bodyLarge?.copyWith(
                           color: AppColors.white.withValues(alpha: 0.72),
                         ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxl),
+                      SharkSwim(
+                        width: 150,
+                        finSize: 18,
+                        trackColor: AppColors.white.withValues(alpha: 0.14),
                       ),
                     ],
                   ),

@@ -12,6 +12,7 @@ import '../../../profile/presentation/providers/current_user_provider.dart';
 import '../providers/resend_verification_provider.dart';
 import '../providers/session_provider.dart';
 import '../widgets/auth_scaffold.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Shown after sign-up until the email address is confirmed.
 class VerifyEmailScreen extends ConsumerStatefulWidget {
@@ -147,10 +148,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
+                        SharkSwim(width: 44, finSize: 11),
                         SizedBox(width: AppSpacing.sm),
                         Text('Sending…'),
                       ],

@@ -8,6 +8,7 @@ import '../../../../shared/widgets/app_surface.dart';
 import '../../../../shared/widgets/state_views.dart';
 import '../../domain/subscription_status.dart';
 import '../providers/subscription_providers.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Billing history from `GET /api/v1/subscriptions/history`.
 class SubscriptionHistoryScreen extends ConsumerWidget {
@@ -79,7 +80,7 @@ class SubscriptionHistoryScreen extends ConsumerWidget {
     TextTheme text,
   ) {
     return history.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const SharkLoader(),
       error: (e, _) => e is FeatureUnavailableException
           ? EmptyStateView(
               icon: Icons.receipt_long_outlined,

@@ -15,6 +15,7 @@ import '../../../../shared/widgets/pressable.dart';
 import '../../data/models/resume_models.dart';
 import '../../data/repositories/resume_repository.dart';
 import '../providers/cv_provider.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 /// Upload CV (guide §3.5, mockup 4.2): pick a PDF/DOCX, validate it, then
 /// follow the processing steps until the extracted profile is ready.
@@ -162,8 +163,8 @@ class _CvUploadScreenState extends ConsumerState<CvUploadScreen> {
                 ],
                 if (_stage != null) ...[
                   const SizedBox(height: AppSpacing.xxl),
-                  Text('Processing', style: text.titleMedium),
-                  const SizedBox(height: AppSpacing.md),
+                  _ProcessingProgress(current: _stage!),
+                  const SizedBox(height: AppSpacing.lg),
                   _ProcessingSteps(current: _stage!),
                 ],
                 const SizedBox(height: AppSpacing.xxl),
@@ -309,15 +310,11 @@ class _ProcessingSteps extends StatelessWidget {
                         ? Icon(
                             Icons.check_circle_rounded,
                             key: ValueKey('done'),
-                            color: AppColors.success,
+                            color: AppColors.teal,
                             size: 24,
                           )
                         : s == current
-                        ? const Padding(
-                            key: ValueKey('busy'),
-                            padding: EdgeInsets.all(3),
-                            child: CircularProgressIndicator(strokeWidth: 2.4),
-                          )
+                        ? const _BusyDot(key: ValueKey('busy'))
                         : Icon(
                             Icons.radio_button_unchecked_rounded,
                             key: ValueKey('todo'),
@@ -344,6 +341,106 @@ class _ProcessingSteps extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Overall progress: the swimming fin plus a percentage.
+class _ProcessingProgress extends StatelessWidget {
+  const _ProcessingProgress({required this.current});
+
+  final CvProcessingStage current;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final steps = CvProcessingStage.values.length - 1;
+    // Count the current step as half done so the fin is never parked at 0.
+    final value = current == CvProcessingStage.done
+        ? 1.0
+        : (current.index + 0.5) / steps;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          current == CvProcessingStage.done ? 'Done' : current.label,
+          style: text.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, c) => SharkSwim(
+                  value: value,
+                  width: c.maxWidth,
+                  finSize: 18,
+                  semanticsLabel: 'Processing your CV',
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Text(
+              '${(value * 100).round()}%',
+              style: text.titleSmall?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// The step in progress: a teal ring with a softly pulsing centre.
+class _BusyDot extends StatefulWidget {
+  const _BusyDot({super.key});
+
+  @override
+  State<_BusyDot> createState() => _BusyDotState();
+}
+
+class _BusyDotState extends State<_BusyDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1200),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    still ? _c.stop() : _c.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColors.teal, width: 2),
+      ),
+      alignment: Alignment.center,
+      child: FadeTransition(
+        opacity: Tween(begin: 1.0, end: 0.35).animate(_c),
+        child: Container(
+          width: 8,
+          height: 8,
+          decoration: const BoxDecoration(
+            color: AppColors.teal,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
     );
   }
 }

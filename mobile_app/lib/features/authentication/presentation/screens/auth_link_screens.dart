@@ -15,6 +15,7 @@ import '../../domain/session.dart';
 import '../providers/auth_link_provider.dart';
 import '../providers/session_provider.dart';
 import '../widgets/auth_scaffold.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 enum _Confirm { working, confirmed, confirmedLogIn, expired, failed }
 
@@ -90,7 +91,7 @@ class _AuthCallbackScreenState extends ConsumerState<AuthCallbackScreen> {
           subtitle: 'One moment…',
           showBack: false,
           leading: StateIllustration(icon: Icons.mark_email_read_outlined),
-          children: [Center(child: CircularProgressIndicator())],
+          children: [SharkLoader()],
         );
       case _Confirm.confirmed:
         return AuthScaffold(
@@ -250,7 +251,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
       return const AuthScaffold(
         title: 'Reset your password',
         showBack: false,
-        children: [Center(child: CircularProgressIndicator())],
+        children: [SharkLoader()],
       );
     }
     if (_done) {

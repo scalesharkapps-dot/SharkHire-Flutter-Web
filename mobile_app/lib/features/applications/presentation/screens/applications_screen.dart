@@ -14,6 +14,7 @@ import '../../../../shared/widgets/state_views.dart';
 import '../../../../shared/widgets/status_chip.dart';
 import '../../data/models/application.dart';
 import '../providers/applications_provider.dart';
+import '../../../../shared/widgets/shark_loader.dart';
 
 enum _Filter { all, active, closed }
 
@@ -43,7 +44,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('My applications')),
       body: all.isEmpty && load.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const SharkLoader()
           : all.isEmpty && load.hasError
           ? ErrorStateView(
               message: friendlyErrorMessage(load.error!),
