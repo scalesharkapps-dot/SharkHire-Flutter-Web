@@ -15,6 +15,7 @@ import '../../../../shared/widgets/legal_sheet.dart';
 import '../../../authentication/presentation/widgets/sign_out_sheet.dart';
 import '../../data/billing_service.dart';
 import '../../domain/subscription_status.dart';
+import '../providers/application_quota.dart';
 import '../providers/subscription_providers.dart';
 import '../../../../shared/widgets/shark_loader.dart';
 
@@ -39,6 +40,11 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   SubscriptionFeedback? _feedback;
 
   static const _features = [
+    (
+      Icons.send_outlined,
+      '$applicationsPerPlan job applications per purchase',
+      'Your free trial includes $applicationsPerPlan. Buy Premium again when they run out.',
+    ),
     (
       Icons.fact_check_outlined,
       'CV-based job recommendations',

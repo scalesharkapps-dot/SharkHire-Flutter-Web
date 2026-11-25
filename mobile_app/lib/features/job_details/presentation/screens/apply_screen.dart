@@ -17,6 +17,8 @@ import '../../../resume/presentation/providers/cv_provider.dart';
 import '../../data/models/job_details.dart';
 import '../../data/repositories/job_details_repository.dart';
 import '../../../../shared/widgets/shark_loader.dart';
+import '../../../subscription/presentation/providers/application_quota.dart';
+import '../../../subscription/presentation/widgets/application_quota_widgets.dart';
 
 /// Internal apply form (guide §3.5 internal flow, mockup 4.3):
 /// choose CV, optional cover letter, submit.
@@ -72,6 +74,15 @@ class _ApplyFormState extends ConsumerState<_ApplyForm> {
   }
 
   Future<void> _submit(Resume cv) async {
+    final quota = ref.read(applicationQuotaProvider);
+    if (quota != null && quota.isUsedUp) {
+      await showQuotaUsedUpSheet(
+        context,
+        quota: quota,
+        jobId: widget.details.id,
+      );
+      return;
+    }
     setState(() {
       _submitting = true;
       _error = null;

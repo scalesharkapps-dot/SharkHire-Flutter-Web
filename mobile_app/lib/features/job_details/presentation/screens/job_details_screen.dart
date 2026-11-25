@@ -22,6 +22,8 @@ import '../../../../shared/widgets/status_chip.dart';
 import '../../../applications/presentation/providers/applications_provider.dart';
 import '../../../resume/presentation/providers/cv_provider.dart';
 import '../../../saved_jobs/presentation/providers/saved_jobs_provider.dart';
+import '../../../subscription/presentation/providers/application_quota.dart';
+import '../../../subscription/presentation/widgets/application_quota_widgets.dart';
 import '../../data/models/job_details.dart';
 import '../../data/repositories/job_details_repository.dart';
 
@@ -396,6 +398,7 @@ class _ApplyBar extends ConsumerWidget {
     final clicked = ref.watch(
       externalApplyClicksProvider.select((c) => c.contains(details.id)),
     );
+    final quota = ref.watch(applicationQuotaProvider);
 
     Widget primary;
     if (details.isInternal && application != null) {
@@ -415,7 +418,9 @@ class _ApplyBar extends ConsumerWidget {
       );
     } else if (details.isInternal) {
       primary = FilledButton.icon(
-        onPressed: () => context.push(AppRoutes.applyToJob(details.id)),
+        onPressed: () => quota != null && quota.isUsedUp
+            ? showQuotaUsedUpSheet(context, quota: quota, jobId: details.id)
+            : context.push(AppRoutes.applyToJob(details.id)),
         icon: const Icon(Icons.send_outlined, size: 18),
         label: const Text('Apply now'),
       );
@@ -430,9 +435,19 @@ class _ApplyBar extends ConsumerWidget {
       );
     }
 
+    final button = SizedBox(width: double.infinity, child: primary);
     return BottomActionBar(
       maxWidth: 640,
-      child: SizedBox(width: double.infinity, child: primary),
+      child: quota != null && details.isInternal && application == null
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QuotaLine(quota: quota),
+                const SizedBox(height: AppSpacing.sm),
+                button,
+              ],
+            )
+          : button,
     );
   }
 }
