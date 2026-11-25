@@ -45,8 +45,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     ),
     (
       Icons.public_rounded,
-      'Pakistan and international job leads',
-      'Local roles and remote jobs worldwide.',
+      'Worldwide job leads',
+      'Local roles and remote jobs across the world.',
     ),
     (
       Icons.tune_rounded,

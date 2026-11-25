@@ -11,7 +11,7 @@ import '../../../saved_jobs/presentation/widgets/async_job_sliver.dart';
 import '../providers/explore_providers.dart';
 import '../widgets/explore_filter_sheet.dart';
 
-/// Explore: search Pakistan and international jobs with filters
+/// Explore: search jobs worldwide with filters
 /// (project guide §3.5 "Job search, filters and job details").
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
@@ -91,7 +91,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Pakistan and international roles, matched to you',
+                      'Jobs worldwide, matched to you',
                       style: text.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),

@@ -515,7 +515,7 @@ class _PremiumCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'CV-based recommendations, Pakistan and international job leads, '
+            'CV-based recommendations, worldwide job leads, '
             'and advanced filters.',
             style: text.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),

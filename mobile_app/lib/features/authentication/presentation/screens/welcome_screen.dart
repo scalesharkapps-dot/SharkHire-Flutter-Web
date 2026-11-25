@@ -91,9 +91,8 @@ class WelcomeScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(height: 6),
                                           Text(
-                                            'Upload once. Every job in '
-                                            'Pakistan and worldwide is ranked '
-                                            'for you.',
+                                            'Upload once. Every job '
+                                            'worldwide is ranked for you.',
                                             style: text.bodyMedium?.copyWith(
                                               color: Bold.muted,
                                               height: 1.4,
