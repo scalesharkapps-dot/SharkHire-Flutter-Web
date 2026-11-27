@@ -55,6 +55,7 @@ const pakistanCities = [
   'Faisalabad',
   'Peshawar',
   'Multan',
+  'Hyderabad',
 ];
 
 enum ExploreSort {
