@@ -219,16 +219,16 @@ The build appears in App Store Connect after 10–30 minutes of processing.
 ### D1. Names
 - App name: **SharkHire**
 - Apple subtitle (30 characters): `AI job matches from your CV` (27 characters)
-- Google short description (80 characters): `Upload your CV once. Get jobs ranked by fit in Pakistan and worldwide.` (70 characters)
+- Google short description (80 characters): `Upload your CV once. Get jobs worldwide ranked by how well they fit you.` (72 characters)
 
 ### D2. Full description (both stores)
 > SharkHire, by Scale Shark, matches you to jobs using your CV.
 >
 > Upload your CV once (PDF or Word) and SharkHire reads your skills, experience and education. You check and correct the details, then every job is ranked by how well it fits you, with a plain explanation of why.
 >
-> • Jobs in Pakistan and remote or international roles in one place
+> • Jobs worldwide in one place, from LinkedIn, Indeed, Glassdoor, ZipRecruiter, Monster, CareerBuilder and more
 > • Match score and reasons for every job
-> • Search and filter by job type, work mode and region
+> • Search and filter by job type, work mode, region and city (Karachi, Lahore, Islamabad and more)
 > • Save jobs and set job alerts
 > • Apply in-app to verified employers, or on the employer's own site for external jobs
 > • Track every application: submitted, under review, shortlisted, interview, decision
@@ -236,10 +236,12 @@ The build appears in App Store Connect after 10–30 minutes of processing.
 >
 > For employers: post jobs, review applicants with match scores and manage each candidate's status. Every job is reviewed by SharkHire before it goes live.
 
-Only describe Premium in the listing once real in-app purchases are connected; it's hidden in production builds until then.
+Only describe Premium in the listing once real in-app purchases are connected; it's hidden in production builds until then. When it is live, say plainly: the free trial includes 5 job applications, and each Premium purchase adds 5 more.
+
+Keep the job-sites line only if the backend really lists jobs from those sites (checklist B9).
 
 ### D3. Keywords (Apple, 100 characters, comma-separated)
-`jobs,job search,careers,CV,resume,hiring,Pakistan,remote jobs,recruitment,apply,employer,job match`
+`jobs,job search,careers,CV,resume,hiring,worldwide,Pakistan,remote jobs,recruitment,apply,job match`
 
 ### D4. Graphics
 
@@ -279,7 +281,7 @@ Fill in from what the app collects. **Confirm the server-side parts with the bac
 - Users can request deletion: **Yes**, in-app (Profile → Privacy & security → Delete account).
 
 ### D7. Release notes (1.0.0)
-> First release of SharkHire: upload your CV, get jobs ranked by fit with clear reasons, search Pakistan and international roles, apply and track your applications. Employers can post jobs and manage applicants.
+> First release of SharkHire: upload your CV, get jobs worldwide ranked by fit with clear reasons, filter by city, apply and track your applications. Employers can post jobs and manage applicants.
 
 ### D8. Review times
 Google: a few hours to 7 days for a new app. Apple: usually 24–48 hours.

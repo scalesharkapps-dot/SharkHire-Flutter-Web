@@ -1,6 +1,6 @@
 # SharkHire – Mobile Release Checklist
 
-Last updated: 15 Nov 2026.
+Last updated: 27 Nov 2026.
 
 Legend:
 - ✅ done and verified here
@@ -21,6 +21,8 @@ Legend:
 | B4 | Terms of Use and Privacy Policy published at public URLs | 👤 From Scale Shark (legal) |
 | B5 | Android release built and tested on a phone | ⬜ The Android SDK is not installed on this PC |
 | B6 | iOS archive built and tested on an iPhone | ⬜ Needs a Mac with Xcode (or Codemagic) |
+| B8 | 5-application limit (free trial: 5; each Premium purchase: 5 more) | 🔧 App side done (counter, used-up sheet, Premium page line). Still needed: **backend** counts applications and blocks the 6th; **stores** need a one-time "5 applications" product (Premium is a monthly subscription today, so "Buy Premium again" can't complete); `SUBSCRIPTIONS_ENABLED=true` in the store and Vercel builds, or the limit stays off. |
+| B9 | Intro line "Jobs from LinkedIn, Indeed, Glassdoor, ZipRecruiter, Monster, CareerBuilder & more" | 👤 Confirm the backend really lists jobs from these sites before launch (store reviewers reject claims the app can't back up). Names only, no logos. |
 
 ## 1. Android configuration
 
