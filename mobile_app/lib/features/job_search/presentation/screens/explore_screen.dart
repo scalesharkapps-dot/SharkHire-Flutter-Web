@@ -9,6 +9,7 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/state_views.dart';
 import '../../../saved_jobs/presentation/widgets/async_job_sliver.dart';
 import '../providers/explore_providers.dart';
+import '../widgets/city_picker_sheet.dart';
 import '../widgets/explore_filter_sheet.dart';
 
 /// Explore: search jobs worldwide with filters
@@ -40,9 +41,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final state = ref.watch(exploreControllerProvider);
     final controller = ref.read(exploreControllerProvider.notifier);
     final results = ref.watch(exploreResultsProvider);
-    final cityLabel = state.filters.contains(ExploreFilter.pakistan)
-        ? state.city
-        : null;
+    final cityLabel = state.city;
     final text = Theme.of(context).textTheme;
 
     // A new search or filter starts again from the first page.
@@ -123,11 +122,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     AppSpacing.screenHorizontal,
                     AppSpacing.md,
                   ),
-                  itemCount: ExploreFilter.values.length,
+                  itemCount: ExploreFilter.values.length + 1,
                   separatorBuilder: (_, _) =>
                       const SizedBox(width: AppSpacing.sm),
                   itemBuilder: (context, i) {
-                    final f = ExploreFilter.values[i];
+                    if (i == 0) {
+                      return _CityChip(
+                        city: state.city,
+                        onTap: () => CityPickerSheet.show(context),
+                        onClear: () => controller.setCity(null),
+                      );
+                    }
+                    final f = ExploreFilter.values[i - 1];
                     final selected = state.filters.contains(f);
                     return FilterChip(
                       label: Text(f.label),
@@ -173,10 +179,22 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                           AppSpacing.screenHorizontal,
                           AppSpacing.md,
                         ),
-                        itemCount: pakistanCities.length + 1,
+                        itemCount: pakistanCities.length + 2,
                         separatorBuilder: (_, _) =>
                             const SizedBox(width: AppSpacing.sm),
                         itemBuilder: (context, i) {
+                          if (i == pakistanCities.length + 1) {
+                            return ActionChip(
+                              avatar: const Icon(
+                                Icons.search_rounded,
+                                size: 18,
+                              ),
+                              label: const Text('More cities'),
+                              onPressed: () => CityPickerSheet.show(context),
+                              backgroundColor: AppColors.surfaceMuted,
+                              side: const BorderSide(color: Colors.transparent),
+                            );
+                          }
                           final city = i == 0 ? null : pakistanCities[i - 1];
                           final selected = state.city == city;
                           return ChoiceChip(
@@ -246,17 +264,28 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 ref.invalidate(allJobsProvider);
                 ref.invalidate(jobSearchProvider);
               },
-              empty: EmptyStateView(
-                compact: true,
-                icon: Icons.search_off_rounded,
-                title: 'No jobs match',
-                message: 'Try a different keyword or remove a few filters.',
-                actionLabel: 'Clear search & filters',
-                onAction: () {
-                  _search.clear();
-                  controller.reset();
-                },
-              ),
+              empty: cityLabel != null
+                  ? EmptyStateView(
+                      compact: true,
+                      icon: Icons.location_off_outlined,
+                      title: 'No jobs in $cityLabel yet',
+                      message:
+                          'Try another city, or clear the city to see all jobs.',
+                      actionLabel: 'Clear city',
+                      onAction: () => controller.setCity(null),
+                    )
+                  : EmptyStateView(
+                      compact: true,
+                      icon: Icons.search_off_rounded,
+                      title: 'No jobs match',
+                      message:
+                          'Try a different keyword or remove a few filters.',
+                      actionLabel: 'Clear search & filters',
+                      onAction: () {
+                        _search.clear();
+                        controller.reset();
+                      },
+                    ),
             ),
 
             if (remaining > 0)
@@ -360,6 +389,42 @@ class _SortMenu extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// First chip on Explore: "City" opens the picker; a chosen city shows its
+/// name with a clear (x) button.
+class _CityChip extends StatelessWidget {
+  const _CityChip({
+    required this.city,
+    required this.onTap,
+    required this.onClear,
+  });
+
+  final String? city;
+  final VoidCallback onTap;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final chosen = city != null;
+    final fg = chosen ? AppColors.onInk : AppColors.ink;
+    return InputChip(
+      avatar: Icon(Icons.place_outlined, size: 18, color: fg),
+      label: Text(chosen ? city! : 'City'),
+      tooltip: chosen ? 'Change city' : 'Choose a city',
+      onPressed: onTap,
+      onDeleted: chosen ? onClear : null,
+      deleteIcon: Icon(Icons.close_rounded, size: 16, color: fg),
+      deleteButtonTooltipMessage: 'Clear city',
+      selected: chosen,
+      showCheckmark: false,
+      labelStyle: text.labelMedium?.copyWith(color: fg),
+      backgroundColor: AppColors.surfaceMuted,
+      selectedColor: AppColors.ink,
+      side: BorderSide(color: chosen ? AppColors.ink : Colors.transparent),
     );
   }
 }

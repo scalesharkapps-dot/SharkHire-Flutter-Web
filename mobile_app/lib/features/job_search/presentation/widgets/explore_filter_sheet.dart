@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/explore_providers.dart';
+import 'city_picker_sheet.dart';
 
 /// Bottom sheet with grouped filters and sort.
 class ExploreFilterSheet extends ConsumerWidget {
@@ -98,8 +99,7 @@ class ExploreFilterSheet extends ConsumerWidget {
                   ),
               ],
             ),
-            if (title == 'Region' &&
-                state.filters.contains(ExploreFilter.pakistan)) ...[
+            if (title == 'Region') ...[
               const SizedBox(height: AppSpacing.xl),
               Text('City', style: text.titleSmall),
               const SizedBox(height: AppSpacing.sm),
@@ -112,8 +112,19 @@ class ExploreFilterSheet extends ConsumerWidget {
                     state.city == null,
                     () => controller.setCity(null),
                   ),
-                  for (final c in pakistanCities)
-                    chip(c, state.city == c, () => controller.setCity(c)),
+                  if (state.filters.contains(ExploreFilter.pakistan))
+                    for (final c in pakistanCities)
+                      chip(c, state.city == c, () => controller.setCity(c)),
+                  // A chosen city outside the quick list stays visible.
+                  if (state.city != null &&
+                      !(state.filters.contains(ExploreFilter.pakistan) &&
+                          pakistanCities.contains(state.city)))
+                    chip(state.city!, true, () {}),
+                  ActionChip(
+                    avatar: const Icon(Icons.search_rounded, size: 18),
+                    label: const Text('Search all cities'),
+                    onPressed: () => CityPickerSheet.show(context),
+                  ),
                 ],
               ),
             ],

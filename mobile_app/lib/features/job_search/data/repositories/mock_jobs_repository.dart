@@ -1,5 +1,6 @@
 import '../../../../shared/models/job_summary.dart';
 import '../mock_jobs.dart';
+import '../city_match.dart';
 import 'jobs_repository.dart';
 
 /// MOCK – local example data with a small delay so loading states are
@@ -14,15 +15,16 @@ class MockJobsRepository implements JobsRepository {
   }
 
   @override
-  Future<List<JobSummary>> search(String query) async {
+  Future<List<JobSummary>> search(String query, {String? city}) async {
     final q = query.trim().toLowerCase();
     final all = await fetchJobs();
     return [
       for (final j in all)
-        if (j.title.toLowerCase().contains(q) ||
-            j.companyName.toLowerCase().contains(q) ||
-            j.location.toLowerCase().contains(q) ||
-            (j.category?.toLowerCase().contains(q) ?? false))
+        if ((j.title.toLowerCase().contains(q) ||
+                j.companyName.toLowerCase().contains(q) ||
+                j.location.toLowerCase().contains(q) ||
+                (j.category?.toLowerCase().contains(q) ?? false)) &&
+            (city == null || jobInCity(j, city)))
           j,
     ];
   }

@@ -3,6 +3,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../shared/models/backend_json.dart';
 import '../../../../shared/models/job_summary.dart';
+import '../city_match.dart';
 import 'jobs_repository.dart';
 
 /// REAL – jobs from the SharkHire API.
@@ -10,8 +11,9 @@ import 'jobs_repository.dart';
 /// * The default list combines published SharkHire jobs
 ///   (`GET /jobs/sharkhire`) with the user's recommendations
 ///   (`GET /recommendations/for-me`). Neither uses the job-search quota.
-/// * A typed search calls JSearch (`GET /jobs/search`, uses the RapidAPI
-///   quota) together with SharkHire jobs matching the same text.
+/// * A typed search, or a chosen city, calls JSearch (`GET /jobs/search`,
+///   uses the RapidAPI quota) together with SharkHire jobs matching the
+///   same text. `city` is sent only when the user picked one.
 class ApiJobsRepository implements JobsRepository {
   const ApiJobsRepository(this._api);
 
@@ -24,17 +26,32 @@ class ApiJobsRepository implements JobsRepository {
   }
 
   @override
-  Future<List<JobSummary>> search(String query) async {
+  Future<List<JobSummary>> search(String query, {String? city}) async {
+    final q = query.trim();
+    final c = city?.trim();
+    final hasCity = c != null && c.isNotEmpty;
     final results = await Future.wait([
       _api
           .get(
             ApiEndpoints.jobSearch,
-            query: {'query': query.trim(), 'num_pages': 1},
+            query: {
+              if (q.isNotEmpty) 'query': q,
+              if (hasCity) 'city': c,
+              'num_pages': 1,
+            },
           )
           .then(
             (data) => [for (final j in apiItems(data)) jobSummaryFromApi(j)],
           ),
-      _sharkHire(query.trim()),
+      // SharkHire's own jobs: same text, then kept to the city on our side.
+      _sharkHire(q.isEmpty ? null : q).then(
+        (jobs) => hasCity
+            ? [
+                for (final j in jobs)
+                  if (jobInCity(j, c)) j,
+              ]
+            : jobs,
+      ),
     ]);
     return _merge(results);
   }

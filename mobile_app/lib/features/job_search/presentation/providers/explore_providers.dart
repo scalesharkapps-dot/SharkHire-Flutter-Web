@@ -3,20 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_config.dart';
 import '../../../../shared/models/job_summary.dart';
+import '../../data/city_match.dart';
 import '../../data/repositories/jobs_repository.dart';
+
+export '../../data/city_match.dart' show pakistanCities, internationalCities;
 
 /// All jobs available to the user (internal + external).
 final allJobsProvider = FutureProvider<List<JobSummary>>(
   (ref) => ref.watch(jobsRepositoryProvider).fetchJobs(),
 );
 
-/// Server-side search for [query]. Waits for typing to pause so the
-/// job-search quota isn't spent on every keystroke.
+/// What the server searches for: text and, when chosen, a city.
+typedef JobSearchKey = ({String query, String? city});
+
+/// Server-side search for a [JobSearchKey]. Waits for typing to pause so
+/// the job-search quota isn't spent on every keystroke.
 final jobSearchProvider = FutureProvider.autoDispose
-    .family<List<JobSummary>, String>((ref, query) async {
+    .family<List<JobSummary>, JobSearchKey>((ref, key) async {
       await Future<void>.delayed(const Duration(milliseconds: 600));
       if (!ref.mounted) return const [];
-      return ref.watch(jobsRepositoryProvider).search(query);
+      return ref
+          .watch(jobsRepositoryProvider)
+          .search(key.query, city: key.city);
     });
 
 /// Quick filters shown as chips on Explore (from the project guide).
@@ -45,19 +53,6 @@ enum ExploreFilter {
   };
 }
 
-/// Cities offered under the Pakistan filter. Matched against the job's
-/// location text (e.g. "Lahore, Pakistan").
-const pakistanCities = [
-  'Karachi',
-  'Lahore',
-  'Islamabad',
-  'Rawalpindi',
-  'Faisalabad',
-  'Peshawar',
-  'Multan',
-  'Hyderabad',
-];
-
 enum ExploreSort {
   relevance('Relevance'),
   newest('Newest');
@@ -79,7 +74,7 @@ class ExploreState {
   final Set<ExploreFilter> filters;
   final ExploreSort sort;
 
-  /// City inside Pakistan; only applies while the Pakistan filter is on.
+  /// Chosen city (Pakistani or international), or null for any city.
   final String? city;
 
   /// Chips plus the city, for the badge on the filter button.
@@ -108,15 +103,38 @@ class ExploreController extends Notifier<ExploreState> {
   void toggle(ExploreFilter f) {
     final next = {...state.filters};
     next.contains(f) ? next.remove(f) : next.add(f);
-    state = state.copyWith(
-      filters: next,
-      clearCity: !next.contains(ExploreFilter.pakistan),
-    );
+    final city = state.city;
+    // A city that the new region rules out is cleared.
+    final cityOff =
+        city != null &&
+        ((isPakistanCity(city) &&
+                next.contains(ExploreFilter.international) &&
+                !next.contains(ExploreFilter.pakistan)) ||
+            (!isPakistanCity(city) &&
+                next.contains(ExploreFilter.pakistan) &&
+                !next.contains(ExploreFilter.international)) ||
+            (f == ExploreFilter.pakistan &&
+                !next.contains(f) &&
+                isPakistanCity(city)));
+    state = state.copyWith(filters: next, clearCity: cityOff);
   }
 
-  /// Picks a city in Pakistan, or all cities when [city] is null.
-  void setCity(String? city) =>
-      state = state.copyWith(city: city, clearCity: city == null);
+  /// Picks a city, or any city when [city] is null or blank. A city outside
+  /// the chosen region turns that region chip off.
+  void setCity(String? city) {
+    final c = city?.trim();
+    if (c == null || c.isEmpty) {
+      state = state.copyWith(clearCity: true);
+      return;
+    }
+    final next = {...state.filters};
+    if (isPakistanCity(c)) {
+      next.remove(ExploreFilter.international);
+    } else {
+      next.remove(ExploreFilter.pakistan);
+    }
+    state = state.copyWith(city: c, filters: next);
+  }
 
   void setSort(ExploreSort s) => state = state.copyWith(sort: s);
 
@@ -135,10 +153,15 @@ final exploreControllerProvider =
 final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
   final s = ref.watch(exploreControllerProvider);
   final q = s.query.trim().toLowerCase();
-  // With the real API, text search runs on the server (from 2 characters).
-  final serverSearch = ApiConfig.isConfigured && q.length >= 2;
+  final city = s.city;
+  // With the real API, text search (from 2 characters) and the city filter
+  // run on the server; `city` is only sent when one is chosen.
+  final serverSearch =
+      ApiConfig.isConfigured && (q.length >= 2 || city != null);
   final source = serverSearch
-      ? ref.watch(jobSearchProvider(q))
+      ? ref.watch(
+          jobSearchProvider((query: q.length >= 2 ? q : '', city: city)),
+        )
       : ref.watch(allJobsProvider);
   return source.whenData((jobs) {
     bool group(JobSummary j, Set<ExploreFilter> g) {
@@ -153,13 +176,10 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
       ExploreFilter.internship,
     };
     const regions = {ExploreFilter.pakistan, ExploreFilter.international};
-    final city = s.filters.contains(ExploreFilter.pakistan)
-        ? s.city?.toLowerCase()
-        : null;
 
     final result = jobs.where((j) {
       final text =
-          serverSearch ||
+          (serverSearch && q.length >= 2) ||
           q.isEmpty ||
           j.title.toLowerCase().contains(q) ||
           j.companyName.toLowerCase().contains(q) ||
@@ -168,9 +188,8 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
       return text &&
           group(j, types) &&
           group(j, regions) &&
-          (city == null ||
-              (!j.isInternational &&
-                  j.location.toLowerCase().contains(city))) &&
+          // The server already filtered by city; sample data is filtered here.
+          (city == null || serverSearch || jobInCity(j, city)) &&
           group(j, {ExploreFilter.remote}) &&
           group(j, {ExploreFilter.applyInApp});
     }).toList();
