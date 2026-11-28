@@ -13,8 +13,11 @@ class _FailingRepo implements JobsRepository {
   Future<List<JobSummary>> fetchJobs() async => throw Exception('offline');
 
   @override
-  Future<List<JobSummary>> search(String query, {String? city}) async =>
-      throw Exception('offline');
+  Future<List<JobSummary>> search(
+    String query, {
+    String? city,
+    bool remoteOnly = false,
+  }) async => throw Exception('offline');
 }
 
 void main() {

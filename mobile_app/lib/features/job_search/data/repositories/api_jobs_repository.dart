@@ -26,7 +26,11 @@ class ApiJobsRepository implements JobsRepository {
   }
 
   @override
-  Future<List<JobSummary>> search(String query, {String? city}) async {
+  Future<List<JobSummary>> search(
+    String query, {
+    String? city,
+    bool remoteOnly = false,
+  }) async {
     final q = query.trim();
     final c = city?.trim();
     final hasCity = c != null && c.isNotEmpty;
@@ -37,6 +41,9 @@ class ApiJobsRepository implements JobsRepository {
             query: {
               if (q.isNotEmpty) 'query': q,
               if (hasCity) 'city': c,
+              // Pro only; the backend answers 403 PRO_FEATURE_REQUIRED
+              // to anyone else.
+              if (remoteOnly) 'remote_jobs_only': true,
               'num_pages': 1,
             },
           )
@@ -45,12 +52,12 @@ class ApiJobsRepository implements JobsRepository {
           ),
       // SharkHire's own jobs: same text, then kept to the city on our side.
       _sharkHire(q.isEmpty ? null : q).then(
-        (jobs) => hasCity
-            ? [
-                for (final j in jobs)
-                  if (jobInCity(j, c)) j,
-              ]
-            : jobs,
+        (jobs) => [
+          for (final j in jobs)
+            if ((!hasCity || jobInCity(j, c)) &&
+                (!remoteOnly || j.workMode == WorkMode.remote))
+              j,
+        ],
       ),
     ]);
     return _merge(results);

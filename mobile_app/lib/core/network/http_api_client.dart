@@ -135,7 +135,15 @@ class HttpApiClient implements ApiClient {
     // SharkHire envelope: {"message": ..., "error": {"code", "message", "details"}}
     final remaining = remainingAttemptsOf(json);
     final error = json is Map ? json['error'] : null;
-    final code = error is Map ? error['code'] as String? : null;
+    final detail = json is Map ? json['detail'] : null;
+    final code =
+        (error is Map ? error['code'] as String? : null) ??
+        (json is Map && json['code'] is String
+            ? json['code'] as String
+            : null) ??
+        (detail is Map && detail['code'] is String
+            ? detail['code'] as String
+            : null);
     String? message;
     if (error is Map && error['message'] is String) {
       message = error['message'] as String;
@@ -143,6 +151,8 @@ class HttpApiClient implements ApiClient {
       message = json['message'] as String;
     } else if (json is Map && json['detail'] is String) {
       message = json['detail'] as String;
+    } else if (detail is Map && detail['message'] is String) {
+      message = detail['message'] as String;
     }
 
     final fields = <String, String>{};
@@ -178,8 +188,10 @@ class HttpApiClient implements ApiClient {
             ? const UnauthorizedException()
             : UnauthorizedException(message, code);
       case 403:
-        throw message == null
+        throw message == null && code == null
             ? const ForbiddenException()
+            : message == null
+            ? ForbiddenException(const ForbiddenException().message, code)
             : ForbiddenException(message, code);
       case 404:
         throw message == null

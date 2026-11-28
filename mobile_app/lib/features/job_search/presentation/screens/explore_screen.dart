@@ -9,6 +9,9 @@ import '../../../../shared/widgets/app_search_bar.dart';
 import '../../../../shared/widgets/state_views.dart';
 import '../../../saved_jobs/presentation/widgets/async_job_sliver.dart';
 import '../providers/explore_providers.dart';
+import '../../../subscription/presentation/providers/pro_access.dart';
+import '../../../subscription/presentation/widgets/pro_badge.dart';
+import '../../../subscription/presentation/widgets/pro_upgrade_dialog.dart';
 import '../widgets/city_picker_sheet.dart';
 import '../widgets/explore_filter_sheet.dart';
 
@@ -42,6 +45,16 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final controller = ref.read(exploreControllerProvider.notifier);
     final results = ref.watch(exploreResultsProvider);
     final cityLabel = state.city;
+    final pro = ref.watch(proAccessProvider);
+
+    // The backend is the final authority: if it refuses remote-only
+    // (403 PRO_FEATURE_REQUIRED), switch Remote off and offer Pro.
+    ref.listen(exploreResultsProvider, (_, next) {
+      if (next.hasError && isProFeatureRequired(next.error)) {
+        controller.removeRemote();
+        showRemoteProDialog(context);
+      }
+    });
     final text = Theme.of(context).textTheme;
 
     // A new search or filter starts again from the first page.
@@ -134,6 +147,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       );
                     }
                     final f = ExploreFilter.values[i - 1];
+                    if (f == ExploreFilter.remote && !pro) {
+                      return FilterChip(
+                        label: ProLockedLabel(f.label),
+                        selected: false,
+                        onSelected: (_) => showRemoteProDialog(context),
+                        labelStyle: text.labelMedium?.copyWith(
+                          color: AppColors.ink,
+                        ),
+                        backgroundColor: AppColors.surfaceMuted,
+                        side: const BorderSide(color: Colors.transparent),
+                      );
+                    }
                     final selected = state.filters.contains(f);
                     return FilterChip(
                       label: Text(f.label),

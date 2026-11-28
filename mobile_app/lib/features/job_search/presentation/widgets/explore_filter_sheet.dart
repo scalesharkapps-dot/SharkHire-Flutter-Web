@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/explore_providers.dart';
+import '../../../subscription/presentation/providers/pro_access.dart';
+import '../../../subscription/presentation/widgets/pro_badge.dart';
+import '../../../subscription/presentation/widgets/pro_upgrade_dialog.dart';
 import 'city_picker_sheet.dart';
 
 /// Bottom sheet with grouped filters and sort.
@@ -38,6 +41,7 @@ class ExploreFilterSheet extends ConsumerWidget {
     final state = ref.watch(exploreControllerProvider);
     final controller = ref.read(exploreControllerProvider.notifier);
     final count = ref.watch(exploreResultsProvider).value?.length;
+    final pro = ref.watch(proAccessProvider);
     final text = Theme.of(context).textTheme;
 
     Widget chip(String label, bool selected, VoidCallback onTap) => ChoiceChip(
@@ -92,11 +96,22 @@ class ExploreFilterSheet extends ConsumerWidget {
               runSpacing: AppSpacing.sm,
               children: [
                 for (final f in filters)
-                  chip(
-                    f.label,
-                    state.filters.contains(f),
-                    () => controller.toggle(f),
-                  ),
+                  if (f == ExploreFilter.remote && !pro)
+                    ChoiceChip(
+                      label: ProLockedLabel(f.label),
+                      selected: false,
+                      onSelected: (_) => showRemoteProDialog(context),
+                      labelStyle: text.labelMedium?.copyWith(
+                        color: AppColors.ink,
+                      ),
+                      side: BorderSide(color: AppColors.border),
+                    )
+                  else
+                    chip(
+                      f.label,
+                      state.filters.contains(f),
+                      () => controller.toggle(f),
+                    ),
               ],
             ),
             if (title == 'Region') ...[

@@ -65,6 +65,7 @@ void main() {
     test('sent only when a city is chosen; other parameters kept', () async {
       await ApiJobsRepository(api).search('flutter');
       expect(searchQuery(), {'query': 'flutter', 'num_pages': 1});
+      expect(searchQuery().containsKey('remote_jobs_only'), isFalse);
 
       api.calls.clear();
       await ApiJobsRepository(api).search('flutter', city: 'Karachi');

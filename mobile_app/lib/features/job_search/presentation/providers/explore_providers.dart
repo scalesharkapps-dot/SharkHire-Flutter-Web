@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_config.dart';
 import '../../../../shared/models/job_summary.dart';
+import '../../../subscription/presentation/providers/pro_access.dart';
 import '../../data/city_match.dart';
 import '../../data/repositories/jobs_repository.dart';
 
@@ -13,8 +14,9 @@ final allJobsProvider = FutureProvider<List<JobSummary>>(
   (ref) => ref.watch(jobsRepositoryProvider).fetchJobs(),
 );
 
-/// What the server searches for: text and, when chosen, a city.
-typedef JobSearchKey = ({String query, String? city});
+/// What the server searches for: text, a city when chosen, and remote-only
+/// (Pro users with the Remote filter on).
+typedef JobSearchKey = ({String query, String? city, bool remoteOnly});
 
 /// Server-side search for a [JobSearchKey]. Waits for typing to pause so
 /// the job-search quota isn't spent on every keystroke.
@@ -24,7 +26,7 @@ final jobSearchProvider = FutureProvider.autoDispose
       if (!ref.mounted) return const [];
       return ref
           .watch(jobsRepositoryProvider)
-          .search(key.query, city: key.city);
+          .search(key.query, city: key.city, remoteOnly: key.remoteOnly);
     });
 
 /// Quick filters shown as chips on Explore (from the project guide).
@@ -96,7 +98,21 @@ class ExploreState {
 
 class ExploreController extends Notifier<ExploreState> {
   @override
-  ExploreState build() => const ExploreState();
+  ExploreState build() {
+    // Losing Pro (expired, cancelled, signed out) locks Remote again.
+    ref.listen(proAccessProvider, (_, pro) {
+      if (!pro) removeRemote();
+    });
+    return const ExploreState();
+  }
+
+  /// Turns the Remote filter off (lost Pro, or the backend refused it).
+  void removeRemote() {
+    if (!state.filters.contains(ExploreFilter.remote)) return;
+    state = state.copyWith(
+      filters: {...state.filters}..remove(ExploreFilter.remote),
+    );
+  }
 
   void setQuery(String q) => state = state.copyWith(query: q);
 
@@ -154,13 +170,20 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
   final s = ref.watch(exploreControllerProvider);
   final q = s.query.trim().toLowerCase();
   final city = s.city;
-  // With the real API, text search (from 2 characters) and the city filter
-  // run on the server; `city` is only sent when one is chosen.
+  // Remote jobs are a Pro feature: free users never get them.
+  final pro = ref.watch(proAccessProvider);
+  final remoteOnly = pro && s.filters.contains(ExploreFilter.remote);
+  // With the real API, text search (from 2 characters), the city and the
+  // remote-only filter run on the server; each is sent only when chosen.
   final serverSearch =
-      ApiConfig.isConfigured && (q.length >= 2 || city != null);
+      ApiConfig.isConfigured && (q.length >= 2 || city != null || remoteOnly);
   final source = serverSearch
       ? ref.watch(
-          jobSearchProvider((query: q.length >= 2 ? q : '', city: city)),
+          jobSearchProvider((
+            query: q.length >= 2 ? q : '',
+            city: city,
+            remoteOnly: remoteOnly,
+          )),
         )
       : ref.watch(allJobsProvider);
   return source.whenData((jobs) {
@@ -186,6 +209,7 @@ final exploreResultsProvider = Provider<AsyncValue<List<JobSummary>>>((ref) {
           j.location.toLowerCase().contains(q) ||
           (j.category?.toLowerCase().contains(q) ?? false);
       return text &&
+          (pro || j.workMode != WorkMode.remote) &&
           group(j, types) &&
           group(j, regions) &&
           // The server already filtered by city; sample data is filtered here.

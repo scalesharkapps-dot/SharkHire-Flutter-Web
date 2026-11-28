@@ -15,7 +15,11 @@ class MockJobsRepository implements JobsRepository {
   }
 
   @override
-  Future<List<JobSummary>> search(String query, {String? city}) async {
+  Future<List<JobSummary>> search(
+    String query, {
+    String? city,
+    bool remoteOnly = false,
+  }) async {
     final q = query.trim().toLowerCase();
     final all = await fetchJobs();
     return [
@@ -24,7 +28,8 @@ class MockJobsRepository implements JobsRepository {
                 j.companyName.toLowerCase().contains(q) ||
                 j.location.toLowerCase().contains(q) ||
                 (j.category?.toLowerCase().contains(q) ?? false)) &&
-            (city == null || jobInCity(j, city)))
+            (city == null || jobInCity(j, city)) &&
+            (!remoteOnly || j.workMode == WorkMode.remote))
           j,
     ];
   }

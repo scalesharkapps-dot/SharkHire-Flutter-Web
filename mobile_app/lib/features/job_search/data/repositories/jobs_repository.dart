@@ -17,9 +17,14 @@ abstract interface class JobsRepository {
   /// Jobs shown before the user searches (Home, Explore).
   Future<List<JobSummary>> fetchJobs();
 
-  /// Jobs matching [query] (Explore search box), optionally only in [city].
-  /// [query] may be empty when only a city is chosen.
-  Future<List<JobSummary>> search(String query, {String? city});
+  /// Jobs matching [query] (Explore search box), optionally only in [city]
+  /// and only remote ones ([remoteOnly], a Pro feature). [query] may be
+  /// empty when only a city or remote is chosen.
+  Future<List<JobSummary>> search(
+    String query, {
+    String? city,
+    bool remoteOnly = false,
+  });
 }
 
 /// Uses the real API when the app is built with an API URL and mock data
